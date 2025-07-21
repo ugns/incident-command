@@ -197,6 +197,30 @@ resource "aws_lambda_permission" "apigw_volunteer_id_checkin_post" {
   source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/POST/volunteers/*/checkin"
 }
 
+# DELETE /volunteers/{volunteerId}
+resource "aws_api_gateway_method" "volunteer_id_delete" {
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.volunteer_id.id
+  http_method   = "DELETE"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_integration" "volunteer_id_delete" {
+  depends_on              = [aws_api_gateway_method.volunteer_id_delete]
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.volunteer_id.id
+  http_method             = aws_api_gateway_method.volunteer_id_delete.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.volunteers.invoke_arn
+}
+resource "aws_lambda_permission" "apigw_volunteer_id_delete" {
+  statement_id  = "AllowAPIGatewayInvokeVolunteerIdDelete"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.volunteers.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/DELETE/volunteers/*"
+}
+
 # CORS OPTIONS for /volunteers
 resource "aws_api_gateway_method" "volunteers_options" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id

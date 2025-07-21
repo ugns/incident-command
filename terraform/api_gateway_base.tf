@@ -43,7 +43,8 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     aws_api_gateway_integration.volunteer_id_get,
     aws_api_gateway_integration.volunteer_id_put,
     aws_api_gateway_integration.volunteer_id_dispatch_post,
-    aws_api_gateway_integration.volunteer_id_checkout_post
+    aws_api_gateway_integration.volunteer_id_checkout_post,
+    aws_api_gateway_integration.volunteer_id_delete
   ]
 }
 
