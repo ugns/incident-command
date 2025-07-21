@@ -54,7 +54,6 @@ resource "aws_api_gateway_integration" "auth_login_options" {
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
-  integration_http_method = "OPTIONS"
 }
 resource "aws_api_gateway_method_response" "auth_login_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
@@ -71,6 +70,7 @@ resource "aws_api_gateway_method_response" "auth_login_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "auth_login_options" {
+  depends_on = [aws_api_gateway_integration.auth_login_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.auth_login.id
   http_method = aws_api_gateway_method.auth_login_options.http_method
@@ -83,5 +83,4 @@ resource "aws_api_gateway_integration_response" "auth_login_options" {
     "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,POST'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
-  depends_on = [aws_api_gateway_integration.auth_login_options]
 }
