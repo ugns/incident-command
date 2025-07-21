@@ -197,6 +197,7 @@ resource "aws_api_gateway_method_response" "ics214_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "ics214_options" {
+  depends_on = [aws_api_gateway_integration.ics214_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.ics214.id
   http_method = aws_api_gateway_method.ics214_options.http_method
@@ -243,6 +244,7 @@ resource "aws_api_gateway_method_response" "ics214_periods_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "ics214_periods_options" {
+  depends_on = [aws_api_gateway_integration.ics214_periods_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.ics214_periods_list.id
   http_method = aws_api_gateway_method.ics214_periods_options.http_method
@@ -289,6 +291,7 @@ resource "aws_api_gateway_method_response" "ics214_period_id_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "ics214_period_id_options" {
+  depends_on = [aws_api_gateway_integration.ics214_period_id_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.ics214_period_id.id
   http_method = aws_api_gateway_method.ics214_period_id_options.http_method

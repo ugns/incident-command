@@ -228,6 +228,7 @@ resource "aws_api_gateway_method_response" "volunteers_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "volunteers_options" {
+  depends_on = [aws_api_gateway_integration.volunteers_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteers.id
   http_method = aws_api_gateway_method.volunteers_options.http_method
@@ -273,6 +274,7 @@ resource "aws_api_gateway_method_response" "volunteer_id_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "volunteer_id_options" {
+  depends_on = [aws_api_gateway_integration.volunteer_id_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id.id
   http_method = aws_api_gateway_method.volunteer_id_options.http_method
@@ -318,6 +320,7 @@ resource "aws_api_gateway_method_response" "volunteer_id_dispatch_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "volunteer_id_dispatch_options" {
+  depends_on = [aws_api_gateway_integration.volunteer_id_dispatch_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id_dispatch.id
   http_method = aws_api_gateway_method.volunteer_id_dispatch_options.http_method
@@ -364,6 +367,7 @@ resource "aws_api_gateway_method_response" "volunteers_checkin_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "volunteers_checkin_options" {
+  depends_on = [aws_api_gateway_integration.volunteers_checkin_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id_checkin.id
   http_method = aws_api_gateway_method.volunteers_checkin_options.http_method
@@ -409,6 +413,7 @@ resource "aws_api_gateway_method_response" "volunteer_id_checkout_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "volunteer_id_checkout_options" {
+  depends_on = [aws_api_gateway_integration.volunteer_id_checkout_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id_checkout.id
   http_method = aws_api_gateway_method.volunteer_id_checkout_options.http_method
