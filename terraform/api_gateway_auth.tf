@@ -70,7 +70,7 @@ resource "aws_api_gateway_method_response" "auth_login_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "auth_login_options" {
-  depends_on = [aws_api_gateway_integration.auth_login_options]
+  depends_on  = [aws_api_gateway_integration.auth_login_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.auth_login.id
   http_method = aws_api_gateway_method.auth_login_options.http_method
