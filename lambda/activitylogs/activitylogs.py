@@ -116,12 +116,18 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
 
     elif method == 'DELETE':
-        # Delete an activity log
+        # RBAC: Only allow admin users to delete
         if not log_id:
             return {
                 'statusCode': 400,
                 'headers': cors_headers,
                 'body': json.dumps({'error': 'Missing activity log id in path'})
+            }
+        if not claims.get('is_admin'):
+            return {
+                'statusCode': 403,
+                'headers': cors_headers,
+                'body': json.dumps({'error': 'Admin privileges required for delete'})
             }
         table.delete_item(Key={'org_id': org_id, 'logId': log_id})
         return {
