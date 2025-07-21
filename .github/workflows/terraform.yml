@@ -50,6 +50,7 @@ jobs:
 
     - name: Run Makefile to package Lambda code
       run: make
+      working-directory: ../
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
