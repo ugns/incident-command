@@ -8,8 +8,9 @@ data "aws_route53_zone" "api" {
 # Look up the ACM certificate for the custom domain
 # (Assumes var.api_subdomain is e.g., api.example.com)
 data "aws_acm_certificate" "api" {
-  domain      = var.api_subdomain
+  domain      = var.domain_name
   statuses    = ["ISSUED"]
+  types       = ["AMAZON_ISSUED"]
   most_recent = true
 }
 
