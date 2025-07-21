@@ -66,9 +66,12 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     elif method == 'POST':
         # Create a new ICS-214 period
         import uuid
+        from datetime import datetime
         body = json.loads(event.get('body', '{}'))
         if 'periodId' not in body:
             body['periodId'] = str(uuid.uuid4())
+        if 'startTime' not in body or not body['startTime']:
+            body['startTime'] = datetime.now().isoformat()
         body['org_id'] = claims.get('hd')
         table.put_item(Item=body)
         return {'statusCode': 201, 'body': json.dumps({'message': 'ICS-214 period created', 'id': body['periodId']})}
@@ -77,8 +80,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Update an existing ICS-214 period
         if not period_id:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Missing ICS-214 period id in path'})}
+        from datetime import datetime
         body = json.loads(event.get('body', '{}'))
         body['periodId'] = period_id
+        if 'startTime' not in body or not body['startTime']:
+            body['startTime'] = datetime.now().isoformat()
         body['org_id'] = claims.get('hd')
         table.put_item(Item=body)
         return {'statusCode': 200, 'body': json.dumps({'message': 'ICS-214 period updated', 'id': period_id})}
@@ -88,7 +94,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if not period_id:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Missing ICS-214 period id in path'})}
         table.delete_item(Key={'org_id': claims.get('hd'), 'periodId': period_id})
-        return {'statusCode': 204, 'body': ''}
+        return {'statusCode': 204, 'body': json.dumps({'message': 'ICS-214 period deleted', 'id': period_id})}
 
     else:
         return {'statusCode': 405, 'body': json.dumps({'error': 'Method not allowed'})}

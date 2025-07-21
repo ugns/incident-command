@@ -99,18 +99,18 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
   - Description: Create a new ICS-214 operating period
   - Request body:
     ```json
-    { "start_time": "string (optional)", "end_time": "string (optional)", "name": "string", ... }
+    { "startTime": "string (optional)", "endTime": "string (optional)", "name": "string", ... }
     ```
   - Response:
     ```json
-    { "period_id": "string", "start_time": "string", "end_time": "string", "name": "string", ... }
+    { "periodId": "string", "startTime": "string", "endTime": "string", "name": "string", ... }
     ```
 
 - **GET /ics214/periods**
   - Description: List all ICS-214 operating periods
   - Response:
     ```json
-    [ { "period_id": "string", "start_time": "string", "end_time": "string", "name": "string", ... } ]
+    [ { "periodId": "string", "startTime": "string", "endTime": "string", "name": "string", ... } ]
     ```
 
 - **GET /ics214/periods/{periodId}**
@@ -124,7 +124,7 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
   - Description: Update an ICS-214 operating period (e.g., close period by setting end_time)
   - Request body:
     ```json
-    { "start_time": "string", "end_time": "string", "name": "string", ... }
+    { "startTime": "string", "endTime": "string", "name": "string", ... }
     ```
   - Response: `204 No Content`
 
@@ -149,6 +149,7 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
 ```json
 {
   "volunteerId": "string",           // Unique identifier
+  "org_id": "string",
   "name": "string",
   "contactInfo": "string",
   "currentLocation": "string",
@@ -162,13 +163,14 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
 
 ```json
 {
-  "log_id": "string",                // Unique identifier
+  "logId": "string",                // Unique identifier
+  "org_id": "string",
+  "periodId": "string",             // ICS-214 period association
   "volunteerId": "string",           // Volunteer associated with the log
   "timestamp": "ISO8601 string",      // UTC timestamp
   "action": "string",                // e.g., 'checkin', 'dispatch', 'checkout'
   "location": "string",
-  "details": "string",
-  "period_id": "string",             // ICS-214 period association
+  "details": "string",              // Used for ICS-214 notable activities
   ...additional metadata...
 }
 ```
@@ -177,10 +179,11 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
 
 ```json
 {
-  "period_id": "string",         // Unique identifier
-  "start_time": "ISO8601 string", // UTC start
-  "end_time": "ISO8601 string",   // UTC end
-  "name": "string",              // Optional descriptive name
+  "periodId": "string",         // Unique identifier
+  "org_id": "string",
+  "startTime": "ISO8601 string", // UTC start
+  "endTime": "ISO8601 string",   // UTC end
+  "name": "string",              // Descriptive name
   ...additional metadata...
 }
 ```
@@ -191,7 +194,7 @@ All endpoints support CORS (OPTIONS preflight requests and appropriate headers).
 
 ## Deployment
 
-- Infrastructure is managed with Terraform in the `infra/` directory.
+- Infrastructure is managed with Terraform in the `terraform/` directory.
 - Lambda source code is in the `lambda/` directory.
 - See `requirements.txt` for Python dependencies.
 

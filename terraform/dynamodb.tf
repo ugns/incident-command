@@ -57,6 +57,10 @@ resource "aws_dynamodb_table" "volunteers" {
     name = "volunteerId"
     type = "S"
   }
+  attribute {
+    name = "name"
+    type = "S"
+  }
 }
 
 # Activity Logs Table
@@ -90,6 +94,10 @@ resource "aws_dynamodb_table" "activity_logs" {
   }
   attribute {
     name = "periodId"
+    type = "S"
+  }
+  attribute {
+    name = "timestamp"
     type = "S"
   }
 

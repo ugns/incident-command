@@ -41,11 +41,14 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     elif method == 'POST':
         # Create a new activity log
         import uuid
+        from datetime import datetime
         body = json.loads(event.get('body', '{}'))
         if 'logId' not in body:
             body['logId'] = str(uuid.uuid4())
         if 'periodId' not in body or not body['periodId']:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Missing required field: periodId'})}
+        if 'timestamp' not in body or not body['timestamp']:
+            body['timestamp'] = datetime.now().isoformat()
         body['org_id'] = org_id
         table.put_item(Item=body)
         return {'statusCode': 201, 'body': json.dumps({'message': 'Activity log created', 'id': body['logId']})}
@@ -54,10 +57,13 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Update an existing activity log
         if not log_id:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Missing activity log id in path'})}
+        from datetime import datetime
         body = json.loads(event.get('body', '{}'))
         body['logId'] = log_id
         if 'periodId' not in body or not body['periodId']:
             return {'statusCode': 400, 'body': json.dumps({'error': 'Missing required field: periodId'})}
+        if 'timestamp' not in body or not body['timestamp']:
+            body['timestamp'] = datetime.now().isoformat()
         body['org_id'] = org_id
         table.put_item(Item=body)
         return {'statusCode': 200, 'body': json.dumps({'message': 'Activity log updated', 'id': log_id})}
