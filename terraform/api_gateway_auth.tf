@@ -2,27 +2,27 @@
 
 # /auth resource
 resource "aws_api_gateway_resource" "auth" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  parent_id   = data.aws_api_gateway_resource.root.id
   path_part   = "auth"
 }
 
 # /auth/login resource
 resource "aws_api_gateway_resource" "auth_login" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   parent_id   = aws_api_gateway_resource.auth.id
   path_part   = "login"
 }
 
 # POST /auth/login
 resource "aws_api_gateway_method" "auth_login_post" {
-  rest_api_id   = aws_api_gateway_rest_api.api.id
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
   resource_id   = aws_api_gateway_resource.auth_login.id
   http_method   = "POST"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "auth_login_post" {
-  rest_api_id             = aws_api_gateway_rest_api.api.id
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.auth_login.id
   http_method             = aws_api_gateway_method.auth_login_post.http_method
   integration_http_method = "POST"
@@ -34,18 +34,18 @@ resource "aws_lambda_permission" "apigw_auth_callback" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.auth_callback.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/POST/auth/login"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/POST/auth/login"
 }
 
 # CORS OPTIONS /auth/login
 resource "aws_api_gateway_method" "auth_login_options" {
-  rest_api_id   = aws_api_gateway_rest_api.api.id
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
   resource_id   = aws_api_gateway_resource.auth_login.id
   http_method   = "OPTIONS"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "auth_login_options" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.auth_login.id
   http_method = aws_api_gateway_method.auth_login_options.http_method
   type        = "MOCK"
@@ -55,7 +55,7 @@ resource "aws_api_gateway_integration" "auth_login_options" {
   integration_http_method = "OPTIONS"
 }
 resource "aws_api_gateway_method_response" "auth_login_options" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.auth_login.id
   http_method = aws_api_gateway_method.auth_login_options.http_method
   status_code = "200"
@@ -69,7 +69,7 @@ resource "aws_api_gateway_method_response" "auth_login_options" {
   }
 }
 resource "aws_api_gateway_integration_response" "auth_login_options" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.auth_login.id
   http_method = aws_api_gateway_method.auth_login_options.http_method
   status_code = "200"
