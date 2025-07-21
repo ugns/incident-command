@@ -1,0 +1,49 @@
+import os
+import json
+import requests
+from jose import jwt
+from urllib.parse import parse_qs
+
+def lambda_handler(event, context):
+    # Get Google token from request (assume POST with JSON body)
+    try:
+        body = json.loads(event.get('body', '{}'))
+        google_token = body.get('token')
+        if not google_token:
+            return {"statusCode": 400, "body": json.dumps({"error": "Missing token"})}
+    except Exception:
+        return {"statusCode": 400, "body": json.dumps({"error": "Invalid request body"})}
+
+    # Validate Google token
+    google_client_id = os.environ.get('GOOGLE_CLIENT_ID')
+    try:
+        resp = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={google_token}')
+        if resp.status_code != 200:
+            return {"statusCode": 401, "body": json.dumps({"error": "Invalid Google token"})}
+        token_info = resp.json()
+        if token_info.get('aud') != google_client_id:
+            return {"statusCode": 401, "body": json.dumps({"error": "Token audience mismatch"})}
+    except Exception:
+        return {"statusCode": 401, "body": json.dumps({"error": "Token validation failed"})}
+
+    # Issue our own JWT for session
+    user_email = token_info.get('email')
+    user_name = token_info.get('name')
+    org_id = token_info.get('hd')
+    payload = {
+        'email': user_email,
+        'name': user_name,
+        'sub': token_info.get('sub'),
+        'iss': 'incident-cmd-backend',
+        'hd': org_id,
+    }
+    secret = os.environ.get('JWT_SECRET', 'changeme')
+    jwt_token = jwt.encode(payload, secret, algorithm='HS256')
+
+    return {
+        "statusCode": 200,
+        "body": json.dumps({
+            "jwt": jwt_token,
+            "user": {"email": user_email, "name": user_name, "org_id": org_id}
+        })
+    }

@@ -1,0 +1,63 @@
+import json
+import os
+import boto3
+from boto3.dynamodb.conditions import Key
+from client.auth import check_auth
+from typing import Any, Dict
+
+dynamodb = boto3.resource('dynamodb')
+table: Any = dynamodb.Table(os.environ.get('VOLUNTEERS_TABLE', 'volunteers'))  # type: ignore
+
+
+def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+    claims = check_auth(event)
+    org_id = claims.get('hd')
+    if not org_id:
+        return {'statusCode': 403, 'body': json.dumps({'error': 'Missing organization (hd claim) in token'})}
+    method = event.get('httpMethod', 'GET')
+    path_params = event.get('pathParameters') or {}
+    volunteer_id = path_params.get('volunteerId') if path_params else None
+
+    if method == 'GET':
+        if volunteer_id:
+            # Get a single volunteer
+            resp = table.get_item(
+                Key={'org_id': org_id, 'volunteerId': volunteer_id})
+            item = resp.get('Item')
+            if not item:
+                return {'statusCode': 404, 'body': json.dumps({'error': 'Volunteer not found'})}
+            return {'statusCode': 200, 'body': json.dumps(item)}
+        else:
+            # List all volunteers for this org
+            resp = table.query(KeyConditionExpression=Key('org_id').eq(org_id))
+            return {'statusCode': 200, 'body': json.dumps(resp.get('Items', []))}
+
+    elif method == 'POST':
+        # Create a new volunteer
+        import uuid
+        body = json.loads(event.get('body', '{}'))
+        if 'volunteerId' not in body:
+            body['volunteerId'] = str(uuid.uuid4())
+        body['org_id'] = org_id
+        table.put_item(Item=body)
+        return {'statusCode': 201, 'body': json.dumps({'message': 'Volunteer created', 'id': body['volunteerId']})}
+
+    elif method == 'PUT':
+        # Update an existing volunteer
+        if not volunteer_id:
+            return {'statusCode': 400, 'body': json.dumps({'error': 'Missing volunteer id in path'})}
+        body = json.loads(event.get('body', '{}'))
+        body['volunteerId'] = volunteer_id
+        body['org_id'] = org_id
+        table.put_item(Item=body)
+        return {'statusCode': 200, 'body': json.dumps({'message': 'Volunteer updated', 'id': volunteer_id})}
+
+    elif method == 'DELETE':
+        # Delete a volunteer
+        if not volunteer_id:
+            return {'statusCode': 400, 'body': json.dumps({'error': 'Missing volunteer id in path'})}
+        table.delete_item(Key={'org_id': org_id, 'volunteerId': volunteer_id})
+        return {'statusCode': 204, 'body': ''}
+
+    else:
+        return {'statusCode': 405, 'body': json.dumps({'error': 'Method not allowed'})}

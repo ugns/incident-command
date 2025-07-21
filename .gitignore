@@ -1,0 +1,101 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# VS Code
+.vscode/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Lambda build artifacts
+lambda/*.zip
+lambda/*/__pycache__/
+lambda/*/client/
+lambda/*/*.dist-info/
+lambda/*/*.egg-info/
+lambda/*/*.pyc
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+.terraform.lock.hcl
+
+# Local environment variables
+.env
+.env.*
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+
+# Python virtual environments
+venv/
+
+# System files
+Thumbs.db
+
+# Ignore editor swap/backup files
+*~
+*.swp
+*.swo
+
+# Ignore requirements lock files (if not used)
+poetry.lock
+Pipfile.lock
+
+# Ignore test output
+junit*.xml
+
+# Ignore coverage output
+.coverage
+
+# Ignore build output
+build/
+dist/
+
+# Ignore node_modules if any frontend
+node_modules/
