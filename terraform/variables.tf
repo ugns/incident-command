@@ -8,6 +8,12 @@ variable "google_client_id" {
   type        = string
 }
 
+variable "admin_emails" {
+  description = "Comma-delimited list of admin emails for the application"
+  type        = string
+  default     = ""  
+}
+
 variable "lambda_runtime" {
   description = "Runtime for Lambda functions"
   type        = string

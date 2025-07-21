@@ -4,11 +4,15 @@ import requests
 from jose import jwt
 from urllib.parse import parse_qs
 
+
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type,Authorization",
     "Access-Control-Allow-Methods": "POST,OPTIONS"
 }
+
+# RBAC: Comma-separated admin emails from environment variable
+ADMIN_EMAILS = set(email.strip() for email in os.environ.get('ADMIN_EMAILS', '').split(',') if email.strip())
 
 
 def lambda_handler(event, context):
@@ -58,12 +62,14 @@ def lambda_handler(event, context):
     user_email = token_info.get('email')
     user_name = token_info.get('name')
     org_id = token_info.get('hd')
+    is_admin = user_email in ADMIN_EMAILS
     payload = {
         'email': user_email,
         'name': user_name,
         'sub': token_info.get('sub'),
         'iss': 'incident-cmd-backend',
         'hd': org_id,
+        'is_admin': is_admin,
     }
     secret = os.environ.get('JWT_SECRET', 'changeme')
     jwt_token = jwt.encode(payload, secret, algorithm='HS256')
@@ -73,6 +79,11 @@ def lambda_handler(event, context):
         "headers": cors_headers,
         "body": json.dumps({
             "token": jwt_token,
-            "user": {"email": user_email, "name": user_name, "org_id": org_id}
+            "user": {
+                "email": user_email,
+                "name": user_name,
+                "org_id": org_id,
+                "is_admin": is_admin
+            }
         })
     }

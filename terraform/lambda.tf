@@ -74,6 +74,7 @@ resource "aws_lambda_function" "auth_callback" {
     variables = {
       GOOGLE_CLIENT_ID = var.google_client_id
       JWT_SECRET       = random_password.jwt_secret.result
+      ADMIN_EMAILS     = var.admin_emails
     }
   }
 }
