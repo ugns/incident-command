@@ -20,18 +20,18 @@ resource "aws_dynamodb_table" "ics214_periods" {
     name = "periodId"
     type = "S"
   }
-  attribute {
-    name = "startTime"
-    type = "S"
-  }
-  attribute {
-    name = "endTime"
-    type = "S"
-  }
-  attribute {
-    name = "name"
-    type = "S"
-  }
+  # attribute {
+  #   name = "startTime"
+  #   type = "S"
+  # }
+  # attribute {
+  #   name = "endTime"
+  #   type = "S"
+  # }
+  # attribute {
+  #   name = "name"
+  #   type = "S"
+  # }
   tags = {
     Name = "ics214_periods"
   }
@@ -57,9 +57,12 @@ resource "aws_dynamodb_table" "volunteers" {
     name = "volunteerId"
     type = "S"
   }
-  attribute {
-    name = "name"
-    type = "S"
+  # attribute {
+  #   name = "name"
+  #   type = "S"
+  # }
+  tags = {
+    Name = "volunteers"
   }
 }
 
@@ -96,9 +99,12 @@ resource "aws_dynamodb_table" "activity_logs" {
     name = "periodId"
     type = "S"
   }
-  attribute {
-    name = "timestamp"
-    type = "S"
+  # attribute {
+  #   name = "timestamp"
+  #   type = "S"
+  # }
+  tags = {
+    Name = "activity_logs"
   }
 
   global_secondary_index {
