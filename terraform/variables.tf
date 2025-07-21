@@ -11,7 +11,7 @@ variable "google_client_id" {
 variable "admin_emails" {
   description = "Comma-delimited list of admin emails for the application"
   type        = string
-  default     = ""  
+  default     = ""
 }
 
 variable "lambda_runtime" {
