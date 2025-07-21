@@ -5,13 +5,16 @@ from boto3.dynamodb.conditions import Key
 from client.auth import check_auth
 from typing import Any, Dict
 from pypdf import PdfReader, PdfWriter
-
 import base64
 import io
 
 dynamodb = boto3.resource('dynamodb')
 table: Any = dynamodb.Table(os.environ.get('ICS214_PERIODS_TABLE', 'ics214_periods'))  # type: ignore
-
+cors_headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
+}
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     claims = check_auth(event)
@@ -25,7 +28,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             resp = table.get_item(Key={'org_id': claims.get('hd'), 'periodId': period_id})
             period = resp.get('Item')
             if not period:
-                return {'statusCode': 404, 'body': json.dumps({'error': 'ICS-214 period not found'})}
+                return {
+                    'statusCode': 404,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'ICS-214 period not found'})
+                }
 
             # Fetch activity logs for this period (assume activity_logs table, same org_id, periodId)
             activitylogs_table: Any = dynamodb.Table(os.environ.get('ACTIVITY_LOGS_TABLE', 'activity_logs'))  # type: ignore
@@ -48,20 +55,32 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             if query.get('pdf') == '1':
                 pdf_bytes = generate_ics214_pdf(merged)
                 filename = f"ICS214-{period_id}.pdf" if period_id else "ICS214.pdf"
+                pdf_headers = {
+                    'Content-Type': 'application/pdf',
+                    'Content-Disposition': f'attachment; filename="{filename}"'
+                }
+                # Merge CORS headers
+                merged_headers = dict(cors_headers)
+                merged_headers.update(pdf_headers)
                 return {
                     'statusCode': 200,
-                    'headers': {
-                        'Content-Type': 'application/pdf',
-                        'Content-Disposition': f'attachment; filename="{filename}"'
-                    },
+                    'headers': merged_headers,
                     'body': base64.b64encode(pdf_bytes).decode('utf-8'),
                     'isBase64Encoded': True
                 }
-            return {'statusCode': 200, 'body': json.dumps(merged)}
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps(merged)
+                }
         else:
             # List all ICS-214 periods
             resp = table.query(KeyConditionExpression=Key('org_id').eq(claims.get('hd')))
-            return {'statusCode': 200, 'body': json.dumps(resp.get('Items', []))}
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps(resp.get('Items', []))
+            }
 
     elif method == 'POST':
         # Create a new ICS-214 period
@@ -74,12 +93,20 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body['startTime'] = datetime.now().isoformat()
         body['org_id'] = claims.get('hd')
         table.put_item(Item=body)
-        return {'statusCode': 201, 'body': json.dumps({'message': 'ICS-214 period created', 'id': body['periodId']})}
+        return {
+            'statusCode': 201,
+            'headers': cors_headers,
+            'body': json.dumps({'message': 'ICS-214 period created', 'id': body['periodId']})
+        }
 
     elif method == 'PUT':
         # Update an existing ICS-214 period
         if not period_id:
-            return {'statusCode': 400, 'body': json.dumps({'error': 'Missing ICS-214 period id in path'})}
+            return {
+                'statusCode': 400,
+                'headers': cors_headers,
+                'body': json.dumps({'error': 'Missing ICS-214 period id in path'})
+            }
         from datetime import datetime
         body = json.loads(event.get('body', '{}'))
         body['periodId'] = period_id
@@ -87,17 +114,33 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body['startTime'] = datetime.now().isoformat()
         body['org_id'] = claims.get('hd')
         table.put_item(Item=body)
-        return {'statusCode': 200, 'body': json.dumps({'message': 'ICS-214 period updated', 'id': period_id})}
+        return {
+            'statusCode': 200,
+            'headers': cors_headers,
+            'body': json.dumps({'message': 'ICS-214 period updated', 'id': period_id})
+        }
 
     elif method == 'DELETE':
         # Delete an ICS-214 period
         if not period_id:
-            return {'statusCode': 400, 'body': json.dumps({'error': 'Missing ICS-214 period id in path'})}
+            return {
+                'statusCode': 400,
+                'headers': cors_headers,
+                'body': json.dumps({'error': 'Missing ICS-214 period id in path'})
+            }
         table.delete_item(Key={'org_id': claims.get('hd'), 'periodId': period_id})
-        return {'statusCode': 204, 'body': json.dumps({'message': 'ICS-214 period deleted', 'id': period_id})}
+        return {
+            'statusCode': 204,
+            'headers': cors_headers,
+            'body': json.dumps({'message': 'ICS-214 period deleted', 'id': period_id})
+        }
 
     else:
-        return {'statusCode': 405, 'body': json.dumps({'error': 'Method not allowed'})}
+        return {
+            'statusCode': 405,
+            'headers': cors_headers,
+            'body': json.dumps({'error': 'Method not allowed'})
+        }
 
 
 def generate_ics214_pdf(item: Dict[str, Any]) -> bytes:
