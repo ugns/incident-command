@@ -138,7 +138,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         return {
             'statusCode': 204,
             'headers': cors_headers,
-            'body': json.dumps({'message': 'ICS-214 period deleted', 'id': period_id})
+            'body': ''
         }
 
     else:
