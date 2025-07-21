@@ -18,6 +18,33 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
   lifecycle {
     create_before_destroy = true
   }
+  depends_on = [
+    # ICS214 integrations
+    aws_api_gateway_integration.ics214_periods_post,
+    aws_api_gateway_integration.ics214_period_id_put,
+    aws_api_gateway_integration.ics214_period_id_delete,
+    aws_api_gateway_integration.ics214_periods_get,
+    aws_api_gateway_integration.ics214_period_id_get,
+    aws_api_gateway_integration.ics214_get,
+    aws_api_gateway_integration.ics214_options,
+    aws_api_gateway_integration.ics214_periods_options,
+    aws_api_gateway_integration.ics214_period_id_options,
+    # Auth integrations
+    aws_api_gateway_integration.auth_login_post,
+    aws_api_gateway_integration.auth_login_options,
+    # Activitylogs integrations
+    aws_api_gateway_integration.activitylogs_get,
+    aws_api_gateway_integration.activitylogs_get_id,
+    aws_api_gateway_integration.activitylogs_options,
+    aws_api_gateway_integration.activitylogs_id_options,
+    # Volunteers integrations
+    aws_api_gateway_integration.volunteers_get,
+    aws_api_gateway_integration.volunteers_post,
+    aws_api_gateway_integration.volunteer_id_get,
+    aws_api_gateway_integration.volunteer_id_put,
+    aws_api_gateway_integration.volunteer_id_dispatch_post,
+    aws_api_gateway_integration.volunteer_id_checkout_post
+  ]
 }
 
 resource "aws_api_gateway_stage" "v1" {
