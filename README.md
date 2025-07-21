@@ -15,13 +15,13 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
   - Response:
     ```json
     {
-      "jwt": "<backend_jwt>",
+      "token": "<backend_token>",
       "user": { "email": "string", "name": "string", "org_id": "string" }
     }
     ```
 
   - Notes:
-    - The returned `jwt` must be sent in the `Authorization: Bearer <jwt>` header for all subsequent API requests.
+    - The returned `token` must be sent in the `Authorization: Bearer <token>` header for all subsequent API requests.
     - This endpoint does not require authentication.
 
 ### Volunteers
