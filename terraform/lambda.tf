@@ -37,7 +37,8 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
         Resource = [
           aws_dynamodb_table.volunteers.arn,
           aws_dynamodb_table.activity_logs.arn,
-          "${aws_dynamodb_table.activity_logs.arn}/index/*"
+          "${aws_dynamodb_table.activity_logs.arn}/index/*",
+          aws_dynamodb_table.ics214_periods.arn
         ]
       },
       {
