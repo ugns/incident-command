@@ -22,12 +22,12 @@ resource "aws_api_gateway_method" "activitylogs_get" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "activitylogs_get" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.activitylogs.id
-  http_method = aws_api_gateway_method.activitylogs_get.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.activitylogs.id
+  http_method             = aws_api_gateway_method.activitylogs_get.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.activitylogs.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.activitylogs.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_activitylogs_get" {
   statement_id  = "AllowAPIGatewayInvokeActivityLogsGet"
@@ -45,12 +45,12 @@ resource "aws_api_gateway_method" "activitylogs_get_id" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "activitylogs_get_id" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.activitylogs_id.id
-  http_method = aws_api_gateway_method.activitylogs_get_id.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.activitylogs_id.id
+  http_method             = aws_api_gateway_method.activitylogs_get_id.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.activitylogs.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.activitylogs.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_activitylogs_get_id" {
   statement_id  = "AllowAPIGatewayInvokeActivityLogsGetId"
@@ -71,7 +71,7 @@ resource "aws_api_gateway_integration" "activitylogs_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.activitylogs.id
   http_method = aws_api_gateway_method.activitylogs_options.http_method
-  type = "MOCK"
+  type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
@@ -115,7 +115,7 @@ resource "aws_api_gateway_integration" "activitylogs_id_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.activitylogs_id.id
   http_method = aws_api_gateway_method.activitylogs_id_options.http_method
-  type = "MOCK"
+  type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }

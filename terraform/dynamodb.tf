@@ -7,10 +7,10 @@
 # The table also includes an org_id to scope periods to a specific organization.
 # The org_id is used to associate periods with their respective organizations.
 resource "aws_dynamodb_table" "ics214_periods" {
-  name           = "ics214_periods"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "org_id"
-  range_key      = "periodId"
+  name         = "ics214_periods"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "org_id"
+  range_key    = "periodId"
 
   attribute {
     name = "org_id"
@@ -44,10 +44,10 @@ resource "aws_dynamodb_table" "ics214_periods" {
 # The table also includes an org_id to scope volunteers to a specific organization.
 # The org_id is used to associate volunteers with their respective organizations.
 resource "aws_dynamodb_table" "volunteers" {
-  name           = "volunteers"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "org_id"
-  range_key      = "volunteerId"
+  name         = "volunteers"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "org_id"
+  range_key    = "volunteerId"
 
   attribute {
     name = "org_id"
@@ -75,10 +75,10 @@ resource "aws_dynamodb_table" "volunteers" {
 # The org_id is used to scope the logs to a specific organization.
 # The periodId is used to associate logs with specific operating periods.
 resource "aws_dynamodb_table" "activity_logs" {
-  name           = "activity_logs"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "org_id"
-  range_key      = "logId"
+  name         = "activity_logs"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "org_id"
+  range_key    = "logId"
 
   attribute {
     name = "org_id"
@@ -102,20 +102,20 @@ resource "aws_dynamodb_table" "activity_logs" {
   }
 
   global_secondary_index {
-    name               = "VolunteerIdIndex"
-    hash_key           = "org_id"
-    range_key          = "volunteerId"
-    projection_type    = "ALL"
-    read_capacity      = 1
-    write_capacity     = 1
+    name            = "VolunteerIdIndex"
+    hash_key        = "org_id"
+    range_key       = "volunteerId"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
   }
 
   global_secondary_index {
-    name               = "PeriodIdIndex"
-    hash_key           = "org_id"
-    range_key          = "periodId"
-    projection_type    = "ALL"
-    read_capacity      = 1
-    write_capacity     = 1
+    name            = "PeriodIdIndex"
+    hash_key        = "org_id"
+    range_key       = "periodId"
+    projection_type = "ALL"
+    read_capacity   = 1
+    write_capacity  = 1
   }
 }

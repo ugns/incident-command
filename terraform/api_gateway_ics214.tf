@@ -29,12 +29,12 @@ resource "aws_api_gateway_method" "ics214_periods_post" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "ics214_periods_post" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.ics214_periods_list.id
-  http_method = aws_api_gateway_method.ics214_periods_post.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.ics214_periods_list.id
+  http_method             = aws_api_gateway_method.ics214_periods_post.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.ics214.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.ics214.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_ics214_periods_post" {
   statement_id  = "AllowAPIGatewayInvokeIcs214PeriodsPost"
@@ -52,12 +52,12 @@ resource "aws_api_gateway_method" "ics214_period_id_put" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "ics214_period_id_put" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.ics214_period_id.id
-  http_method = aws_api_gateway_method.ics214_period_id_put.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.ics214_period_id.id
+  http_method             = aws_api_gateway_method.ics214_period_id_put.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.ics214.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.ics214.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_ics214_period_id_put" {
   statement_id  = "AllowAPIGatewayInvokeIcs214PeriodIdPut"
@@ -75,12 +75,12 @@ resource "aws_api_gateway_method" "ics214_period_id_delete" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "ics214_period_id_delete" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.ics214_period_id.id
-  http_method = aws_api_gateway_method.ics214_period_id_delete.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.ics214_period_id.id
+  http_method             = aws_api_gateway_method.ics214_period_id_delete.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.ics214.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.ics214.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_ics214_period_id_delete" {
   statement_id  = "AllowAPIGatewayInvokeIcs214PeriodIdDelete"
@@ -98,12 +98,12 @@ resource "aws_api_gateway_method" "ics214_periods_get" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "ics214_periods_get" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.ics214_periods_list.id
-  http_method = aws_api_gateway_method.ics214_periods_get.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.ics214_periods_list.id
+  http_method             = aws_api_gateway_method.ics214_periods_get.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.ics214.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.ics214.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_ics214_periods_get" {
   statement_id  = "AllowAPIGatewayInvokeIcs214PeriodsGet"
@@ -121,12 +121,12 @@ resource "aws_api_gateway_method" "ics214_period_id_get" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "ics214_period_id_get" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.ics214_period_id.id
-  http_method = aws_api_gateway_method.ics214_period_id_get.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.ics214_period_id.id
+  http_method             = aws_api_gateway_method.ics214_period_id_get.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.ics214.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.ics214.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_ics214_period_id_get" {
   statement_id  = "AllowAPIGatewayInvokeIcs214PeriodIdGet"
@@ -144,12 +144,12 @@ resource "aws_api_gateway_method" "ics214_get" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "ics214_get" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.ics214.id
-  http_method = aws_api_gateway_method.ics214_get.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.ics214.id
+  http_method             = aws_api_gateway_method.ics214_get.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.ics214.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.ics214.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_ics214_get" {
   statement_id  = "AllowAPIGatewayInvokeICS214Get"
@@ -170,7 +170,7 @@ resource "aws_api_gateway_integration" "ics214_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.ics214.id
   http_method = aws_api_gateway_method.ics214_options.http_method
-  type = "MOCK"
+  type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
@@ -215,7 +215,7 @@ resource "aws_api_gateway_integration" "ics214_periods_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.ics214_periods_list.id
   http_method = aws_api_gateway_method.ics214_periods_options.http_method
-  type = "MOCK"
+  type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
@@ -260,7 +260,7 @@ resource "aws_api_gateway_integration" "ics214_period_id_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.ics214_period_id.id
   http_method = aws_api_gateway_method.ics214_period_id_options.http_method
-  type = "MOCK"
+  type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }

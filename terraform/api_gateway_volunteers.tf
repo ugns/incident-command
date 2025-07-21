@@ -22,12 +22,12 @@ resource "aws_api_gateway_method" "volunteers_get" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "volunteers_get" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.volunteers.id
-  http_method = aws_api_gateway_method.volunteers_get.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.volunteers.id
+  http_method             = aws_api_gateway_method.volunteers_get.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.volunteers.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.volunteers.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_volunteers_get" {
   statement_id  = "AllowAPIGatewayInvokeVolunteersGet"
@@ -45,12 +45,12 @@ resource "aws_api_gateway_method" "volunteers_post" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "volunteers_post" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.volunteers.id
-  http_method = aws_api_gateway_method.volunteers_post.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.volunteers.id
+  http_method             = aws_api_gateway_method.volunteers_post.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.volunteers.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.volunteers.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_volunteers_post" {
   statement_id  = "AllowAPIGatewayInvokeVolunteersPost"
@@ -68,12 +68,12 @@ resource "aws_api_gateway_method" "volunteer_id_get" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "volunteer_id_get" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.volunteer_id.id
-  http_method = aws_api_gateway_method.volunteer_id_get.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.volunteer_id.id
+  http_method             = aws_api_gateway_method.volunteer_id_get.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.volunteers.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.volunteers.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_volunteer_id_get" {
   statement_id  = "AllowAPIGatewayInvokeVolunteerIdGet"
@@ -91,12 +91,12 @@ resource "aws_api_gateway_method" "volunteer_id_put" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "volunteer_id_put" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.volunteer_id.id
-  http_method = aws_api_gateway_method.volunteer_id_put.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.volunteer_id.id
+  http_method             = aws_api_gateway_method.volunteer_id_put.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.volunteers.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.volunteers.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_volunteer_id_put" {
   statement_id  = "AllowAPIGatewayInvokeVolunteerIdPut"
@@ -119,12 +119,12 @@ resource "aws_api_gateway_method" "volunteer_id_dispatch_post" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "volunteer_id_dispatch_post" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.volunteer_id_dispatch.id
-  http_method = aws_api_gateway_method.volunteer_id_dispatch_post.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.volunteer_id_dispatch.id
+  http_method             = aws_api_gateway_method.volunteer_id_dispatch_post.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.volunteers.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.volunteers.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_volunteer_id_dispatch_post" {
   statement_id  = "AllowAPIGatewayInvokeVolunteerIdDispatchPost"
@@ -147,12 +147,12 @@ resource "aws_api_gateway_method" "volunteer_id_checkout_post" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "volunteer_id_checkout_post" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.volunteer_id_checkout.id
-  http_method = aws_api_gateway_method.volunteer_id_checkout_post.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.volunteer_id_checkout.id
+  http_method             = aws_api_gateway_method.volunteer_id_checkout_post.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.volunteers.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.volunteers.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_volunteer_id_checkout_post" {
   statement_id  = "AllowAPIGatewayInvokeVolunteerIdCheckoutPost"
@@ -170,12 +170,12 @@ resource "aws_api_gateway_method" "volunteer_id_checkin_post" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "volunteer_id_checkin_post" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.volunteer_id_checkin.id
-  http_method = aws_api_gateway_method.volunteer_id_checkin_post.http_method
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.volunteer_id_checkin.id
+  http_method             = aws_api_gateway_method.volunteer_id_checkin_post.http_method
   integration_http_method = "POST"
-  type = "AWS_PROXY"
-  uri = aws_lambda_function.volunteers.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.volunteers.invoke_arn
 }
 resource "aws_lambda_permission" "apigw_volunteer_id_checkin_post" {
   statement_id  = "AllowAPIGatewayInvokeVolunteerIdCheckinPost"
@@ -196,7 +196,7 @@ resource "aws_api_gateway_integration" "volunteers_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteers.id
   http_method = aws_api_gateway_method.volunteers_options.http_method
-  type = "MOCK"
+  type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
@@ -241,7 +241,7 @@ resource "aws_api_gateway_integration" "volunteer_id_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id.id
   http_method = aws_api_gateway_method.volunteer_id_options.http_method
-  type = "MOCK"
+  type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
@@ -286,7 +286,7 @@ resource "aws_api_gateway_integration" "volunteer_id_dispatch_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id_dispatch.id
   http_method = aws_api_gateway_method.volunteer_id_dispatch_options.http_method
-  type = "MOCK"
+  type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
@@ -331,7 +331,7 @@ resource "aws_api_gateway_integration" "volunteers_checkin_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id_checkin.id
   http_method = aws_api_gateway_method.volunteers_checkin_options.http_method
-  type = "MOCK"
+  type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
@@ -377,7 +377,7 @@ resource "aws_api_gateway_integration" "volunteer_id_checkout_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id_checkout.id
   http_method = aws_api_gateway_method.volunteer_id_checkout_options.http_method
-  type = "MOCK"
+  type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
