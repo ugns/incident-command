@@ -1,3 +1,9 @@
+# /volunteers/{volunteerId}/checkin resource
+resource "aws_api_gateway_resource" "volunteer_id_checkin" {
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  parent_id   = aws_api_gateway_resource.volunteer_id.id
+  path_part   = "checkin"
+}
 # Volunteers API Gateway resources and methods
 
 # /volunteers resource
