@@ -7,6 +7,11 @@ from typing import Any, Dict
 
 dynamodb = boto3.resource('dynamodb')
 table: Any = dynamodb.Table(os.environ.get('VOLUNTEERS_TABLE', 'volunteers'))  # type: ignore
+cors_headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
+}
 
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -25,12 +30,24 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 Key={'org_id': org_id, 'volunteerId': volunteer_id})
             item = resp.get('Item')
             if not item:
-                return {'statusCode': 404, 'body': json.dumps({'error': 'Volunteer not found'})}
-            return {'statusCode': 200, 'body': json.dumps(item)}
+                return {
+                    'statusCode': 404,
+                    'headers': cors_headers,
+                    'body': json.dumps({'error': 'Volunteer not found'})
+                }
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps(item)
+            }
         else:
             # List all volunteers for this org
             resp = table.query(KeyConditionExpression=Key('org_id').eq(org_id))
-            return {'statusCode': 200, 'body': json.dumps(resp.get('Items', []))}
+            return {
+                'statusCode': 200,
+                'headers': cors_headers,
+                'body': json.dumps(resp.get('Items', []))
+            }
 
     elif method == 'POST':
         # Create a new volunteer
@@ -40,24 +57,48 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body['volunteerId'] = str(uuid.uuid4())
         body['org_id'] = org_id
         table.put_item(Item=body)
-        return {'statusCode': 201, 'body': json.dumps({'message': 'Volunteer created', 'id': body['volunteerId']})}
+        return {
+            'statusCode': 201,
+            'headers': cors_headers,
+            'body': json.dumps({'message': 'Volunteer created', 'id': body['volunteerId']})
+        }
 
     elif method == 'PUT':
         # Update an existing volunteer
         if not volunteer_id:
-            return {'statusCode': 400, 'body': json.dumps({'error': 'Missing volunteer id in path'})}
+            return {
+                'statusCode': 400,
+                'headers': cors_headers,
+                'body': json.dumps({'error': 'Missing volunteer id in path'})
+            }
         body = json.loads(event.get('body', '{}'))
         body['volunteerId'] = volunteer_id
         body['org_id'] = org_id
         table.put_item(Item=body)
-        return {'statusCode': 200, 'body': json.dumps({'message': 'Volunteer updated', 'id': volunteer_id})}
+        return {
+            'statusCode': 200,
+            'headers': cors_headers,
+            'body': json.dumps({'message': 'Volunteer updated', 'id': volunteer_id})
+        }
 
     elif method == 'DELETE':
         # Delete a volunteer
         if not volunteer_id:
-            return {'statusCode': 400, 'body': json.dumps({'error': 'Missing volunteer id in path'})}
+            return {
+                'statusCode': 400,
+                'headers': cors_headers,
+                'body': json.dumps({'error': 'Missing volunteer id in path'})
+            }
         table.delete_item(Key={'org_id': org_id, 'volunteerId': volunteer_id})
-        return {'statusCode': 204, 'body': ''}
+        return {
+            'statusCode': 204,
+            'headers': cors_headers,
+            'body': ''
+        }
 
     else:
-        return {'statusCode': 405, 'body': json.dumps({'error': 'Method not allowed'})}
+        return {
+            'statusCode': 405,
+            'headers': cors_headers,
+            'body': json.dumps({'error': 'Method not allowed'})
+        }
