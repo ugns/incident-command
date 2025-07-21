@@ -1,7 +1,7 @@
 # Makefile for preparing Lambda deployment packages with shared client code
 
 
-LAMBDA_DIRS = lambda/volunteers lambda/activitylogs lambda/ics214
+LAMBDA_DIRS = lambda/volunteers lambda/activitylogs lambda/ics214 lambda/auth
 CLIENT_SRC = lambda/client
 REQUIREMENTS = requirements.txt
 
