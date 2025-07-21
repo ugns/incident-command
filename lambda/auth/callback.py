@@ -43,7 +43,7 @@ def lambda_handler(event, context):
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "jwt": jwt_token,
+            "token": jwt_token,
             "user": {"email": user_email, "name": user_name, "org_id": org_id}
         })
     }
