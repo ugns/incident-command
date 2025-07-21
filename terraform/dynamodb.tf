@@ -112,8 +112,6 @@ resource "aws_dynamodb_table" "activity_logs" {
     hash_key        = "org_id"
     range_key       = "volunteerId"
     projection_type = "ALL"
-    read_capacity   = 1
-    write_capacity  = 1
   }
 
   global_secondary_index {
@@ -121,7 +119,5 @@ resource "aws_dynamodb_table" "activity_logs" {
     hash_key        = "org_id"
     range_key       = "periodId"
     projection_type = "ALL"
-    read_capacity   = 1
-    write_capacity  = 1
   }
 }
