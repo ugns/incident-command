@@ -4,27 +4,55 @@ import requests
 from jose import jwt
 from urllib.parse import parse_qs
 
+cors_headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+    "Access-Control-Allow-Methods": "POST,OPTIONS"
+}
+
+
 def lambda_handler(event, context):
     # Get Google token from request (assume POST with JSON body)
     try:
         body = json.loads(event.get('body', '{}'))
         google_token = body.get('token')
         if not google_token:
-            return {"statusCode": 400, "body": json.dumps({"error": "Missing token"})}
+            return {
+                "statusCode": 400,
+                "headers": cors_headers,
+                "body": json.dumps({"error": "Missing token"})
+            }
     except Exception:
-        return {"statusCode": 400, "body": json.dumps({"error": "Invalid request body"})}
+        return {
+            "statusCode": 400,
+            "headers": cors_headers,
+            "body": json.dumps({"error": "Invalid request body"})
+        }
 
     # Validate Google token
     google_client_id = os.environ.get('GOOGLE_CLIENT_ID')
     try:
-        resp = requests.get(f'https://oauth2.googleapis.com/tokeninfo?id_token={google_token}')
+        resp = requests.get(
+            f'https://oauth2.googleapis.com/tokeninfo?id_token={google_token}')
         if resp.status_code != 200:
-            return {"statusCode": 401, "body": json.dumps({"error": "Invalid Google token"})}
+            return {
+                "statusCode": 401,
+                "headers": cors_headers,
+                "body": json.dumps({"error": "Invalid Google token"})
+            }
         token_info = resp.json()
         if token_info.get('aud') != google_client_id:
-            return {"statusCode": 401, "body": json.dumps({"error": "Token audience mismatch"})}
+            return {
+                "statusCode": 401,
+                "headers": cors_headers,
+                "body": json.dumps({"error": "Token audience mismatch"})
+            }
     except Exception:
-        return {"statusCode": 401, "body": json.dumps({"error": "Token validation failed"})}
+        return {
+            "statusCode": 401,
+            "headers": cors_headers,
+            "body": json.dumps({"error": "Token validation failed"})
+        }
 
     # Issue our own JWT for session
     user_email = token_info.get('email')
@@ -42,6 +70,7 @@ def lambda_handler(event, context):
 
     return {
         "statusCode": 200,
+        "headers": cors_headers,
         "body": json.dumps({
             "token": jwt_token,
             "user": {"email": user_email, "name": user_name, "org_id": org_id}
