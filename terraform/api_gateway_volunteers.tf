@@ -350,7 +350,6 @@ resource "aws_api_gateway_integration" "volunteers_checkin_options" {
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
-  integration_http_method = "OPTIONS"
 }
 resource "aws_api_gateway_method_response" "volunteers_checkin_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
