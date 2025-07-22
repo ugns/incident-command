@@ -85,12 +85,13 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     elif method == 'POST':
         # Create a new ICS-214 period
         import uuid
-        from datetime import datetime
+        from datetime import datetime, timezone
         body = json.loads(event.get('body', '{}'))
         if 'periodId' not in body:
             body['periodId'] = str(uuid.uuid4())
         if 'startTime' not in body or not body['startTime']:
-            body['startTime'] = datetime.now().isoformat()
+            # Set startTime in UTC ISO 8601 format with 'Z' suffix
+            body['startTime'] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
         body['org_id'] = claims.get('hd')
         table.put_item(Item=body)
         return {

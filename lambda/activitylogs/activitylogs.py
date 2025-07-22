@@ -68,7 +68,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     elif method == 'POST':
         # Create a new activity log
         import uuid
-        from datetime import datetime
+        from datetime import datetime, timezone
         body = json.loads(event.get('body', '{}'))
         if 'logId' not in body:
             body['logId'] = str(uuid.uuid4())
@@ -79,7 +79,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Missing required field: periodId'})
             }
         if 'timestamp' not in body or not body['timestamp']:
-            body['timestamp'] = datetime.now().isoformat()
+            body['timestamp'] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
         body['org_id'] = org_id
         table.put_item(Item=body)
         return {
@@ -96,7 +96,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'headers': cors_headers,
                 'body': json.dumps({'error': 'Missing activity log id in path'})
             }
-        from datetime import datetime
+        from datetime import datetime, timezone
         body = json.loads(event.get('body', '{}'))
         body['logId'] = log_id
         if 'periodId' not in body or not body['periodId']:
@@ -106,7 +106,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'Missing required field: periodId'})
             }
         if 'timestamp' not in body or not body['timestamp']:
-            body['timestamp'] = datetime.now().isoformat()
+            body['timestamp'] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
         body['org_id'] = org_id
         table.put_item(Item=body)
         return {
