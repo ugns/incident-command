@@ -134,7 +134,7 @@ resource "aws_lambda_permission" "apigw_volunteer_id_delete" {
   source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/DELETE/volunteers/*"
 }
 
-# POST /volunteers/{volunteerId}/dispatch
+# PUT /volunteers/{volunteerId}/dispatch
 resource "aws_api_gateway_resource" "volunteer_id_dispatch" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   parent_id   = aws_api_gateway_resource.volunteer_id.id
@@ -151,7 +151,7 @@ resource "aws_api_gateway_integration" "volunteer_id_dispatch_put" {
   rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.volunteer_id_dispatch.id
   http_method             = aws_api_gateway_method.volunteer_id_dispatch_put.http_method
-  integration_http_method = "PUT"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.volunteers.invoke_arn
 }
@@ -163,7 +163,7 @@ resource "aws_lambda_permission" "apigw_volunteer_id_dispatch_put" {
   source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/PUT/volunteers/*/dispatch"
 }
 
-# POST /volunteers/{volunteerId}/checkout
+# PUT /volunteers/{volunteerId}/checkout
 resource "aws_api_gateway_resource" "volunteer_id_checkout" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   parent_id   = aws_api_gateway_resource.volunteer_id.id
@@ -180,7 +180,7 @@ resource "aws_api_gateway_integration" "volunteer_id_checkout_put" {
   rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.volunteer_id_checkout.id
   http_method             = aws_api_gateway_method.volunteer_id_checkout_put.http_method
-  integration_http_method = "PUT"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.volunteers.invoke_arn
 }
@@ -192,7 +192,7 @@ resource "aws_lambda_permission" "apigw_volunteer_id_checkout_put" {
   source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/PUT/volunteers/*/checkout"
 }
 
-# POST /volunteers/{volunteerId}/checkin
+# PUT /volunteers/{volunteerId}/checkin
 resource "aws_api_gateway_resource" "volunteer_id_checkin" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   parent_id   = aws_api_gateway_resource.volunteer_id.id
@@ -210,7 +210,7 @@ resource "aws_api_gateway_integration" "volunteer_id_checkin_put" {
   rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.volunteer_id_checkin.id
   http_method             = aws_api_gateway_method.volunteer_id_checkin_put.http_method
-  integration_http_method = "PUT"
+  integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.volunteers.invoke_arn
 }
