@@ -2,6 +2,9 @@
 resource "aws_api_gateway_rest_api" "incident_cmd" {
   name        = "incident-cmd-api"
   description = "API for Security Incident Command Application"
+  endpoint_configuration {
+    types = ["REGIONAL"]
+  }
 }
 
 data "aws_api_gateway_resource" "root" {
