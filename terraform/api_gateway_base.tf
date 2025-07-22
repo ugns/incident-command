@@ -38,7 +38,7 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     # Activitylogs integrations
     aws_api_gateway_integration.activitylogs_options,
     aws_api_gateway_integration.activitylogs_id_options,
-    aws_api_gateway_integration.activitylogs_get_id,
+    aws_api_gateway_integration.activitylogs_id_get,
     aws_api_gateway_integration.activitylogs_get,
     # Volunteers integrations
     aws_api_gateway_integration.volunteers_post,
