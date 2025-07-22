@@ -17,7 +17,7 @@ variable "admin_emails" {
 variable "lambda_runtime" {
   description = "Runtime for Lambda functions"
   type        = string
-  default     = "python3.11"
+  default     = "python3.13"
 }
 
 variable "domain_name" {
