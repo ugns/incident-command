@@ -39,22 +39,22 @@ resource "aws_lambda_permission" "apigw_activitylogs_get" {
 }
 
 # GET /activitylogs/{volunteerId}
-resource "aws_api_gateway_method" "activitylogs_get_id" {
+resource "aws_api_gateway_method" "activitylogs_id_get" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
   resource_id   = aws_api_gateway_resource.activitylogs_id.id
   http_method   = "GET"
   authorization = "NONE"
 }
-resource "aws_api_gateway_integration" "activitylogs_get_id" {
-  depends_on              = [aws_api_gateway_method.activitylogs_get_id]
+resource "aws_api_gateway_integration" "activitylogs_id_get" {
+  depends_on              = [aws_api_gateway_method.activitylogs_id_get]
   rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.activitylogs_id.id
-  http_method             = aws_api_gateway_method.activitylogs_get_id.http_method
+  http_method             = aws_api_gateway_method.activitylogs_id_get.http_method
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.activitylogs.invoke_arn
 }
-resource "aws_lambda_permission" "apigw_activitylogs_get_id" {
+resource "aws_lambda_permission" "apigw_activitylogs_id_get" {
   statement_id  = "AllowAPIGatewayInvokeActivityLogsGetId"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.activitylogs.function_name

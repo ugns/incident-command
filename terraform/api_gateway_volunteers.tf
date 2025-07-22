@@ -360,25 +360,25 @@ resource "aws_api_gateway_integration_response" "volunteer_id_dispatch_options" 
 }
 
 # CORS OPTIONS for /volunteers/{volunteerId}/checkin
-resource "aws_api_gateway_method" "volunteers_checkin_options" {
+resource "aws_api_gateway_method" "volunteer_id_checkin_options" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
   resource_id   = aws_api_gateway_resource.volunteer_id_checkin.id
   http_method   = "OPTIONS"
   authorization = "NONE"
 }
-resource "aws_api_gateway_integration" "volunteers_checkin_options" {
+resource "aws_api_gateway_integration" "volunteer_id_checkin_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id_checkin.id
-  http_method = aws_api_gateway_method.volunteers_checkin_options.http_method
+  http_method = aws_api_gateway_method.volunteer_id_checkin_options.http_method
   type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
 }
-resource "aws_api_gateway_method_response" "volunteers_checkin_options" {
+resource "aws_api_gateway_method_response" "volunteer_id_checkin_options" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id_checkin.id
-  http_method = aws_api_gateway_method.volunteers_checkin_options.http_method
+  http_method = aws_api_gateway_method.volunteer_id_checkin_options.http_method
   status_code = "200"
   response_models = {
     "application/json" = "Empty"
@@ -389,12 +389,12 @@ resource "aws_api_gateway_method_response" "volunteers_checkin_options" {
     "method.response.header.Access-Control-Allow-Origin"  = true
   }
 }
-resource "aws_api_gateway_integration_response" "volunteers_checkin_options" {
-  depends_on  = [aws_api_gateway_integration.volunteers_checkin_options]
+resource "aws_api_gateway_integration_response" "volunteer_id_checkin_options" {
+  depends_on  = [aws_api_gateway_integration.volunteer_id_checkin_options]
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   resource_id = aws_api_gateway_resource.volunteer_id_checkin.id
-  http_method = aws_api_gateway_method.volunteers_checkin_options.http_method
-  status_code = aws_api_gateway_method_response.volunteers_checkin_options.status_code
+  http_method = aws_api_gateway_method.volunteer_id_checkin_options.http_method
+  status_code = aws_api_gateway_method_response.volunteer_id_checkin_options.status_code
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
     "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,POST'"
