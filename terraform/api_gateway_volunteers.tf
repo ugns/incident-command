@@ -147,10 +147,10 @@ resource "aws_api_gateway_method" "volunteer_id_dispatch_put" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "volunteer_id_dispatch_put" {
-  depends_on              = [aws_api_gateway_method.volunteer_id_dispatch_post]
+  depends_on              = [aws_api_gateway_method.volunteer_id_dispatch_put]
   rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.volunteer_id_dispatch.id
-  http_method             = aws_api_gateway_method.volunteer_id_dispatch_post.http_method
+  http_method             = aws_api_gateway_method.volunteer_id_dispatch_put.http_method
   integration_http_method = "PUT"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.volunteers.invoke_arn
@@ -176,10 +176,10 @@ resource "aws_api_gateway_method" "volunteer_id_checkout_put" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "volunteer_id_checkout_put" {
-  depends_on              = [aws_api_gateway_method.volunteer_id_checkout_post]
+  depends_on              = [aws_api_gateway_method.volunteer_id_checkout_put]
   rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.volunteer_id_checkout.id
-  http_method             = aws_api_gateway_method.volunteer_id_checkout_post.http_method
+  http_method             = aws_api_gateway_method.volunteer_id_checkout_put.http_method
   integration_http_method = "PUT"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.volunteers.invoke_arn
@@ -206,9 +206,10 @@ resource "aws_api_gateway_method" "volunteer_id_checkin_put" {
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "volunteer_id_checkin_put" {
+  depends_on              = [aws_api_gateway_method.volunteer_id_checkin_put]
   rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.volunteer_id_checkin.id
-  http_method             = aws_api_gateway_method.volunteer_id_checkin_post.http_method
+  http_method             = aws_api_gateway_method.volunteer_id_checkin_put.http_method
   integration_http_method = "PUT"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.volunteers.invoke_arn

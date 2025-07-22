@@ -26,6 +26,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method = event.get('httpMethod', 'GET')
     path_params = event.get('pathParameters') or {}
     volunteer_id = path_params.get('volunteerId') if path_params else None
+    resource_path = event.get('resource', '') or event.get('path', '')
 
     if method == 'GET':
         if volunteer_id:
@@ -84,6 +85,14 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body = json.loads(event.get('body', '{}'))
         body['volunteerId'] = volunteer_id
         body['org_id'] = org_id
+        # Detect endpoint and set status if not provided
+        if 'status' not in body or not body['status']:
+            if '/checkin' in resource_path:
+                body['status'] = 'checked_in'
+            elif '/checkout' in resource_path:
+                body['status'] = 'checked_out'
+            elif '/dispatch' in resource_path:
+                body['status'] = 'dispatched'
         table.put_item(Item=body)
         return {
             'statusCode': 200,
