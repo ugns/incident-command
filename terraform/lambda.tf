@@ -73,9 +73,9 @@ resource "aws_lambda_function" "auth_callback" {
   source_code_hash = data.archive_file.auth.output_base64sha256
   environment {
     variables = {
-      GOOGLE_CLIENT_ID = var.google_client_id
-      JWT_SECRET       = random_password.jwt_secret.result
-      ADMIN_EMAILS     = var.admin_emails
+      GOOGLE_CLIENT_IDS = var.google_client_ids
+      JWT_SECRET        = random_password.jwt_secret.result
+      ADMIN_EMAILS      = var.admin_emails
     }
   }
 }

@@ -13,6 +13,7 @@ cors_headers = {
 
 # RBAC: Comma-separated admin emails from environment variable
 ADMIN_EMAILS = set(email.strip() for email in os.environ.get('ADMIN_EMAILS', '').split(',') if email.strip())
+ALLOWED_CLIENT_IDS = set(os.environ.get('GOOGLE_CLIENT_IDS', '').split(','))
 
 
 def lambda_handler(event, context):
@@ -34,7 +35,6 @@ def lambda_handler(event, context):
         }
 
     # Validate Google token
-    google_client_id = os.environ.get('GOOGLE_CLIENT_ID')
     try:
         resp = requests.get(
             f'https://oauth2.googleapis.com/tokeninfo?id_token={google_token}')
@@ -45,11 +45,11 @@ def lambda_handler(event, context):
                 "body": json.dumps({"error": "Invalid Google token"})
             }
         token_info = resp.json()
-        if token_info.get('aud') != google_client_id:
+        if token_info.get('aud') not in ALLOWED_CLIENT_IDS:
             return {
                 "statusCode": 401,
                 "headers": cors_headers,
-                "body": json.dumps({"error": "Token audience mismatch"})
+                "body": json.dumps({"error": "Token audience not allowed"})
             }
     except Exception:
         return {
