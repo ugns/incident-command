@@ -30,8 +30,6 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     aws_api_gateway_integration.ics214_period_id_options,
     aws_api_gateway_integration.ics214_period_id_get,
     aws_api_gateway_integration.ics214_period_id_delete,
-    aws_api_gateway_integration.ics214_options,
-    aws_api_gateway_integration.ics214_get,
     # Auth integrations
     aws_api_gateway_integration.auth_login_post,
     aws_api_gateway_integration.auth_login_options,

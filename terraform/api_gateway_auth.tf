@@ -38,7 +38,7 @@ resource "aws_lambda_permission" "apigw_auth_callback" {
   source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/POST/auth/login"
 }
 
-# CORS OPTIONS /auth/login
+# CORS OPTIONS for /auth/login
 resource "aws_api_gateway_method" "auth_login_options" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
   resource_id   = aws_api_gateway_resource.auth_login.id
