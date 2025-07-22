@@ -54,7 +54,13 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
 
     elif method == 'POST':
-        # Create a new volunteer
+        # Only allow POST to /volunteers (no volunteerId in path)
+        if volunteer_id:
+            return {
+                'statusCode': 405,
+                'headers': cors_headers,
+                'body': json.dumps({'error': 'Method not allowed: use PUT to update volunteer'})
+            }
         import uuid
         body = json.loads(event.get('body', '{}'))
         if 'volunteerId' not in body:

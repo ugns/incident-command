@@ -36,6 +36,7 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     # Activitylogs integrations
     aws_api_gateway_integration.activitylogs_options,
     aws_api_gateway_integration.activitylogs_get,
+    aws_api_gateway_integration.activitylogs_post,
     aws_api_gateway_integration.activitylog_id_options,
     aws_api_gateway_integration.activitylog_id_get,
     # Volunteers integrations
@@ -45,12 +46,12 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     aws_api_gateway_integration.volunteer_id_put,
     aws_api_gateway_integration.volunteer_id_options,
     aws_api_gateway_integration.volunteer_id_get,
-    aws_api_gateway_integration.volunteer_id_dispatch_post,
+    aws_api_gateway_integration.volunteer_id_dispatch_put,
     aws_api_gateway_integration.volunteer_id_dispatch_options,
     aws_api_gateway_integration.volunteer_id_delete,
-    aws_api_gateway_integration.volunteer_id_checkout_post,
+    aws_api_gateway_integration.volunteer_id_checkout_put,
     aws_api_gateway_integration.volunteer_id_checkout_options,
-    aws_api_gateway_integration.volunteer_id_checkin_post,
+    aws_api_gateway_integration.volunteer_id_checkin_put,
     aws_api_gateway_integration.volunteer_id_checkin_options,
   ]
 }

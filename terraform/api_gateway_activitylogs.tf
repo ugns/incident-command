@@ -38,6 +38,30 @@ resource "aws_lambda_permission" "apigw_activitylogs_get" {
   source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/GET/activitylogs"
 }
 
+# POST /activitylogs
+resource "aws_api_gateway_method" "activitylogs_post" {
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.activitylogs.id
+  http_method   = "POST"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_integration" "activitylogs_post" {
+  depends_on              = [aws_api_gateway_method.activitylogs_post]
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.activitylogs.id
+  http_method             = aws_api_gateway_method.activitylogs_post.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.activitylogs.invoke_arn
+}
+resource "aws_lambda_permission" "apigw_activitylogs_post" {
+  statement_id  = "AllowAPIGatewayInvokeActivityLogsPost"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.activitylogs.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/POST/activitylogs"
+}
+
 # GET /activitylogs/{volunteerId}
 resource "aws_api_gateway_method" "activitylog_id_get" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id

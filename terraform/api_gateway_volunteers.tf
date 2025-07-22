@@ -140,27 +140,27 @@ resource "aws_api_gateway_resource" "volunteer_id_dispatch" {
   parent_id   = aws_api_gateway_resource.volunteer_id.id
   path_part   = "dispatch"
 }
-resource "aws_api_gateway_method" "volunteer_id_dispatch_post" {
+resource "aws_api_gateway_method" "volunteer_id_dispatch_put" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
   resource_id   = aws_api_gateway_resource.volunteer_id_dispatch.id
-  http_method   = "POST"
+  http_method   = "PUT"
   authorization = "NONE"
 }
-resource "aws_api_gateway_integration" "volunteer_id_dispatch_post" {
+resource "aws_api_gateway_integration" "volunteer_id_dispatch_put" {
   depends_on              = [aws_api_gateway_method.volunteer_id_dispatch_post]
   rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.volunteer_id_dispatch.id
   http_method             = aws_api_gateway_method.volunteer_id_dispatch_post.http_method
-  integration_http_method = "POST"
+  integration_http_method = "PUT"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.volunteers.invoke_arn
 }
-resource "aws_lambda_permission" "apigw_volunteer_id_dispatch_post" {
+resource "aws_lambda_permission" "apigw_volunteer_id_dispatch_put" {
   statement_id  = "AllowAPIGatewayInvokeVolunteerIdDispatchPost"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.volunteers.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/POST/volunteers/*/dispatch"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/PUT/volunteers/*/dispatch"
 }
 
 # POST /volunteers/{volunteerId}/checkout
@@ -169,27 +169,27 @@ resource "aws_api_gateway_resource" "volunteer_id_checkout" {
   parent_id   = aws_api_gateway_resource.volunteer_id.id
   path_part   = "checkout"
 }
-resource "aws_api_gateway_method" "volunteer_id_checkout_post" {
+resource "aws_api_gateway_method" "volunteer_id_checkout_put" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
   resource_id   = aws_api_gateway_resource.volunteer_id_checkout.id
-  http_method   = "POST"
+  http_method   = "PUT"
   authorization = "NONE"
 }
-resource "aws_api_gateway_integration" "volunteer_id_checkout_post" {
+resource "aws_api_gateway_integration" "volunteer_id_checkout_put" {
   depends_on              = [aws_api_gateway_method.volunteer_id_checkout_post]
   rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.volunteer_id_checkout.id
   http_method             = aws_api_gateway_method.volunteer_id_checkout_post.http_method
-  integration_http_method = "POST"
+  integration_http_method = "PUT"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.volunteers.invoke_arn
 }
-resource "aws_lambda_permission" "apigw_volunteer_id_checkout_post" {
+resource "aws_lambda_permission" "apigw_volunteer_id_checkout_put" {
   statement_id  = "AllowAPIGatewayInvokeVolunteerIdCheckoutPost"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.volunteers.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/POST/volunteers/*/checkout"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/PUT/volunteers/*/checkout"
 }
 
 # POST /volunteers/{volunteerId}/checkin
@@ -199,26 +199,26 @@ resource "aws_api_gateway_resource" "volunteer_id_checkin" {
   path_part   = "checkin"
 }
 
-resource "aws_api_gateway_method" "volunteer_id_checkin_post" {
+resource "aws_api_gateway_method" "volunteer_id_checkin_put" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
   resource_id   = aws_api_gateway_resource.volunteer_id_checkin.id
-  http_method   = "POST"
+  http_method   = "PUT"
   authorization = "NONE"
 }
-resource "aws_api_gateway_integration" "volunteer_id_checkin_post" {
+resource "aws_api_gateway_integration" "volunteer_id_checkin_put" {
   rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
   resource_id             = aws_api_gateway_resource.volunteer_id_checkin.id
   http_method             = aws_api_gateway_method.volunteer_id_checkin_post.http_method
-  integration_http_method = "POST"
+  integration_http_method = "PUT"
   type                    = "AWS_PROXY"
   uri                     = aws_lambda_function.volunteers.invoke_arn
 }
-resource "aws_lambda_permission" "apigw_volunteer_id_checkin_post" {
+resource "aws_lambda_permission" "apigw_volunteer_id_checkin_put" {
   statement_id  = "AllowAPIGatewayInvokeVolunteerIdCheckinPost"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.volunteers.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/POST/volunteers/*/checkin"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/PUT/volunteers/*/checkin"
 }
 
 # CORS OPTIONS for /volunteers
@@ -354,7 +354,7 @@ resource "aws_api_gateway_integration_response" "volunteer_id_dispatch_options" 
   }
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Methods" = "'PUT,OPTIONS'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
@@ -397,7 +397,7 @@ resource "aws_api_gateway_integration_response" "volunteer_id_checkin_options" {
   status_code = aws_api_gateway_method_response.volunteer_id_checkin_options.status_code
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'OPTIONS,POST'"
+    "method.response.header.Access-Control-Allow-Methods" = "'PUT,OPTIONS'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
   response_templates = {
@@ -446,7 +446,7 @@ resource "aws_api_gateway_integration_response" "volunteer_id_checkout_options" 
   }
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Methods" = "'PUT,OPTIONS'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
