@@ -96,6 +96,4 @@ junit*.xml
 # Ignore build output
 build/
 dist/
-
-# Ignore node_modules if any frontend
-node_modules/
+fields.json
