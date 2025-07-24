@@ -132,6 +132,10 @@ def extract_normalized_fields(pdf_path):
                         norm_name = 'datetime_p1'
                     elif field_name == 'DateTime_16':
                         norm_name = 'datetime_p2'
+                    elif field_name == 'Signature_21':
+                        norm_name = 'signature_p1'
+                    elif field_name == 'Signature_22':
+                        norm_name = 'signature_p2'
 
                     if norm_name:
                         fields[norm_name] = {
