@@ -62,22 +62,29 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         logger.info(f"Method: {method}, report_type: {report_type}")
 
         if method == 'GET' and not report_type:
-            # Discover available *_form.py files
+            logger.info("Handling GET /reports endpoint (no report_type)")
             report_files = glob.glob(os.path.join(os.path.dirname(__file__), '*_form.py'))
+            logger.info(f"Found report_files: {report_files}")
             supported_reports = []
             for file_path in report_files:
+                logger.info(f"Processing file_path: {file_path}")
                 stem = Path(file_path).stem
+                logger.info(f"File stem: {stem}")
                 if not stem.endswith('_form'):
+                    logger.info(f"Skipping file (does not end with _form): {stem}")
                     continue
                 rtype = stem[:-5]  # strip '_form'
+                logger.info(f"Parsed report type: {rtype}")
                 try:
                     module = importlib.import_module(f'{rtype}_form')
+                    logger.info(f"Imported module: {rtype}_form")
                     media_type = getattr(module, 'MEDIA_TYPE', 'application/pdf')
+                    logger.info(f"Media type for {rtype}: {media_type}")
                 except Exception as e:
                     logger.error(f"Error importing module {rtype}_form: {e}\n{traceback.format_exc()}")
                     media_type = 'application/pdf'
                 supported_reports.append({'type': rtype, 'media_type': media_type})
-            logger.info(f"Supported reports: {supported_reports}")
+            logger.info(f"Final supported_reports: {supported_reports}")
             return {
                 'statusCode': 200,
                 'body': json.dumps({'reports': supported_reports}),
@@ -85,11 +92,15 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
 
         if report_type:
+            logger.info(f"Handling /reports/{report_type} endpoint")
             try:
                 body = event.get('body', '{}')
+                logger.info(f"Raw body: {body}")
                 if event.get('isBase64Encoded'):
                     body = base64.b64decode(body).decode('utf-8')
+                    logger.info(f"Decoded base64 body: {body}")
                 data = json.loads(body)
+                logger.info(f"Parsed JSON data: {data}")
             except Exception as e:
                 logger.error(f"Error parsing request body: {e}\n{traceback.format_exc()}")
                 return {
@@ -101,6 +112,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     }
                 }
             response = dynamic_report_handler(report_type, data)
+            logger.info(f"Report handler response: {response}")
             if response.get('statusCode') == 200:
                 headers = dict(response.get('headers', {}))
                 headers['Content-Type'] = response.get('media_type', 'application/pdf')
