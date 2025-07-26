@@ -71,7 +71,7 @@ REPORT_HANDLERS = {
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method = event.get('httpMethod', 'GET')
-    path_params = event.get('pathParameters', {})
+    path_params = event.get('pathParameters') or {}
     report_type = path_params.get('reportType')
 
     if method == 'GET' and not report_type:
