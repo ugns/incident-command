@@ -143,9 +143,30 @@ resource "aws_lambda_function" "periods" {
   source_code_hash = data.archive_file.periods.output_base64sha256
   environment {
     variables = {
-      ICS214_PERIODS_TABLE = aws_dynamodb_table.periods.name
-      ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
-      JWT_SECRET           = random_password.jwt_secret.result
+      ICS_PERIODS_TABLE = aws_dynamodb_table.periods.name
+      JWT_SECRET        = random_password.jwt_secret.result
+    }
+  }
+}
+
+# Reports: single zip, single handler
+data "archive_file" "reports" {
+  type        = "zip"
+  source_dir  = "../lambda/reports"
+  output_path = "../lambda/reports.zip"
+}
+resource "aws_lambda_function" "reports" {
+  function_name    = "reports"
+  filename         = data.archive_file.reports.output_path
+  handler          = "reports.lambda_handler"
+  runtime          = var.lambda_runtime
+  role             = aws_iam_role.lambda_exec.arn
+  source_code_hash = data.archive_file.reports.output_base64sha256
+  environment {
+    variables = {
+      ICS214_TEMPLATE_PDF = "ICS-214-v31.pdf"
+      ICS214_FIELDS_JSON  = "ICS-214-v31.json"
+      JWT_SECRET          = random_password.jwt_secret.result
     }
   }
 }
