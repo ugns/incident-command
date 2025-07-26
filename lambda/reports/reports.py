@@ -75,6 +75,14 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     continue
                 rtype = stem[:-5]  # strip '_form'
                 logger.info(f"Parsed report type: {rtype}")
+                # Log directory contents before import
+                current_dir = os.path.dirname(__file__)
+                try:
+                    dir_listing = os.listdir(current_dir)
+                    logger.info(f"Directory listing for {current_dir}: {dir_listing}")
+                except Exception as e:
+                    logger.error(f"Error listing directory {current_dir}: {e}")
+                logger.info(f"Attempting to import module: {rtype}_form")
                 try:
                     module = importlib.import_module(f'{rtype}_form')
                     logger.info(f"Imported module: {rtype}_form")
