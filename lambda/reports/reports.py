@@ -1,14 +1,16 @@
+import json
+import base64
+import os
+from io import BytesIO
+from pdf_form import generate_ics214_report
+from typing import Any, Dict
+
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type,Authorization",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
 }
 
-import json
-import base64
-import os
-from io import BytesIO
-from pdf_form import generate_ics214_report
 
 def load_fields_json(env_var, default_path):
     path = os.environ.get(env_var, default_path)
@@ -18,8 +20,10 @@ def load_fields_json(env_var, default_path):
     except Exception as e:
         raise RuntimeError(f"Failed to load fields JSON from {path}: {e}")
 
+
 def handle_ics214_report(data):
-    input_pdf_path = os.environ.get('ICS214_TEMPLATE_PDF', 'ics214_template.pdf')
+    input_pdf_path = os.environ.get(
+        'ICS214_TEMPLATE_PDF', 'ics214_template.pdf')
     try:
         fields_json = load_fields_json('ICS214_FIELDS_JSON', 'fields.json')
     except Exception as e:
@@ -58,12 +62,14 @@ def handle_ics214_report(data):
         'headers': {**cors_headers, 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="ics214.pdf"'}
     }
 
+
 REPORT_HANDLERS = {
     'ics214': handle_ics214_report,
     # Add new report types here
 }
 
-def lambda_handler(event, context):
+
+def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     method = event.get('httpMethod', 'GET')
     path_params = event.get('pathParameters', {})
     report_type = path_params.get('reportType')
@@ -86,7 +92,7 @@ def lambda_handler(event, context):
                 'headers': {**cors_headers, 'Content-Type': 'application/json'}
             }
         try:
-            body = event.get('body')
+            body = event.get('body', '{}')
             if event.get('isBase64Encoded'):
                 body = base64.b64decode(body).decode('utf-8')
             data = json.loads(body)
