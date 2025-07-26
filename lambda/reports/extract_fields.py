@@ -67,8 +67,6 @@ def extract_normalized_fields(pdf_path):
                         norm_name = 'incident_name_p1'
                     elif field_name == '1 Incident Name_20':
                         norm_name = 'incident_name_p2'
-                    elif field_name == '8 Prepared by Name':
-                        norm_name = 'prepared_by_name_p1'
 
                     # ICS-214 section 2, Operations Period
                     elif field_name == 'Date From':
@@ -114,14 +112,16 @@ def extract_normalized_fields(pdf_path):
                         m = re.match(r'DateTimeRow(\d+)(_2)?', field_name)
                         if m:
                             row_num = int(m.group(1))
-                            norm_name = f'datetime_row{row_num}_p{page_num+1}'
+                            norm_name = f'datetime_row{row_num:02d}_p{page_num+1}'
                     elif field_name and field_name.startswith('Notable ActivitiesRow'):
                         m = re.match(r'Notable ActivitiesRow(\d+)(_2)?', field_name)
                         if m:
                             row_num = int(m.group(1))
-                            norm_name = f'notable_activities_row{row_num}_p{page_num+1}'
+                            norm_name = f'notable_activities_row{row_num:02d}_p{page_num+1}'
 
                     # ISC-214 section 8, Prepared By
+                    elif field_name == '8 Prepared by Name':
+                        norm_name = 'prepared_by_name_p1'
                     elif field_name == '8 Prepared by Name_2':
                         norm_name = 'prepared_by_name_p2'
                     elif field_name == 'PositionTitle_15':
