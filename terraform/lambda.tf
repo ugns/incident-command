@@ -122,7 +122,9 @@ resource "aws_lambda_function" "openapi" {
   environment {
     variables = {
       REST_API_ID = aws_api_gateway_rest_api.incident_cmd.id
-      STAGE_NAME  = aws_api_gateway_stage.v1.stage_name
+      # TODO: Remember to set the stage name when it changes
+      # STAGE_NAME  = aws_api_gateway_stage.v1.stage_name
+      STAGE_NAME  = "v1"
     }
   }
 }
