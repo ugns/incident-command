@@ -6,7 +6,7 @@ resource "aws_api_gateway_rest_api" "incident_cmd" {
     types = ["REGIONAL"]
   }
   # binary_media_types = ["application/pdf", "*/*"]
-  binary_media_types = ["application/pdf", ]
+  binary_media_types = ["application/pdf", "application/octet-stream"]
 }
 
 data "aws_api_gateway_resource" "root" {
