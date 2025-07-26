@@ -233,6 +233,7 @@ resource "aws_lambda_function" "reports" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.reports.output_base64sha256
+  timeout          = 30
   environment {
     variables = {
       ICS214_TEMPLATE_PDF = "ICS-214-v31.pdf"
