@@ -1,6 +1,6 @@
 import sys
 import json
-from PyPDF2 import PdfReader
+from pypdf import PdfReader
 import re
 
 def extract_field_widgets(annot_obj, parent_field_name=None):
