@@ -6,6 +6,9 @@ from datetime import datetime
 from io import BytesIO
 import copy
 import os
+import json
+
+MEDIA_TYPE = 'application/pdf'
 
 
 def overlay_page_number(base_page, page_num, total_pages, x=42, y=63):
@@ -26,7 +29,7 @@ def overlay_page_number(base_page, page_num, total_pages, x=42, y=63):
     return base_page
 
 
-def create_ics214_overlay(entries, field_map, page_num, report, offset=2):
+def create_overlay(entries, field_map, page_num, report, offset=2):
     packet = BytesIO()
     can = canvas.Canvas(packet, pagesize=letter)
     can.setFont("Helvetica", 10)
@@ -176,12 +179,17 @@ def create_ics214_overlay(entries, field_map, page_num, report, offset=2):
     return PdfReader(packet)
 
 
-def generate_ics214_report(
-    input_pdf_path,
-    output_pdf,
-    fields_json,
-    report
-):
+def generate_report(data):
+    # Load input PDF path and fields JSON from environment or defaults
+    input_pdf_path = os.environ.get('ICS214_TEMPLATE_PDF', 'ics214_template.pdf')
+    fields_json_path = os.environ.get('ICS214_FIELDS_JSON', 'fields.json')
+    try:
+        with open(fields_json_path, 'r') as f:
+            fields_json = json.load(f)
+    except Exception as e:
+        raise RuntimeError(f"Failed to load fields JSON from {fields_json_path}: {e}")
+
+    report = data
     log_entries = report.get('activityLogs', [])
     reader = PdfReader(input_pdf_path)
     writer = PdfWriter()
@@ -192,7 +200,7 @@ def generate_ics214_report(
                        other_page_capacity - 1) // other_page_capacity)
     # Fill first page
     first_batch = log_entries[:first_page_capacity]
-    overlay_pdf = create_ics214_overlay(
+    overlay_pdf = create_overlay(
         first_batch, fields_json, page_num=0, report=report)
     first_page = reader.pages[0]
     first_page.merge_page(overlay_pdf.pages[0])
@@ -208,7 +216,7 @@ def generate_ics214_report(
     for page_num, i in enumerate(range(0, len(remaining), other_page_capacity), start=1):
         batch = remaining[i:i+other_page_capacity]
         # Use a blank overlay for subsequent pages (no fillable fields)
-        overlay_pdf = create_ics214_overlay(
+        overlay_pdf = create_overlay(
             batch, fields_json, page_num=1, report=report)
         # Use a blank copy of page 2 (remove annotations if any)
         page2 = copy.deepcopy(reader.pages[1])
@@ -255,10 +263,8 @@ def generate_ics214_report(
             owner_password=owner_pwd
         )
 
-    # Support both file path (str) and file-like object
-    if isinstance(output_pdf, str):
-        with open(output_pdf, 'wb') as f:
-            locked_writer.write(f)
-    else:
-        # Assume file-like object
-        locked_writer.write(output_pdf)
+    # Always use in-memory buffer for output
+    final_buffer = BytesIO()
+    locked_writer.write(final_buffer)
+    final_buffer.seek(0)
+    return final_buffer.read()
