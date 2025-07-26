@@ -51,7 +51,7 @@ clean:
 	@echo "Cleaning all subdirectories and dependencies from Lambda directories..."
 	@for dir in $(LAMBDA_DIRS); do \
 		find $$dir -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +; \
+		find $$dir -name '*.pyc' -o -name '*.so' -delete; \
 		find $$dir -name 'six.py' -delete; \
-		find $$dir -name '*.pyc' -delete; \
 	done
 	@echo "Done."
