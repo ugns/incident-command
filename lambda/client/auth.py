@@ -1,6 +1,7 @@
 import os
 import json
 from jose import jwt, JWTError
+from jose.exceptions import ExpiredSignatureError
 import requests
 
 
@@ -9,10 +10,17 @@ def get_jwt_secret():
 
 
 def verify_jwt_token(token):
+    import time
     secret = get_jwt_secret()
     try:
         payload = jwt.decode(token, secret, algorithms=['HS256'])
+        # Manual expiration check for tokens missing 'exp' or with expired 'exp'
+        if 'exp' not in payload or payload['exp'] < int(time.time()):
+            return None
         return payload
+    except ExpiredSignatureError:
+        # Token expired, treat as logged out
+        return None
     except JWTError:
         return None
 
