@@ -64,23 +64,42 @@ REPORT_HANDLERS = {
 }
 
 def lambda_handler(event, context):
-    report_type = event.get('pathParameters', {}).get('reportType')
-    handler = REPORT_HANDLERS.get(report_type)
-    if not handler:
+    method = event.get('httpMethod', 'GET')
+    path_params = event.get('pathParameters', {})
+    report_type = path_params.get('reportType')
+
+    if method == 'GET' and not report_type:
+        # GET /reports: return supported report types
+        supported_reports = list(REPORT_HANDLERS.keys())
         return {
-            'statusCode': 400,
-            'body': json.dumps({'error': 'Unsupported reportType'}),
+            'statusCode': 200,
+            'body': json.dumps({'reports': supported_reports}),
             'headers': {**cors_headers, 'Content-Type': 'application/json'}
         }
-    try:
-        body = event.get('body')
-        if event.get('isBase64Encoded'):
-            body = base64.b64decode(body).decode('utf-8')
-        data = json.loads(body)
-    except Exception as e:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({'error': 'Invalid request body', 'details': str(e)}),
-            'headers': {**cors_headers, 'Content-Type': 'application/json'}
-        }
-    return handler(data)
+
+    if report_type:
+        handler = REPORT_HANDLERS.get(report_type)
+        if not handler:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': 'Unsupported reportType'}),
+                'headers': {**cors_headers, 'Content-Type': 'application/json'}
+            }
+        try:
+            body = event.get('body')
+            if event.get('isBase64Encoded'):
+                body = base64.b64decode(body).decode('utf-8')
+            data = json.loads(body)
+        except Exception as e:
+            return {
+                'statusCode': 400,
+                'body': json.dumps({'error': 'Invalid request body', 'details': str(e)}),
+                'headers': {**cors_headers, 'Content-Type': 'application/json'}
+            }
+        return handler(data)
+
+    return {
+        'statusCode': 404,
+        'body': json.dumps({'error': 'Not found'}),
+        'headers': {**cors_headers, 'Content-Type': 'application/json'}
+    }
