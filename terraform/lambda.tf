@@ -1,3 +1,5 @@
+data "aws_region" "current" {}
+
 # Generate a random JWT secret
 resource "random_password" "jwt_secret" {
   length  = 32
@@ -15,6 +17,24 @@ resource "aws_iam_role" "lambda_exec" {
       Principal = {
         Service = "lambda.amazonaws.com"
       }
+    }]
+  })
+}
+
+# Lambda IAM Policies
+resource "aws_iam_role_policy" "lambda_basic_execution" {
+  name = "incident_cmd_lambda_basic_execution"
+  role = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "logs:CreateLogGroup",
+        "logs:CreateLogStream",
+        "logs:PutLogEvents"
+      ]
+      Resource = "arn:aws:logs:*:*:*"
     }]
   })
 }
@@ -45,11 +65,39 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
       {
         Effect = "Allow"
         Action = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
+          "dynamodb:BatchGetItem",
+          "dynamodb:BatchWriteItem"
         ]
-        Resource = "arn:aws:logs:*:*:*"
+        Resource = [
+          aws_dynamodb_table.volunteers.arn,
+          aws_dynamodb_table.activity_logs.arn,
+          "${aws_dynamodb_table.activity_logs.arn}/index/*",
+          aws_dynamodb_table.periods.arn
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "lambda_apigateway_policy" {
+  name = "incident_cmd_lambda_apigateway_policy"
+  role = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "apigateway:GET"
+        ]
+        Resource = [
+          format(
+            "arn:aws:apigateway:%s::/restapis/%s/stages/%s/exports/*",
+            data.aws_region.current.name,
+            aws_api_gateway_rest_api.incident_cmd.id,
+            aws_api_gateway_stage.v1.stage_name
+          )
+        ]
       }
     ]
   })
@@ -57,6 +105,28 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
 
 # Lambda Functions
 
+
+# OpenAPI Export Lambda
+data "archive_file" "openapi" {
+  type        = "zip"
+  source_dir  = "../lambda/docs"
+  output_path = "../lambda/openapi.zip"
+}
+
+resource "aws_lambda_function" "openapi" {
+  function_name    = "openapi_export"
+  filename         = data.archive_file.openapi.output_path
+  handler          = "openapi.lambda_handler"
+  runtime          = var.lambda_runtime
+  role             = aws_iam_role.lambda_exec.arn
+  source_code_hash = data.archive_file.openapi.output_base64sha256
+  environment {
+    variables = {
+      REST_API_ID = aws_api_gateway_rest_api.incident_cmd.id
+      STAGE_NAME  = aws_api_gateway_stage.v1.stage_name
+    }
+  }
+}
 
 # Auth: single zip for callback handler
 data "archive_file" "auth" {

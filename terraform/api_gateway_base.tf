@@ -14,6 +14,37 @@ data "aws_api_gateway_resource" "root" {
   path        = "/"
 }
 
+# /openapi.json resource for OpenAPI spec
+resource "aws_api_gateway_resource" "openapi_json" {
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  parent_id   = data.aws_api_gateway_resource.root.id
+  path_part   = "openapi.json"
+}
+
+# GET /openapi.json
+resource "aws_api_gateway_method" "openapi_json_get" {
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.openapi_json.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_integration" "openapi_json_get" {
+  depends_on              = [aws_api_gateway_method.openapi_json_get]
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.openapi_json.id
+  http_method             = aws_api_gateway_method.openapi_json_get.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.openapi.invoke_arn
+}
+resource "aws_lambda_permission" "apigw_openapi_json_get" {
+  statement_id  = "AllowAPIGatewayInvokeOpenAPI"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.openapi.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/GET/openapi.json"
+}
+
 # API Gateway deployment and stage
 resource "aws_api_gateway_deployment" "incident_cmd" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
@@ -24,6 +55,7 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     create_before_destroy = true
   }
   depends_on = [
+    aws_api_gateway_integration.openapi_json_get,
     # Auth integrations
     aws_api_gateway_integration.auth_login_post,
     aws_api_gateway_integration.auth_login_options,
