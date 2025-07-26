@@ -4,6 +4,7 @@ from typing import Any, Dict
 import importlib
 import glob
 import os
+from pathlib import Path
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
@@ -56,10 +57,10 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         report_files = glob.glob(os.path.join(os.path.dirname(__file__), '*_form.py'))
         supported_reports = []
         for file_path in report_files:
-            basename = os.path.basename(file_path)
-            if not basename.endswith('_form.py'):
+            stem = Path(file_path).stem
+            if not stem.endswith('_form'):
                 continue
-            rtype = basename[:-9]  # strip '_form.py'
+            rtype = stem[:-5]  # strip '_form'
             try:
                 module = importlib.import_module(f'{rtype}_form')
                 media_type = getattr(module, 'MEDIA_TYPE', 'application/pdf')
