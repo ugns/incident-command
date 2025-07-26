@@ -6,10 +6,22 @@ CLIENT_SRC = lambda/client
 REQUIREMENTS = requirements.txt
 
 
-.PHONY: all clean prepare-lambdas install-deps
+
+.PHONY: all clean prepare-lambdas install-deps extract-fields
 
 
-all: install-deps prepare-lambdas
+
+all: install-deps extract-fields prepare-lambdas
+extract-fields:
+	@echo "Extracting fields JSON from PDF templates in lambda/reports..."
+	cd lambda/reports && \
+	for pdf in *.pdf; do \
+		json="$${pdf%.pdf}.json"; \
+		if [ ! -f "$${json}" ]; then \
+			python extract_fields.py "$${pdf}" "$${json}"; \
+		fi; \
+	done
+	@echo "Done extracting fields JSON."
 
 
 prepare-lambdas:
