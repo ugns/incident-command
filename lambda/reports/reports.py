@@ -49,6 +49,7 @@ def dynamic_report_handler(report_type, data):
             **cors_headers,
             'Content-Disposition': f'attachment; filename="{report_type}.pdf"',
         },
+        "mediaType": media_type,
     }
 
 
@@ -91,7 +92,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 except Exception as e:
                     logger.error(f"Error importing module {rtype}_form: {e}\n{traceback.format_exc()}")
                     media_type = 'application/pdf'
-                supported_reports.append({'type': rtype, 'media_type': media_type})
+                supported_reports.append({'type': rtype, 'mediaType': media_type})
             logger.info(f"Final supported_reports: {supported_reports}")
             return {
                 'statusCode': 200,
@@ -123,8 +124,9 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             logger.info(f"Report handler response: {response}")
             if response.get('statusCode') == 200:
                 headers = dict(response.get('headers', {}))
-                headers['Content-Type'] = response.get('media_type', 'application/pdf')
+                headers['Content-Type'] = response.get('mediaType', 'application/pdf')
                 response['headers'] = headers
+                response.pop('mediaType', None)  # Remove mediaType from response
             return response
 
         logger.warning("No matching endpoint found for event.")
