@@ -1,7 +1,8 @@
 # API Gateway REST API for Incident Command
 resource "aws_api_gateway_rest_api" "incident_cmd" {
-  name        = "incident-cmd-api"
-  description = "API for Security Incident Command Application"
+  name                         = "incident-cmd-api"
+  description                  = "API for Security Incident Command Application"
+  disable_execute_api_endpoint = true
   endpoint_configuration {
     types = ["REGIONAL"]
   }
