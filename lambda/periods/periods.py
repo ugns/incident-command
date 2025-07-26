@@ -26,7 +26,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     if method == 'GET':
         if period_id:
-            # Get ICS-214 period metadata
+            # Get period metadata
             resp = table.get_item(
                 Key={'org_id': claims.get('hd'), 'periodId': period_id})
             period = resp.get('Item')
@@ -34,48 +34,12 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return {
                     'statusCode': 404,
                     'headers': cors_headers,
-                    'body': json.dumps({'error': 'ICS-214 period not found'})
-                }
-
-            # Fetch activity logs for this period (assume activity_logs table, same org_id, periodId)
-            activitylogs_table: Any = dynamodb.Table(os.environ.get(  # type: ignore
-                'ACTIVITY_LOGS_TABLE', 'activity_logs'))
-            logs_resp = activitylogs_table.query(
-                IndexName='PeriodIdIndex',
-                KeyConditionExpression=Key('org_id').eq(
-                    claims.get('hd')) & Key('periodId').eq(period_id)
-            )
-            activity_logs = logs_resp.get('Items', [])
-
-            # Merge period metadata and activity logs for PDF
-            merged = dict(period)
-            merged['activity_logs'] = activity_logs
-            # Add prepared_by_name from claims if available
-            if claims.get('name'):
-                merged['prepared_by_name'] = claims['name']
-
-            # If query param ?pdf=1, return PDF
-            query = event.get('queryStringParameters') or {}
-            if query.get('pdf') == '1':
-                pdf_bytes = generate_ics214_pdf(merged)
-                filename = f"ICS214-{period_id}.pdf" if period_id else "ICS214.pdf"
-                pdf_headers = {
-                    'Content-Type': 'application/pdf',
-                    'Content-Disposition': f'attachment; filename="{filename}"'
-                }
-                # Merge CORS headers
-                merged_headers = dict(cors_headers)
-                merged_headers.update(pdf_headers)
-                return {
-                    'statusCode': 200,
-                    'headers': merged_headers,
-                    'body': base64.b64encode(pdf_bytes).decode('utf-8'),
-                    'isBase64Encoded': True
+                    'body': json.dumps({'error': 'Period not found'})
                 }
             return {
                 'statusCode': 200,
                 'headers': cors_headers,
-                'body': json.dumps(merged)
+                'body': json.dumps(period)
             }
         else:
             # List all ICS-214 periods
