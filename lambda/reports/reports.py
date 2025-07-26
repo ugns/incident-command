@@ -1,3 +1,8 @@
+cors_headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization",
+    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
+}
 
 import json
 import base64
@@ -21,14 +26,14 @@ def handle_ics214_report(data):
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Failed to load fields.json', 'details': str(e)}),
-            'headers': {'Content-Type': 'application/json'}
+            'headers': {**cors_headers, 'Content-Type': 'application/json'}
         }
     # Validate required fields in the report
     if not input_pdf_path or not isinstance(data, dict) or 'period' not in data or 'activityLogs' not in data or 'preparedBy' not in data:
         return {
             'statusCode': 400,
             'body': json.dumps({'error': 'Missing required fields in report'}),
-            'headers': {'Content-Type': 'application/json'}
+            'headers': {**cors_headers, 'Content-Type': 'application/json'}
         }
     try:
         buffer = BytesIO()
@@ -44,16 +49,13 @@ def handle_ics214_report(data):
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Failed to generate report', 'details': str(e)}),
-            'headers': {'Content-Type': 'application/json'}
+            'headers': {**cors_headers, 'Content-Type': 'application/json'}
         }
     return {
         'statusCode': 200,
         'body': base64.b64encode(pdf_bytes).decode('utf-8'),
         'isBase64Encoded': True,
-        'headers': {
-            'Content-Type': 'application/pdf',
-            'Content-Disposition': 'attachment; filename="ics214.pdf"'
-        }
+        'headers': {**cors_headers, 'Content-Type': 'application/pdf', 'Content-Disposition': 'attachment; filename="ics214.pdf"'}
     }
 
 REPORT_HANDLERS = {
@@ -68,7 +70,7 @@ def lambda_handler(event, context):
         return {
             'statusCode': 400,
             'body': json.dumps({'error': 'Unsupported reportType'}),
-            'headers': {'Content-Type': 'application/json'}
+            'headers': {**cors_headers, 'Content-Type': 'application/json'}
         }
     try:
         body = event.get('body')
@@ -79,6 +81,6 @@ def lambda_handler(event, context):
         return {
             'statusCode': 400,
             'body': json.dumps({'error': 'Invalid request body', 'details': str(e)}),
-            'headers': {'Content-Type': 'application/json'}
+            'headers': {**cors_headers, 'Content-Type': 'application/json'}
         }
     return handler(data)
