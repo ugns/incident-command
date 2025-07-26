@@ -180,9 +180,9 @@ def generate_ics214_report(
     input_pdf_path,
     output_pdf,
     fields_json,
-    log_entries,
     report
 ):
+    log_entries = report.get('activityLogs', [])
     reader = PdfReader(input_pdf_path)
     writer = PdfWriter()
     # Page capacities
