@@ -25,6 +25,11 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     # Auth integrations
     aws_api_gateway_integration.auth_login_post,
     aws_api_gateway_integration.auth_login_options,
+    # Reports integrations
+    aws_api_gateway_integration.report_type_post,
+    aws_api_gateway_integration.report_type_options,
+    aws_api_gateway_integration.reports_options,
+    aws_api_gateway_integration.reports_get,
     # Periods integrations
     aws_api_gateway_integration.periods_post,
     aws_api_gateway_integration.periods_options,
