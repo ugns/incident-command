@@ -92,10 +92,9 @@ resource "aws_iam_role_policy" "lambda_apigateway_policy" {
         ]
         Resource = [
           format(
-            "arn:aws:apigateway:%s::/restapis/%s/stages/%s/exports/*",
+            "arn:aws:apigateway:%s::/restapis/%s/stages/*/exports/*",
             data.aws_region.current.name,
-            aws_api_gateway_rest_api.incident_cmd.id,
-            aws_api_gateway_stage.v1.stage_name
+            aws_api_gateway_rest_api.incident_cmd.id
           )
         ]
       }
