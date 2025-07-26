@@ -6,8 +6,8 @@
 # The period_id is a unique identifier for each operating period.
 # The table also includes an org_id to scope periods to a specific organization.
 # The org_id is used to associate periods with their respective organizations.
-resource "aws_dynamodb_table" "ics214_periods" {
-  name         = "ics214_periods"
+resource "aws_dynamodb_table" "periods" {
+  name         = "periods"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "org_id"
   range_key    = "periodId"
@@ -33,7 +33,7 @@ resource "aws_dynamodb_table" "ics214_periods" {
   #   type = "S"
   # }
   tags = {
-    Name = "ics214_periods"
+    Name = "periods"
   }
 }
 

@@ -95,7 +95,7 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
 
 ### ICS-214
 
-- **POST /ics214/periods**
+- **POST /periods**
   - Description: Create a new ICS-214 operating period
   - Request body:
     ```json
@@ -106,21 +106,21 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
     { "periodId": "string", "startTime": "string", "endTime": "string", "name": "string", ... }
     ```
 
-- **GET /ics214/periods**
+- **GET /periods**
   - Description: List all ICS-214 operating periods
   - Response:
     ```json
     [ { "periodId": "string", "startTime": "string", "endTime": "string", "name": "string", ... } ]
     ```
 
-- **GET /ics214/periods/{periodId}**
+- **GET /periods/{periodId}**
   - Description: Get ICS-214 log for a specific operating period
   - Response:
     ```json
     [ ...activity log objects for the period... ]
     ```
 
-- **PUT /ics214/periods/{periodId}**
+- **PUT /periods/{periodId}**
   - Description: Update an ICS-214 operating period (e.g., close period by setting end_time)
   - Request body:
     ```json
@@ -128,7 +128,7 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
     ```
   - Response: `204 No Content`
 
-- **DELETE /ics214/periods/{periodId}**
+- **DELETE /periods/{periodId}**
   - Description: Delete an ICS-214 operating period
   - Response: `204 No Content`
 

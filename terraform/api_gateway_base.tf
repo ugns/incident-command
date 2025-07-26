@@ -22,17 +22,17 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     create_before_destroy = true
   }
   depends_on = [
-    # ICS214 integrations
-    aws_api_gateway_integration.ics214_periods_post,
-    aws_api_gateway_integration.ics214_periods_options,
-    aws_api_gateway_integration.ics214_periods_get,
-    aws_api_gateway_integration.ics214_period_id_put,
-    aws_api_gateway_integration.ics214_period_id_options,
-    aws_api_gateway_integration.ics214_period_id_get,
-    aws_api_gateway_integration.ics214_period_id_delete,
     # Auth integrations
     aws_api_gateway_integration.auth_login_post,
     aws_api_gateway_integration.auth_login_options,
+    # Periods integrations
+    aws_api_gateway_integration.periods_post,
+    aws_api_gateway_integration.periods_options,
+    aws_api_gateway_integration.periods_get,
+    aws_api_gateway_integration.period_id_put,
+    aws_api_gateway_integration.period_id_options,
+    aws_api_gateway_integration.period_id_get,
+    aws_api_gateway_integration.period_id_delete,
     # Activitylogs integrations
     aws_api_gateway_integration.activitylogs_options,
     aws_api_gateway_integration.activitylogs_get,

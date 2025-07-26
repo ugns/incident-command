@@ -9,12 +9,14 @@ import base64
 import io
 
 dynamodb = boto3.resource('dynamodb')
-table: Any = dynamodb.Table(os.environ.get('ICS214_PERIODS_TABLE', 'ics214_periods'))  # type: ignore
+table: Any = dynamodb.Table(os.environ.get(  # type: ignore
+    'ICS_PERIODS_TABLE', 'periods'))
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type,Authorization",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
 }
+
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     claims = check_auth(event)
@@ -25,7 +27,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     if method == 'GET':
         if period_id:
             # Get ICS-214 period metadata
-            resp = table.get_item(Key={'org_id': claims.get('hd'), 'periodId': period_id})
+            resp = table.get_item(
+                Key={'org_id': claims.get('hd'), 'periodId': period_id})
             period = resp.get('Item')
             if not period:
                 return {
@@ -35,13 +38,14 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 }
 
             # Fetch activity logs for this period (assume activity_logs table, same org_id, periodId)
-            activitylogs_table: Any = dynamodb.Table(os.environ.get('ACTIVITY_LOGS_TABLE', 'activity_logs'))  # type: ignore
+            activitylogs_table: Any = dynamodb.Table(os.environ.get(  # type: ignore
+                'ACTIVITY_LOGS_TABLE', 'activity_logs'))
             logs_resp = activitylogs_table.query(
                 IndexName='PeriodIdIndex',
-                KeyConditionExpression=Key('org_id').eq(claims.get('hd')) & Key('periodId').eq(period_id)
+                KeyConditionExpression=Key('org_id').eq(
+                    claims.get('hd')) & Key('periodId').eq(period_id)
             )
             activity_logs = logs_resp.get('Items', [])
-
 
             # Merge period metadata and activity logs for PDF
             merged = dict(period)
@@ -72,10 +76,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'statusCode': 200,
                 'headers': cors_headers,
                 'body': json.dumps(merged)
-                }
+            }
         else:
             # List all ICS-214 periods
-            resp = table.query(KeyConditionExpression=Key('org_id').eq(claims.get('hd')))
+            resp = table.query(KeyConditionExpression=Key(
+                'org_id').eq(claims.get('hd')))
             return {
                 'statusCode': 200,
                 'headers': cors_headers,
@@ -91,7 +96,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             body['periodId'] = str(uuid.uuid4())
         if 'startTime' not in body or not body['startTime']:
             # Set startTime in UTC ISO 8601 format with 'Z' suffix
-            body['startTime'] = datetime.now(timezone.utc).isoformat().replace('+00:00', 'Z')
+            body['startTime'] = datetime.now(
+                timezone.utc).isoformat().replace('+00:00', 'Z')
         body['org_id'] = claims.get('hd')
         table.put_item(Item=body)
         return {
@@ -135,7 +141,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'headers': cors_headers,
                 'body': json.dumps({'error': 'Admin privileges required for delete'})
             }
-        table.delete_item(Key={'org_id': claims.get('hd'), 'periodId': period_id})
+        table.delete_item(
+            Key={'org_id': claims.get('hd'), 'periodId': period_id})
         return {
             'statusCode': 204,
             'headers': cors_headers,
@@ -163,7 +170,6 @@ def generate_ics214_pdf(item: Dict[str, Any]) -> bytes:
     writer.add_page(reader.pages[1])
     # Always add page 3 (instructions) at the end
     instruction_page = reader.pages[2]
-
 
     # Inject current date and time for PDF generation
     from datetime import datetime
@@ -252,7 +258,6 @@ def generate_ics214_pdf(item: Dict[str, Any]) -> bytes:
                 writer.pages[page_idx],
                 {dt_field: dt_val, act_field: act_val}
             )
-
 
     # Fill period fields on every page except the last (instructions) page
     for i in range(len(writer.pages) - 1):

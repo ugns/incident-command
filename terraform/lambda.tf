@@ -39,7 +39,7 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
           aws_dynamodb_table.volunteers.arn,
           aws_dynamodb_table.activity_logs.arn,
           "${aws_dynamodb_table.activity_logs.arn}/index/*",
-          aws_dynamodb_table.ics214_periods.arn
+          aws_dynamodb_table.periods.arn
         ]
       },
       {
@@ -128,22 +128,22 @@ resource "aws_lambda_function" "activitylogs" {
 
 
 
-# ICS-214: single zip, single handler
-data "archive_file" "ics214" {
+# Periods: single zip, single handler
+data "archive_file" "periods" {
   type        = "zip"
-  source_dir  = "../lambda/ics214"
-  output_path = "../lambda/ics214.zip"
+  source_dir  = "../lambda/periods"
+  output_path = "../lambda/periods.zip"
 }
-resource "aws_lambda_function" "ics214" {
-  function_name    = "ics214"
-  filename         = data.archive_file.ics214.output_path
-  handler          = "ics214.lambda_handler"
+resource "aws_lambda_function" "periods" {
+  function_name    = "periods"
+  filename         = data.archive_file.periods.output_path
+  handler          = "periods.lambda_handler"
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
-  source_code_hash = data.archive_file.ics214.output_base64sha256
+  source_code_hash = data.archive_file.periods.output_base64sha256
   environment {
     variables = {
-      ICS214_PERIODS_TABLE = aws_dynamodb_table.ics214_periods.name
+      ICS214_PERIODS_TABLE = aws_dynamodb_table.periods.name
       ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
       JWT_SECRET           = random_password.jwt_secret.result
     }
