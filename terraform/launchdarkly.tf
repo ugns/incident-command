@@ -1,23 +1,29 @@
 # LaunchDarkly Terraform Setup for Incident Command
 
-# 1. Provider Configuration
+# Provider Configuration
+
 provider "launchdarkly" {
   access_token = var.launchdarkly_access_token
 }
 
-# 2. Project and Environment (optional, if not already created)
+# Project with environment defined inline
 resource "launchdarkly_project" "incident_cmd" {
   key  = "incident-cmd"
-  name = "Incident Command"
+  name = "Event Coordination"
+  environments {
+    key  = "production"
+    name = "Production"
+    color = "#0073e6"
+  }
 }
 
-resource "launchdarkly_environment" "production" {
+# Lookup environment for API key and client_side_id
+data "launchdarkly_environment" "production" {
   project_key = launchdarkly_project.incident_cmd.key
   key         = "production"
-  name        = "Production"
 }
 
-# 3. Feature Flag: admin-access
+# Feature Flag: admin-access
 resource "launchdarkly_feature_flag" "admin_access" {
   project_key = launchdarkly_project.incident_cmd.key
   key         = "admin-access"
