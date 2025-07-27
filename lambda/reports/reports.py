@@ -31,8 +31,6 @@ def dynamic_report_handler(report_type, data):
         }
     # Get media type
     media_type = getattr(module, 'MEDIA_TYPE', 'application/pdf')
-    # Get title if available
-    title = getattr(module, 'TITLE', None)
     # Call generate_report
     try:
         result = module.generate_report(data)
@@ -42,14 +40,23 @@ def dynamic_report_handler(report_type, data):
             'body': json.dumps({'error': 'Failed to generate report', 'details': str(e)}),
             'headers': {**cors_headers, 'Content-Type': 'application/json'},
         }
-    # Expect result to be bytes (PDF or other binary)
+    # Generate a short hash from the data for filename uniqueness
+    import hashlib
+    import mimetypes
+    from pathlib import Path
+    data_bytes = json.dumps(data, sort_keys=True).encode('utf-8')
+    short_hash = hashlib.sha256(data_bytes).hexdigest()[:8]
+    ext = mimetypes.guess_extension(media_type) or ''
+    # Use pathlib to format filename and extension
+    base_name = f"{report_type}-{short_hash}"
+    filename = str(Path(base_name).with_suffix(ext)) if ext else base_name
     return {
         'statusCode': 200,
         'body': base64.b64encode(result).decode('utf-8'),
         'isBase64Encoded': True,
         'headers': {
             **cors_headers,
-            'Content-Disposition': f'attachment; filename="{report_type}.pdf"',
+            'Content-Disposition': f'attachment; filename="{filename}"',
         },
         "mediaType": media_type,
     }
