@@ -2,6 +2,7 @@ import os
 import json
 import requests
 import ldclient
+from ldclient.context import Context
 from ldclient.config import Config
 from jose import jwt
 from typing import Protocol, Tuple, Optional, Dict, Any
@@ -13,14 +14,14 @@ ld_client = ldclient.get()
 
 def has_admin_access(user_info):
     # Use LaunchDarkly feature flag for admin access
-    if not ld_client:
+    if not ldclient.get().is_initialized():
         return False
+
     # user_info should have at least 'key' (email or sub)
-    user_context = {
-        "key": user_info.get("email") or user_info.get("sub"),
-        "email": user_info.get("email"),
-        "org_id": user_info.get("org_id"),
-    }
+    user_context = Context.builder(user_info.get("email") or user_info.get("sub")) \
+        .set("email", user_info.get("email")) \
+        .set("org_id", user_info.get("org_id")) \
+        .build()
     return ld_client.variation("admin-access", user_context, False)
 
 

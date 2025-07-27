@@ -1,5 +1,6 @@
 import os
 import ldclient
+from ldclient.context import Context
 from ldclient.config import Config
 from jose import jwt, JWTError
 from jose.exceptions import ExpiredSignatureError
@@ -10,13 +11,14 @@ ld_client = ldclient.get()
 
 
 def has_admin_access(user):
-    if not ld_client:
+    if not ldclient.get().is_initialized():
         return False
-    user_context = {
-        "key": user.get("email") or user.get("sub"),
-        "email": user.get("email"),
-        "org_id": user.get("org_id"),
-    }
+
+    # user should have at least 'key' (email or sub)
+    user_context = Context.builder(user.get("email") or user.get("sub")) \
+        .set("email", user.get("email")) \
+        .set("org_id", user.get("org_id")) \
+        .build()
     return ld_client.variation("admin-access", user_context, False)
 
 
