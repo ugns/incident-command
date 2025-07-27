@@ -134,9 +134,9 @@ resource "aws_api_gateway_method_response" "report_type_options" {
     "application/json" = "Empty"
   }
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = true,
-    "method.response.header.Access-Control-Allow-Headers" = true,
-    "method.response.header.Access-Control-Allow-Methods" = true,
+    "method.response.header.Access-Control-Allow-Origin"   = true,
+    "method.response.header.Access-Control-Allow-Headers"  = true,
+    "method.response.header.Access-Control-Allow-Methods"  = true,
     "method.response.header.Access-Control-Expose-Headers" = true,
   }
 }
@@ -146,9 +146,9 @@ resource "aws_api_gateway_integration_response" "report_type_options" {
   http_method = aws_api_gateway_method.report_type_options.http_method
   status_code = "200"
   response_parameters = {
-    "method.response.header.Access-Control-Allow-Origin"  = "'*'",
-    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,Authorization'",
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'",
+    "method.response.header.Access-Control-Allow-Origin"   = "'*'",
+    "method.response.header.Access-Control-Allow-Headers"  = "'Content-Type,Authorization'",
+    "method.response.header.Access-Control-Allow-Methods"  = "'POST,OPTIONS'",
     "method.response.header.Access-Control-Expose-Headers" = "'Content-Disposition'"
   }
   response_templates = {

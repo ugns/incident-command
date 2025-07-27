@@ -93,7 +93,7 @@ resource "aws_iam_role_policy" "lambda_apigateway_policy" {
         Resource = [
           format(
             "arn:aws:apigateway:%s::/restapis/%s/stages/*/exports/*",
-            data.aws_region.current.name,
+            data.aws_region.current.region,
             aws_api_gateway_rest_api.incident_cmd.id
           )
         ]
@@ -103,7 +103,6 @@ resource "aws_iam_role_policy" "lambda_apigateway_policy" {
 }
 
 # Lambda Functions
-
 
 # OpenAPI Export Lambda
 data "archive_file" "openapi" {

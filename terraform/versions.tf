@@ -4,8 +4,8 @@ terraform {
       source  = "hashicorp/aws"
       version = "6.4.0"
     }
-     launchdarkly = {
-      source = "launchdarkly/launchdarkly"
+    launchdarkly = {
+      source  = "launchdarkly/launchdarkly"
       version = "2.26.0-beta.1"
     }
   }
@@ -17,4 +17,8 @@ provider "aws" {
   assume_role {
     role_arn = var.gh_action_role
   }
+}
+
+provider "launchdarkly" {
+  access_token = var.launchdarkly_access_token
 }
