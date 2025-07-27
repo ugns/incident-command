@@ -1,6 +1,7 @@
 output "launchdarkly_environment_api_key" {
   description = "LaunchDarkly API key for server-side SDKs (Lambda)."
   value       = data.launchdarkly_environment.production.api_key
+  sensitive   = true
 }
 
 output "launchdarkly_environment_client_side_id" {
