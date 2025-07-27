@@ -5,7 +5,7 @@ resource "launchdarkly_project" "incident_cmd" {
   environments {
     key   = "production"
     name  = "Production"
-    color = "#0073e6"
+    color = "0073e6"
   }
 }
 
