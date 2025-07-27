@@ -1,12 +1,13 @@
 import json
+import os
 import base64
-from typing import Any, Dict
 import importlib
 import glob
-import os
-from pathlib import Path
 import traceback
 import logging
+from pathlib import Path
+from client.auth import check_auth
+from typing import Any, Dict
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -64,6 +65,15 @@ def dynamic_report_handler(report_type, data):
 
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+    claims = check_auth(event)
+    org_id = claims.get('hd')
+    if not org_id:
+        return {
+            'statusCode': 403,
+            'headers': cors_headers,
+            'body': json.dumps({'error': 'Missing organization (hd claim) in token'})
+        }
+
     try:
         method = event.get('httpMethod', 'GET')
         path_params = event.get('pathParameters') or {}

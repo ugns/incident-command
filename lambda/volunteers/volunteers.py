@@ -23,6 +23,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'headers': cors_headers,
             'body': json.dumps({'error': 'Missing organization (hd claim) in token'})
         }
+
     method = event.get('httpMethod', 'GET')
     path_params = event.get('pathParameters') or {}
     volunteer_id = path_params.get('volunteerId') if path_params else None

@@ -17,6 +17,14 @@ cors_headers = {
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     claims = check_auth(event)
+    org_id = claims.get('hd')
+    if not org_id:
+        return {
+            'statusCode': 403,
+            'headers': cors_headers,
+            'body': json.dumps({'error': 'Missing organization (hd claim) in token'})
+        }
+
     method = event.get('httpMethod', 'GET')
     path_params = event.get('pathParameters') or {}
     period_id = path_params.get('periodId') if path_params else None
