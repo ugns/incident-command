@@ -136,7 +136,8 @@ resource "aws_api_gateway_method_response" "report_type_options" {
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin"  = true,
     "method.response.header.Access-Control-Allow-Headers" = true,
-    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Methods" = true,
+    "method.response.header.Access-Control-Expose-Headers" = true,
   }
 }
 resource "aws_api_gateway_integration_response" "report_type_options" {
@@ -147,7 +148,8 @@ resource "aws_api_gateway_integration_response" "report_type_options" {
   response_parameters = {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'",
     "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,Authorization'",
-    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Methods" = "'POST,OPTIONS'",
+    "method.response.header.Access-Control-Expose-Headers" = "'Content-Disposition'"
   }
   response_templates = {
     "application/json" = ""

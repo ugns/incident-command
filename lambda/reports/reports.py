@@ -14,7 +14,8 @@ logger.setLevel(logging.INFO)
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type,Authorization",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS"
+    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
+    "Access-Control-Expose-Headers": "Content-Disposition",
 }
 
 
@@ -73,7 +74,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
         if method == 'GET' and not report_type:
             logger.info("Handling GET /reports endpoint (no report_type)")
-            report_files = glob.glob(os.path.join(os.path.dirname(__file__), '*_form.py'))
+            report_files = glob.glob(os.path.join(
+                os.path.dirname(__file__), '*_form.py'))
             logger.info(f"Found report_files: {report_files}")
             supported_reports = []
             for file_path in report_files:
@@ -81,7 +83,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 stem = Path(file_path).stem
                 logger.info(f"File stem: {stem}")
                 if not stem.endswith('_form'):
-                    logger.info(f"Skipping file (does not end with _form): {stem}")
+                    logger.info(
+                        f"Skipping file (does not end with _form): {stem}")
                     continue
                 rtype = stem[:-5]  # strip '_form'
                 logger.info(f"Parsed report type: {rtype}")
@@ -89,21 +92,26 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 current_dir = os.path.dirname(__file__)
                 try:
                     dir_listing = os.listdir(current_dir)
-                    logger.info(f"Directory listing for {current_dir}: {dir_listing}")
+                    logger.info(
+                        f"Directory listing for {current_dir}: {dir_listing}")
                 except Exception as e:
                     logger.error(f"Error listing directory {current_dir}: {e}")
                 logger.info(f"Attempting to import module: {rtype}_form")
                 try:
                     module = importlib.import_module(f'{rtype}_form')
                     logger.info(f"Imported module: {rtype}_form")
-                    media_type = getattr(module, 'MEDIA_TYPE', 'application/pdf')
-                    media_title = getattr(module, 'TITLE', rtype.capitalize() + ' Report')
+                    media_type = getattr(
+                        module, 'MEDIA_TYPE', 'application/pdf')
+                    media_title = getattr(
+                        module, 'TITLE', rtype.capitalize() + ' Report')
                     logger.info(f"Media type for {rtype}: {media_type}")
                 except Exception as e:
-                    logger.error(f"Error importing module {rtype}_form: {e}\n{traceback.format_exc()}")
+                    logger.error(
+                        f"Error importing module {rtype}_form: {e}\n{traceback.format_exc()}")
                     media_type = 'application/pdf'
                     media_title = rtype.capitalize() + ' Report'
-                supported_reports.append({'type': rtype, 'mediaType': media_type, 'title': media_title})
+                supported_reports.append(
+                    {'type': rtype, 'mediaType': media_type, 'title': media_title})
             logger.info(f"Final supported_reports: {supported_reports}")
             return {
                 'statusCode': 200,
@@ -122,7 +130,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 data = json.loads(body)
                 logger.info(f"Parsed JSON data: {data}")
             except Exception as e:
-                logger.error(f"Error parsing request body: {e}\n{traceback.format_exc()}")
+                logger.error(
+                    f"Error parsing request body: {e}\n{traceback.format_exc()}")
                 return {
                     'statusCode': 400,
                     'body': json.dumps({'error': 'Invalid request body', 'details': str(e)}),
@@ -135,9 +144,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             logger.info(f"Report handler response: {response}")
             if response.get('statusCode') == 200:
                 headers = dict(response.get('headers', {}))
-                headers['Content-Type'] = response.get('mediaType', 'application/pdf')
+                headers['Content-Type'] = response.get(
+                    'mediaType', 'application/pdf')
                 response['headers'] = headers
-                response.pop('mediaType', None)  # Remove mediaType from response
+                # Remove mediaType from response
+                response.pop('mediaType', None)
             return response
 
         logger.warning("No matching endpoint found for event.")
@@ -150,7 +161,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         }
     except Exception as e:
-        logger.error(f"Unhandled exception in lambda_handler: {e}\n{traceback.format_exc()}")
+        logger.error(
+            f"Unhandled exception in lambda_handler: {e}\n{traceback.format_exc()}")
         return {
             'statusCode': 500,
             'body': json.dumps({'error': 'Internal server error', 'details': str(e)}),
