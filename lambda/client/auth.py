@@ -15,10 +15,13 @@ def has_admin_access(user):
         return False
 
     # user should have at least 'key' (email or sub)
-    user_context = Context.builder(user.get("email") or user.get("sub")) \
-        .set("email", user.get("email")) \
-        .set("org_id", user.get("org_id")) \
+    user_context = (
+        Context.builder(user.get("email") or user.get("sub"))
+        .kind('user')
+        .set('email', user.get("email"))
+        .set('org_id', user.get("org_id"))
         .build()
+    )
     return ld_client.variation("admin-access", user_context, False)
 
 
