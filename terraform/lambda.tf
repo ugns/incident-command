@@ -146,8 +146,7 @@ resource "aws_lambda_function" "auth_callback" {
     variables = {
       GOOGLE_CLIENT_IDS    = var.google_client_ids
       JWT_SECRET           = random_password.jwt_secret.result
-      ADMIN_EMAILS         = var.admin_emails
-      LAUNCHDARKLY_SDK_KEY = var.launchdarkly_sdk_key
+      LAUNCHDARKLY_SDK_KEY = launchdarkly_environment.production.api_key
     }
   }
 }
@@ -171,7 +170,7 @@ resource "aws_lambda_function" "volunteers" {
       VOLUNTEERS_TABLE     = aws_dynamodb_table.volunteers.name
       ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
       JWT_SECRET           = random_password.jwt_secret.result
-      LAUNCHDARKLY_SDK_KEY = var.launchdarkly_sdk_key
+      LAUNCHDARKLY_SDK_KEY = launchdarkly_environment.production.api_key
     }
   }
 }
@@ -195,7 +194,7 @@ resource "aws_lambda_function" "activitylogs" {
     variables = {
       ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
       JWT_SECRET           = random_password.jwt_secret.result
-      LAUNCHDARKLY_SDK_KEY = var.launchdarkly_sdk_key
+      LAUNCHDARKLY_SDK_KEY = launchdarkly_environment.production.api_key
     }
   }
 }
@@ -219,7 +218,7 @@ resource "aws_lambda_function" "periods" {
     variables = {
       ICS_PERIODS_TABLE    = aws_dynamodb_table.periods.name
       JWT_SECRET           = random_password.jwt_secret.result
-      LAUNCHDARKLY_SDK_KEY = var.launchdarkly_sdk_key
+      LAUNCHDARKLY_SDK_KEY = launchdarkly_environment.production.api_key
     }
   }
 }
@@ -243,7 +242,7 @@ resource "aws_lambda_function" "reports" {
       ICS214_TEMPLATE_PDF  = "ICS-214-v31.pdf"
       ICS214_FIELDS_JSON   = "ICS-214-v31.json"
       JWT_SECRET           = random_password.jwt_secret.result
-      LAUNCHDARKLY_SDK_KEY = var.launchdarkly_sdk_key
+      LAUNCHDARKLY_SDK_KEY = launchdarkly_environment.production.api_key
     }
   }
 }

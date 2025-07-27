@@ -3,10 +3,6 @@ variable "launchdarkly_access_token" {
   type        = string
 }
 
-variable "launchdarkly_sdk_key" {
-  description = "LaunchDarkly SDK key for Lambda environment."
-  type        = string
-}
 
 variable "gh_action_role" {
   description = "AWS IAM ARN for Terraform GitHub Actions"
@@ -23,12 +19,6 @@ variable "google_client_ids" {
   description = "Comma-delimited Google OAuth Client IDs for backend authentication"
   type        = string
   default     = null
-}
-
-variable "admin_emails" {
-  description = "Comma-delimited list of admin emails for the application"
-  type        = string
-  default     = ""
 }
 
 variable "lambda_runtime" {
