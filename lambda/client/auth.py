@@ -11,7 +11,7 @@ ld_client = ldclient.get()
 
 
 def has_admin_access(user):
-    if not ldclient.get().is_initialized():
+    if not ld_client.is_initialized():
         return False
 
     # user should have at least 'key' (email or sub)
@@ -22,7 +22,14 @@ def has_admin_access(user):
         .set('org_id', user.get("org_id"))
         .build()
     )
-    ldclient.get().track('client.auth', user_context)
+    org_context = (
+        Context.builder(user.get("org_id") or user.get("hd"))
+        .kind('organization')
+        .set('org_id', user.get("org_id"))
+        .build()
+    )
+    ld_client.track('client.auth', user_context)
+    ld_client.track('client.auth', org_context)
     return ld_client.variation("admin-access", user_context, False)
 
 
