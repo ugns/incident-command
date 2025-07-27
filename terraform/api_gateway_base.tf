@@ -7,7 +7,15 @@ resource "aws_api_gateway_rest_api" "incident_cmd" {
     types = ["REGIONAL"]
   }
   # binary_media_types = ["application/pdf", "*/*"]
-  binary_media_types = ["application/pdf", "application/octet-stream"]
+  binary_media_types = [
+    "application/pdf",
+    "application/octet-stream",
+    "application/zip",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "image/*"
+  ]
 }
 
 data "aws_api_gateway_resource" "root" {
