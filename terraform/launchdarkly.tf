@@ -30,6 +30,6 @@ resource "launchdarkly_feature_flag" "admin_access" {
     value = false
     name  = "Disabled"
   }
-  tags        = ["access", "admin"]
-  temporary   = false
+  tags      = ["access", "admin", "managed-by-terraform"]
+  temporary = false
 }

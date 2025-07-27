@@ -6,6 +6,7 @@ output "launchdarkly_environment_api_key" {
 output "launchdarkly_environment_client_side_id" {
   description = "LaunchDarkly client-side ID for frontend SDKs."
   value       = data.launchdarkly_environment.production.client_side_id
+  sensitive   = true
 }
 
 output "launchdarkly_admin_access_flag_key" {
