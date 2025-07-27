@@ -31,6 +31,8 @@ def dynamic_report_handler(report_type, data):
         }
     # Get media type
     media_type = getattr(module, 'MEDIA_TYPE', 'application/pdf')
+    # Get title if available
+    title = getattr(module, 'TITLE', None)
     # Call generate_report
     try:
         result = module.generate_report(data)
@@ -88,11 +90,13 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     module = importlib.import_module(f'{rtype}_form')
                     logger.info(f"Imported module: {rtype}_form")
                     media_type = getattr(module, 'MEDIA_TYPE', 'application/pdf')
+                    media_title = getattr(module, 'TITLE', rtype.capitalize() + ' Report')
                     logger.info(f"Media type for {rtype}: {media_type}")
                 except Exception as e:
                     logger.error(f"Error importing module {rtype}_form: {e}\n{traceback.format_exc()}")
                     media_type = 'application/pdf'
-                supported_reports.append({'type': rtype, 'mediaType': media_type})
+                    media_title = rtype.capitalize() + ' Report'
+                supported_reports.append({'type': rtype, 'mediaType': media_type, 'title': media_title})
             logger.info(f"Final supported_reports: {supported_reports}")
             return {
                 'statusCode': 200,

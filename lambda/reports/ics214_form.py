@@ -9,6 +9,7 @@ import os
 import json
 
 MEDIA_TYPE = 'application/pdf'
+TITLE = 'ICS Form 214, Activity Log'
 
 
 def overlay_page_number(base_page, page_num, total_pages, x=42, y=63):
@@ -242,9 +243,11 @@ def generate_report(data):
     locked_writer = PdfWriter()
     locked_writer.append_pages_from_reader(PdfReader(buffer))
     # Set PDF metadata
+    incident_name = report.get("period", {}).get("incidentName", "")
+    composite_title = f"{incident_name} - {TITLE}" if incident_name else TITLE
     locked_writer.add_metadata({
-        "/Title": report.get("period", {}).get("incidentName", "ICS 214 Activity Log"),
-        "/Author": report.get("preparedBy", {}).get("name", ""),
+        "/Title": composite_title,
+        "/Author": report.get("preparedBy", {}).get("name", None),
         "/CreationDate": datetime.now().strftime("D:%Y%m%d%H%M%S")
     })
     # Enable stricter security: block editing, copying, and printing if supported
