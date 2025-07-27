@@ -24,14 +24,42 @@ resource "launchdarkly_feature_flag" "admin_access" {
   tags           = ["access", "admin", "managed-by-terraform"]
   temporary      = false
   variation_type = "boolean"
+  
   variations {
     value = true
     name  = "Enabled"
   }
+  
   variations {
     value = false
     name  = "Disabled"
   }
+  
+  defaults {
+    on_variation  = 0
+    off_variation = 1
+  }
+}
+
+resource "launchdarkly_feature_flag" "show_radio_resources" {
+  project_key    = launchdarkly_project.incident_cmd.key
+  key            = "show-radio-resources"
+  name           = "Show Radio Resources"
+  description    = "Controls visibility of radio resources."
+  tags           = ["access", "features", "managed-by-terraform"]
+  temporary      = false
+  variation_type = "boolean"
+
+  variations {
+    value = true
+    name  = "Enabled"
+  }
+  
+  variations {
+    value = false
+    name  = "Disabled"
+  }
+  
   defaults {
     on_variation  = 0
     off_variation = 1
