@@ -17,22 +17,19 @@ data "launchdarkly_environment" "production" {
 
 # Feature Flag: admin-access
 resource "launchdarkly_feature_flag" "admin_access" {
-  project_key = launchdarkly_project.incident_cmd.key
-  key         = "admin-access"
-  name        = "Admin Access"
-  description = "Controls admin access for users via feature flag."
-  variations = [
-    { value = true, name = "Enabled" },
-    { value = false, name = "Disabled" }
-  ]
+  project_key    = launchdarkly_project.incident_cmd.key
+  key            = "admin-access"
+  name           = "Admin Access"
+  description    = "Controls admin access for users via feature flag."
+  variation_type = "boolean"
+  variations {
+    value = true
+    name  = "Enabled"
+  }
+  variations {
+    value = false
+    name  = "Disabled"
+  }
   tags        = ["access", "admin"]
   temporary   = false
-  client_side = true
-  environments = {
-    production = {
-      fallthrough   = { variation = true }
-      off_variation = false
-      # Optionally, add targeting rules here
-    }
-  }
 }
