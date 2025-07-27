@@ -12,19 +12,20 @@ ldclient.set_config(Config(os.environ.get(
 ld_client = ldclient.get()
 
 
-def has_admin_access(user_info):
+def has_admin_access(user):
     # Use LaunchDarkly feature flag for admin access
     if not ldclient.get().is_initialized():
         return False
 
-    # user_info should have at least 'key' (email or sub)
+    # user should have at least 'key' (email or sub)
     user_context = (
-        Context.builder(user_info.get("email") or user_info.get("sub"))
+        Context.builder(user.get("email") or user.get("sub"))
         .kind('user')
-        .set('email', user_info.get("email"))
-        .set('org_id', user_info.get("org_id"))
+        .set('email', user.get("email"))
+        .set('org_id', user.get("org_id"))
         .build()
     )
+    ldclient.get().track('auth.callback', user_context)
     return ld_client.variation("admin-access", user_context, False)
 
 

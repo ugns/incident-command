@@ -22,6 +22,7 @@ def has_admin_access(user):
         .set('org_id', user.get("org_id"))
         .build()
     )
+    ldclient.get().track('client.auth', user_context)
     return ld_client.variation("admin-access", user_context, False)
 
 
