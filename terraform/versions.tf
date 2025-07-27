@@ -4,8 +4,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "6.4.0"
     }
+     launchdarkly = {
+      source = "launchdarkly/launchdarkly"
+      version = "2.26.0-beta.1"
+    }
   }
-
   required_version = ">= 1.0"
 }
 
