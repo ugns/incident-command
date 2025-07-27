@@ -42,6 +42,7 @@ class GoogleAuthProvider:
                 'email': token_info.get('email'),
                 'name': token_info.get('name'),
                 'org_id': token_info.get('hd'),
+                'hd': token_info.get('hd'),
                 'sub': token_info.get('sub'),
                 'is_admin': token_info.get('email') in ADMIN_EMAILS,
                 'provider': 'google',
@@ -90,7 +91,8 @@ def lambda_handler(event, context):
             'name': user_info['name'],
             'sub': user_info['sub'],
             'iss': 'incident-cmd-backend',
-            'hd': user_info.get('org_id'),
+            'org_id': user_info.get('org_id'),
+            'hd': user_info.get('hd'),
             'is_admin': user_info['is_admin'],
             # expires in TOKEN_TTL seconds
             'exp': int(time.time()) + TOKEN_TTL,
