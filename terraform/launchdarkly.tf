@@ -21,6 +21,8 @@ resource "launchdarkly_feature_flag" "admin_access" {
   key            = "admin-access"
   name           = "Admin Access"
   description    = "Controls admin access for users via feature flag."
+  tags           = ["access", "admin", "managed-by-terraform"]
+  temporary      = false
   variation_type = "boolean"
   variations {
     value = true
@@ -30,6 +32,8 @@ resource "launchdarkly_feature_flag" "admin_access" {
     value = false
     name  = "Disabled"
   }
-  tags      = ["access", "admin", "managed-by-terraform"]
-  temporary = false
+  defaults {
+    on_variation  = 0
+    off_variation = 1
+  }
 }
