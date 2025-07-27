@@ -1,3 +1,13 @@
+variable "launchdarkly_access_token" {
+  description = "LaunchDarkly API access token for Terraform."
+  type        = string
+}
+
+variable "launchdarkly_sdk_key" {
+  description = "LaunchDarkly SDK key for Lambda environment."
+  type        = string
+}
+
 variable "gh_action_role" {
   description = "AWS IAM ARN for Terraform GitHub Actions"
   type        = string
