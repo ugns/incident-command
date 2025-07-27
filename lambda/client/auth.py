@@ -1,8 +1,23 @@
 import os
-import json
+import ldclient
+from ldclient.config import Config
 from jose import jwt, JWTError
 from jose.exceptions import ExpiredSignatureError
-import requests
+
+ldclient.set_config(Config(os.environ.get(
+    'LAUNCHDARKLY_SDK_KEY', '')))  # SDK key from env
+ld_client = ldclient.get()
+
+
+def has_admin_access(user):
+    if not ld_client:
+        return False
+    user_context = {
+        "key": user.get("email") or user.get("sub"),
+        "email": user.get("email"),
+        "org_id": user.get("org_id"),
+    }
+    return ld_client.variation("admin-access", user_context, False)
 
 
 def get_jwt_secret():
@@ -42,4 +57,5 @@ def check_auth(event):
             "statusCode": 401,
             "body": "Unauthorized"
         }
+    user['is_admin'] = has_admin_access(user)
     return user

@@ -1,9 +1,27 @@
-
 import os
 import json
 import requests
+import ldclient
+from ldclient.config import Config
 from jose import jwt
 from typing import Protocol, Tuple, Optional, Dict, Any
+
+ldclient.set_config(Config(os.environ.get(
+    'LAUNCHDARKLY_SDK_KEY', '')))  # SDK key from env
+ld_client = ldclient.get()
+
+
+def has_admin_access(user_info):
+    # Use LaunchDarkly feature flag for admin access
+    if not ld_client:
+        return False
+    # user_info should have at least 'key' (email or sub)
+    user_context = {
+        "key": user_info.get("email") or user_info.get("sub"),
+        "email": user_info.get("email"),
+        "org_id": user_info.get("org_id"),
+    }
+    return ld_client.variation("admin-access", user_context, False)
 
 
 cors_headers = {
@@ -13,11 +31,7 @@ cors_headers = {
 }
 
 
-# RBAC: Comma-separated admin emails from environment variable
-ADMIN_EMAILS = set(email.strip() for email in os.environ.get(
-    'ADMIN_EMAILS', '').split(',') if email.strip())
 ALLOWED_CLIENT_IDS = set(os.environ.get('GOOGLE_CLIENT_IDS', '').split(','))
-
 JWT_SECRET = os.environ.get('JWT_SECRET', 'changeme')
 TOKEN_TTL = int(os.environ.get('TOKEN_TTL', '3600'))
 
@@ -44,10 +58,10 @@ class GoogleAuthProvider:
                 'org_id': token_info.get('hd'),
                 'hd': token_info.get('hd'),
                 'sub': token_info.get('sub'),
-                'is_admin': token_info.get('email') in ADMIN_EMAILS,
                 'provider': 'google',
                 'raw': token_info
             }
+            user_info['is_admin'] = has_admin_access(user_info)
             return user_info, None
         except Exception:
             return None, {"error": "Token validation failed"}

@@ -168,9 +168,10 @@ resource "aws_lambda_function" "volunteers" {
   source_code_hash = data.archive_file.volunteers.output_base64sha256
   environment {
     variables = {
-      VOLUNTEERS_TABLE    = aws_dynamodb_table.volunteers.name
-      ACTIVITY_LOGS_TABLE = aws_dynamodb_table.activity_logs.name
-      JWT_SECRET          = random_password.jwt_secret.result
+      VOLUNTEERS_TABLE     = aws_dynamodb_table.volunteers.name
+      ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
+      JWT_SECRET           = random_password.jwt_secret.result
+      LAUNCHDARKLY_SDK_KEY = var.launchdarkly_sdk_key
     }
   }
 }
@@ -192,8 +193,9 @@ resource "aws_lambda_function" "activitylogs" {
   source_code_hash = data.archive_file.activitylogs.output_base64sha256
   environment {
     variables = {
-      ACTIVITY_LOGS_TABLE = aws_dynamodb_table.activity_logs.name
-      JWT_SECRET          = random_password.jwt_secret.result
+      ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
+      JWT_SECRET           = random_password.jwt_secret.result
+      LAUNCHDARKLY_SDK_KEY = var.launchdarkly_sdk_key
     }
   }
 }
@@ -215,8 +217,9 @@ resource "aws_lambda_function" "periods" {
   source_code_hash = data.archive_file.periods.output_base64sha256
   environment {
     variables = {
-      ICS_PERIODS_TABLE = aws_dynamodb_table.periods.name
-      JWT_SECRET        = random_password.jwt_secret.result
+      ICS_PERIODS_TABLE    = aws_dynamodb_table.periods.name
+      JWT_SECRET           = random_password.jwt_secret.result
+      LAUNCHDARKLY_SDK_KEY = var.launchdarkly_sdk_key
     }
   }
 }
@@ -237,9 +240,10 @@ resource "aws_lambda_function" "reports" {
   timeout          = 30
   environment {
     variables = {
-      ICS214_TEMPLATE_PDF = "ICS-214-v31.pdf"
-      ICS214_FIELDS_JSON  = "ICS-214-v31.json"
-      JWT_SECRET          = random_password.jwt_secret.result
+      ICS214_TEMPLATE_PDF  = "ICS-214-v31.pdf"
+      ICS214_FIELDS_JSON   = "ICS-214-v31.json"
+      JWT_SECRET           = random_password.jwt_secret.result
+      LAUNCHDARKLY_SDK_KEY = var.launchdarkly_sdk_key
     }
   }
 }
