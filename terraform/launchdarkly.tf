@@ -2,10 +2,16 @@
 resource "launchdarkly_project" "incident_cmd" {
   key  = "incident-cmd"
   name = "Event Coordination"
+
   environments {
     key   = "production"
     name  = "Production"
     color = "0073e6"
+  }
+  
+  default_client_side_availability {
+    using_environment_id = true
+    using_mobile_key     = false
   }
 }
 
@@ -24,17 +30,17 @@ resource "launchdarkly_feature_flag" "admin_access" {
   tags           = ["access", "admin", "managed-by-terraform"]
   temporary      = false
   variation_type = "boolean"
-  
+
   variations {
     value = true
     name  = "Enabled"
   }
-  
+
   variations {
     value = false
     name  = "Disabled"
   }
-  
+
   defaults {
     on_variation  = 0
     off_variation = 1
@@ -46,7 +52,7 @@ resource "launchdarkly_feature_flag" "show_radio_resources" {
   key            = "show-radio-resources"
   name           = "Show Radio Resources"
   description    = "Controls visibility of radio resources."
-  tags           = ["access", "features", "managed-by-terraform"]
+  tags           = ["features", "resources", "managed-by-terraform"]
   temporary      = false
   variation_type = "boolean"
 
@@ -54,12 +60,12 @@ resource "launchdarkly_feature_flag" "show_radio_resources" {
     value = true
     name  = "Enabled"
   }
-  
+
   variations {
     value = false
     name  = "Disabled"
   }
-  
+
   defaults {
     on_variation  = 0
     off_variation = 1
