@@ -18,7 +18,7 @@ extract-fields:
 	for pdf in *.pdf; do \
 		json="$${pdf%.pdf}.json"; \
 		if [ ! -f "$${json}" ]; then \
-			PYTHONPATH=.${PYTHONPATH:+:$$PYTHONPATH} python extract_fields.py "$${pdf}" "$${json}"; \
+			python extract_fields.py "$${pdf}" "$${json}"; \
 		fi; \
 	done
 	@echo "Done extracting fields JSON."
