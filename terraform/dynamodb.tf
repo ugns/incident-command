@@ -1,3 +1,23 @@
+# Units Table
+# This table stores unit information, indexed by unitId and scoped to an organization by org_id.
+resource "aws_dynamodb_table" "units" {
+  name         = "units"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "org_id"
+  range_key    = "unitId"
+
+  attribute {
+    name = "org_id"
+    type = "S"
+  }
+  attribute {
+    name = "unitId"
+    type = "S"
+  }
+  tags = {
+    Name = "units"
+  }
+}
 # DynamoDB Tables for Incident Command App
 
 # ICS-214 Operating Periods Table
@@ -20,20 +40,43 @@ resource "aws_dynamodb_table" "periods" {
     name = "periodId"
     type = "S"
   }
-  # attribute {
-  #   name = "startTime"
-  #   type = "S"
-  # }
-  # attribute {
-  #   name = "endTime"
-  #   type = "S"
-  # }
-  # attribute {
-  #   name = "name"
-  #   type = "S"
-  # }
+  attribute {
+    name = "incidentId"
+    type = "S"
+  }
+  attribute {
+    name = "unitId"
+    type = "S"
+  }
+  global_secondary_index {
+    name            = "incidentId-index"
+    hash_key        = "org_id"
+    range_key       = "incidentId"
+    projection_type = "ALL"
+  }
   tags = {
     Name = "periods"
+  }
+}
+
+# Incidents Table
+# This table stores incident information, indexed by incidentId and scoped to an organization by org_id.
+resource "aws_dynamodb_table" "incidents" {
+  name         = "incidents"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "org_id"
+  range_key    = "incidentId"
+
+  attribute {
+    name = "org_id"
+    type = "S"
+  }
+  attribute {
+    name = "incidentId"
+    type = "S"
+  }
+  tags = {
+    Name = "incidents"
   }
 }
 
@@ -57,10 +100,17 @@ resource "aws_dynamodb_table" "volunteers" {
     name = "volunteerId"
     type = "S"
   }
-  # attribute {
-  #   name = "name"
-  #   type = "S"
-  # }
+  attribute {
+    name = "email"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "email-index"
+    hash_key        = "org_id"
+    range_key       = "email"
+    projection_type = "ALL"
+  }
   tags = {
     Name = "volunteers"
   }
@@ -99,10 +149,6 @@ resource "aws_dynamodb_table" "activity_logs" {
     name = "periodId"
     type = "S"
   }
-  # attribute {
-  #   name = "timestamp"
-  #   type = "S"
-  # }
   tags = {
     Name = "activity_logs"
   }
@@ -139,7 +185,6 @@ resource "aws_dynamodb_table" "organizations" {
     name = "org_id"
     type = "S"
   }
-
   attribute {
     name = "aud"
     type = "S"

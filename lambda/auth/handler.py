@@ -6,6 +6,7 @@ import logging
 from jose import jwt
 from typing import Protocol, Tuple, Optional, Dict, Any
 from googleAuthProvider import GoogleAuthProvider
+from models.volunteers import Volunteer
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -67,6 +68,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         user_response = {k: v for k, v in user_info.items() if k not in (
             'sub', 'provider', 'raw')} if user_info else {}
         logger.info(f"Authentication successful for user: {user_response}")
+        volunteer = Volunteer.get_or_create_by_email(
+            org_id=user_response.get("org_id"),
+            email=user_response.get("email"),
+            defaults=user_response
+        )
         return build_response(200, {"token": jwt_token, "user": user_response})
     except Exception as e:
         logger.error(f"Exception in lambda_handler: {e}")
