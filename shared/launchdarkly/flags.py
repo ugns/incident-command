@@ -9,11 +9,7 @@ ld_client = ldclient.get()
 
 
 class Flags:
-    @staticmethod
-    def has_admin_access(user):
-        if not ld_client or not ld_client.is_initialized():
-            return False
-
+    def __init__(self, user):
         user_ctx = (
             Context.builder(user.get("email") or user.get("sub"))
             .kind('user')
@@ -31,10 +27,21 @@ class Flags:
             .set('org_id', user.get("org_id"))
             .build()
         )
-        multi_ctx = (
+        self.multi_ctx = (
             Context.multi_builder()
             .add(user_ctx)
             .add(org_ctx)
             .build()
         )
-        return ld_client.variation("admin-access", multi_ctx, False)
+
+    def has_super_admin_access(self):
+        if not ld_client or not ld_client.is_initialized():
+            return False
+
+        return ld_client.variation("super-admin-access", self.multi_ctx, False)
+
+    def has_admin_access(self):
+        if not ld_client or not ld_client.is_initialized():
+            return False
+
+        return ld_client.variation("admin-access", self.multi_ctx, False)

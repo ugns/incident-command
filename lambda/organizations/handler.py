@@ -25,6 +25,7 @@ def build_response(status_code: int, body: Any) -> Dict[str, Any]:
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     claims = check_auth(event)
+    flags = Flags(claims)
     method = event.get('httpMethod', 'GET')
     path_params = event.get('pathParameters') or {}
     org_id = path_params.get('org_id') if path_params else None
@@ -42,10 +43,14 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return build_response(404, {'error': 'Organization not found'})
             return build_response(200, org)
         else:
-            return build_response(400, {'error': 'Missing org_id or aud in path'})
+            items = Organization.list_all()
+            return build_response(200, items)
 
     elif method == 'POST':
         body = json.loads(event.get('body', '{}'))
+        if not flags.has_super_admin_access():
+            return build_response(403, {'error': 'Super Admin privileges required for create'})
+
         aud = body.get('aud')
         name = body.get('name')
         if not aud or not name:
@@ -56,6 +61,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     elif method == 'PUT':
         if not org_id:
             return build_response(400, {'error': 'Missing org_id in path'})
+        if not flags.has_super_admin_access():
+            return build_response(403, {'error': 'Super Admin privileges required for update'})
         body = json.loads(event.get('body', '{}'))
         updates = {k: v for k, v in body.items() if k in ('aud', 'name')}
         if not updates:
@@ -68,8 +75,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     elif method == 'DELETE':
         if not org_id:
             return build_response(400, {'error': 'Missing org_id in path'})
-        if not Flags.has_admin_access(claims):
-          return build_response(403, {'error': 'Admin privileges required for delete'})        
+        if not flags.has_super_admin_access():
+            return build_response(403, {'error': 'Super Admin privileges required for delete'})
         Organization.delete(org_id)
         return build_response(204, {})
 

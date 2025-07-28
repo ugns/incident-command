@@ -11,6 +11,11 @@ table: Any = dynamodb.Table(os.environ.get(  # type: ignore
 
 class Organization:
     @staticmethod
+    def list_all() -> list[dict[str, Any]]:
+        resp = table.scan()
+        return resp.get("Items", [])
+
+    @staticmethod
     def get_by_org_id(org_id: str) -> Optional[Dict[str, Any]]:
         resp = table.get_item(Key={"org_id": org_id})
         return resp.get("Item")
