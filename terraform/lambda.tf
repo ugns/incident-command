@@ -56,10 +56,16 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
           "dynamodb:Query"
         ]
         Resource = [
+          aws_dynamodb_table.units.arn,
+          "${aws_dynamodb_table.units.arn}/index/*",
+          aws_dynamodb_table.periods.arn,
+          "${aws_dynamodb_table.periods.arn}/index/*",
+          aws_dynamodb_table.incidents.arn,
+          "${aws_dynamodb_table.incidents.arn}/index/*",
           aws_dynamodb_table.volunteers.arn,
+          "${aws_dynamodb_table.volunteers.arn}/index/*",
           aws_dynamodb_table.activity_logs.arn,
           "${aws_dynamodb_table.activity_logs.arn}/index/*",
-          aws_dynamodb_table.periods.arn,
           aws_dynamodb_table.organizations.arn,
           "${aws_dynamodb_table.organizations.arn}/index/*",
         ]
@@ -71,10 +77,16 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
           "dynamodb:BatchWriteItem"
         ]
         Resource = [
+          aws_dynamodb_table.units.arn,
+          "${aws_dynamodb_table.units.arn}/index/*",
+          aws_dynamodb_table.periods.arn,
+          "${aws_dynamodb_table.periods.arn}/index/*",
+          aws_dynamodb_table.incidents.arn,
+          "${aws_dynamodb_table.incidents.arn}/index/*",
           aws_dynamodb_table.volunteers.arn,
+          "${aws_dynamodb_table.volunteers.arn}/index/*",
           aws_dynamodb_table.activity_logs.arn,
           "${aws_dynamodb_table.activity_logs.arn}/index/*",
-          aws_dynamodb_table.periods.arn,
           aws_dynamodb_table.organizations.arn,
           "${aws_dynamodb_table.organizations.arn}/index/*",
         ]
