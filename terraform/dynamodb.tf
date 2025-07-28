@@ -131,9 +131,9 @@ resource "aws_dynamodb_table" "activity_logs" {
 # The table supports a global secondary index on the aud attribute for efficient querying.
 # The aud attribute is used to scope organizations to a specific audience.
 resource "aws_dynamodb_table" "organizations" {
-  name           = "organizations"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "org_id"
+  name         = "organizations"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "org_id"
 
   attribute {
     name = "org_id"

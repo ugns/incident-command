@@ -159,7 +159,7 @@ resource "aws_lambda_function" "auth_callback" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.auth.output_base64sha256
-  layers = [aws_lambda_layer_version.shared.arn]
+  layers           = [aws_lambda_layer_version.shared.arn]
 
   environment {
     variables = {
@@ -289,7 +289,7 @@ resource "aws_lambda_function" "organizations" {
 
   environment {
     variables = {
-      ORGANIZATIONS_TABLE = aws_dynamodb_table.organizations.name
+      ORGANIZATIONS_TABLE  = aws_dynamodb_table.organizations.name
       JWT_SECRET           = random_password.jwt_secret.result
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
