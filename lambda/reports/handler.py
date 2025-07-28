@@ -8,6 +8,7 @@ import logging
 from pathlib import Path
 from typing import Any, Dict
 from client.auth import check_auth
+from utils.response import build_response
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -20,28 +21,20 @@ cors_headers = {
 }
 
 
-def build_response(status_code: int, body: Any) -> Dict[str, Any]:
-    return {
-        'statusCode': status_code,
-        'headers': cors_headers,
-        'body': json.dumps(body),
-    }
-
-
 # Dynamically load and call the reportType's generate_report()
 def dynamic_report_handler(report_type, data):
     module_name = f"{report_type}_form"
     try:
         module = importlib.import_module(module_name)
     except Exception as e:
-        return build_response(400, {'error': f'Could not import module {module_name}', 'details': str(e)})
+        return build_response(400, {'error': f'Could not import module {module_name}', 'details': str(e)}, headers=cors_headers)
     # Get media type
     media_type = getattr(module, 'MEDIA_TYPE', 'application/pdf')
     # Call generate_report
     try:
         result = module.generate_report(data)
     except Exception as e:
-        return build_response(500, {'error': 'Failed to generate report', 'details': str(e)})
+        return build_response(500, {'error': 'Failed to generate report', 'details': str(e)}, headers=cors_headers)
     # Generate a short hash from the data for filename uniqueness
     import hashlib
     import mimetypes
@@ -71,7 +64,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     claims = check_auth(event)
     org_id = claims.get('hd')
     if not org_id:
-        return build_response(403, {'error': 'Missing organization (hd claim) in token'})
+        return build_response(403, {'error': 'Missing organization (hd claim) in token'}, headers=cors_headers)
 
     try:
         method = event.get('httpMethod', 'GET')
@@ -122,7 +115,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 supported_reports.append(
                     {'type': rtype, 'mediaType': media_type, 'title': media_title})
             logger.info(f"Final supported_reports: {supported_reports}")
-            return build_response(200, {'reports': supported_reports})
+            return build_response(200, {'reports': supported_reports}, headers=cors_headers)
 
         if report_type:
             logger.info(f"Handling /reports/{report_type} endpoint")
@@ -140,7 +133,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return build_response(400, {
                     'error': 'Invalid request body',
                     'details': str(e)
-                })
+                }, headers=cors_headers)
 
             response = dynamic_report_handler(report_type, data)
             logger.info(f"Report handler response: {response}")
@@ -154,8 +147,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return response
 
         logger.warning("No matching endpoint found for event.")
-        return build_response(404, {'error': 'Not found'})
+        return build_response(404, {'error': 'Not found'}, headers=cors_headers)
     except Exception as e:
         logger.error(
             f"Unhandled exception in lambda_handler: {e}\n{traceback.format_exc()}")
-        return build_response(500, {'error': 'Internal server error', 'details': str(e)})
+        return build_response(500, {'error': 'Internal server error', 'details': str(e)}, headers=cors_headers)

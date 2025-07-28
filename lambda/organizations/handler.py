@@ -4,6 +4,7 @@ from typing import Any, Dict
 from client.auth import check_auth
 from launchdarkly.flags import Flags
 from models.organizations import Organization
+from utils.response import build_response
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -13,14 +14,6 @@ cors_headers = {
     "Access-Control-Allow-Headers": "Content-Type,Authorization",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
 }
-
-
-def build_response(status_code: int, body: Any) -> Dict[str, Any]:
-    return {
-        'statusCode': status_code,
-        'headers': cors_headers,
-        'body': json.dumps(body)
-    }
 
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -35,50 +28,50 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if org_id:
             org = Organization.get_by_org_id(org_id)
             if not org:
-                return build_response(404, {'error': 'Organization not found'})
-            return build_response(200, org)
+                return build_response(404, {'error': 'Organization not found'}, headers=cors_headers)
+            return build_response(200, org, headers=cors_headers)
         elif aud:
             org = Organization.get_by_aud(aud)
             if not org:
-                return build_response(404, {'error': 'Organization not found'})
-            return build_response(200, org)
+                return build_response(404, {'error': 'Organization not found'}, headers=cors_headers)
+            return build_response(200, org, headers=cors_headers)
         else:
             items = Organization.list_all()
-            return build_response(200, items)
+            return build_response(200, items, headers=cors_headers)
 
     elif method == 'POST':
         body = json.loads(event.get('body', '{}'))
         if not flags.has_super_admin_access():
-            return build_response(403, {'error': 'Super Admin privileges required for create'})
+            return build_response(403, {'error': 'Super Admin privileges required for create'}, headers=cors_headers)
 
         aud = body.get('aud')
         name = body.get('name')
         if not aud or not name:
-            return build_response(400, {'error': 'Missing aud or name in request body'})
+            return build_response(400, {'error': 'Missing aud or name in request body'}, headers=cors_headers)
         org = Organization.create(aud, name)
-        return build_response(201, org)
+        return build_response(201, org, headers=cors_headers)
 
     elif method == 'PUT':
         if not org_id:
-            return build_response(400, {'error': 'Missing org_id in path'})
+            return build_response(400, {'error': 'Missing org_id in path'}, headers=cors_headers)
         if not flags.has_super_admin_access():
-            return build_response(403, {'error': 'Super Admin privileges required for update'})
+            return build_response(403, {'error': 'Super Admin privileges required for update'}, headers=cors_headers)
         body = json.loads(event.get('body', '{}'))
         updates = {k: v for k, v in body.items() if k in ('aud', 'name')}
         if not updates:
-            return build_response(400, {'error': 'No valid fields to update'})
+            return build_response(400, {'error': 'No valid fields to update'}, headers=cors_headers)
         org = Organization.update(org_id, updates)
         if not org:
-            return build_response(404, {'error': 'Organization not found'})
-        return build_response(200, org)
+            return build_response(404, {'error': 'Organization not found'}, headers=cors_headers)
+        return build_response(200, org, headers=cors_headers)
 
     elif method == 'DELETE':
         if not org_id:
-            return build_response(400, {'error': 'Missing org_id in path'})
+            return build_response(400, {'error': 'Missing org_id in path'}, headers=cors_headers)
         if not flags.has_super_admin_access():
-            return build_response(403, {'error': 'Super Admin privileges required for delete'})
+            return build_response(403, {'error': 'Super Admin privileges required for delete'}, headers=cors_headers)
         Organization.delete(org_id)
-        return build_response(204, {})
+        return build_response(204, {}, headers=cors_headers)
 
     else:
-        return build_response(405, {'error': 'Method not allowed'})
+        return build_response(405, {'error': 'Method not allowed'}, headers=cors_headers)

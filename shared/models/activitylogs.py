@@ -10,6 +10,13 @@ table = dynamodb.Table(os.environ.get(  # type: ignore
 
 class ActivityLog:
     @staticmethod
+    def list_by_volunteer(org_id: str, volunteer_id: str) -> List[Dict[str, Any]]:
+        resp = table.query(
+            IndexName="VolunteerIdIndex",
+            KeyConditionExpression=Key("org_id").eq(org_id) & Key("volunteerId").eq(volunteer_id)
+        )
+        return resp.get("Items", [])
+    @staticmethod
     def get_activity_log(log_id: str) -> Optional[Dict[str, Any]]:
         resp = table.get_item(Key={"log_id": log_id})
         return resp.get("Item")

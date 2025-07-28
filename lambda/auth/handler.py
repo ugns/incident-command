@@ -1,3 +1,4 @@
+
 import os
 import json
 import time
@@ -7,12 +8,7 @@ from jose import jwt
 from typing import Protocol, Tuple, Optional, Dict, Any
 from googleAuthProvider import GoogleAuthProvider
 from models.volunteers import Volunteer
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-JWT_SECRET = os.environ.get('JWT_SECRET', 'changeme')
-TOKEN_TTL = int(os.environ.get('TOKEN_TTL', '3600'))
+from utils.response import build_response
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
@@ -20,13 +16,11 @@ cors_headers = {
     "Access-Control-Allow-Methods": "POST,OPTIONS"
 }
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
-def build_response(status_code: int, body: Any) -> Dict[str, Any]:
-    return {
-        'statusCode': status_code,
-        'headers': cors_headers,
-        'body': json.dumps(body)
-    }
+JWT_SECRET = os.environ.get('JWT_SECRET', 'changeme')
+TOKEN_TTL = int(os.environ.get('TOKEN_TTL', '3600'))
 
 
 class AuthProvider(Protocol):
@@ -50,15 +44,15 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         logger.info(f"Provider: {provider_name}")
         if not token:
             logger.warning("Missing token in request body")
-            return build_response(400, {"error": "Missing token"})
+            return build_response(400, {"error": "Missing token"}, headers=cors_headers)
         provider: Optional[AuthProvider] = PROVIDERS.get(provider_name)
         if not provider:
             logger.warning(f"Unsupported provider: {provider_name}")
-            return build_response(400, {"error": f"Unsupported provider: {provider_name}"})
+            return build_response(400, {"error": f"Unsupported provider: {provider_name}"}, headers=cors_headers)
         user_info, error = provider.authenticate(token)
         if error:
             logger.warning(f"Authentication error: {error}")
-            return build_response(401, error)
+            return build_response(401, error, headers=cors_headers)
         # Copy user_info and add JWT claims
         payload = copy.deepcopy(user_info) if user_info else {}
         payload['iss'] = 'incident-cmd-backend'
@@ -73,7 +67,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             email=user_response.get("email"),
             defaults=user_response
         )
-        return build_response(200, {"token": jwt_token, "user": user_response})
+        return build_response(200, {"token": jwt_token, "user": user_response}, headers=cors_headers)
     except Exception as e:
         logger.error(f"Exception in lambda_handler: {e}")
-        return build_response(400, {"error": "Invalid request body", "details": str(e)})
+        return build_response(400, {"error": "Invalid request body", "details": str(e)}, headers=cors_headers)
