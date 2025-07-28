@@ -11,19 +11,24 @@ ld_client = ldclient.get()
 
 
 def has_admin_access(user):
-    if not ld_client.is_initialized():
+    if not ld_client or not ld_client.is_initialized():
         return False
 
-    # user should have at least 'key' (email or sub)
-    user_context = (
-        Context.builder(user.get("email") or user.get("sub"))
-        .kind('user')
-        .set('email', user.get("email"))
-        .set('org_id', user.get("org_id"))
+    user_ctx = Context.builder(user.get("email") or user.get("sub")) \
+        .kind('user') \
+        .set('email', user.get("email")) \
         .build()
-    )
-    ld_client.track('client.auth', user_context)
-    return ld_client.variation("admin-access", user_context, False)
+    org_ctx = Context.builder(user.get("org_id")) \
+        .kind('organization') \
+        .set('org_id', user.get("org_id")) \
+        .build()
+    multi_ctx = Context.builder('multi') \
+        .kind('multi') \
+        .set('user', user_ctx) \
+        .set('organization', org_ctx) \
+        .build()
+    ld_client.track('auth.callback', multi_ctx)
+    return ld_client.variation("admin-access", multi_ctx, False)
 
 
 def get_jwt_secret():
