@@ -86,9 +86,6 @@ jobs:
       env:
         TF_VAR_gh_action_role: ${{ env.AWS_GITHUB_ACTIONS_ROLE }}
         TF_VAR_gh_access_token: ${{ steps.generate_token.outputs.token }}
-        # Backend Google OAuth Client IDs
-        TF_VAR_google_client_ids: ${{ vars.GOOGLE_CLIENT_IDS }}
-        # Admin emails for the application
         TF_VAR_launchdarkly_access_token: ${{ secrets.LAUNCHDARKLY_ACCESS_TOKEN }}
       run: terraform plan -out .planfile
 

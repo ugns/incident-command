@@ -9,12 +9,6 @@ variable "gh_action_role" {
   type        = string
 }
 
-variable "google_client_ids" {
-  description = "Comma-delimited Google OAuth Client IDs for backend authentication"
-  type        = string
-  default     = null
-}
-
 variable "lambda_runtime" {
   description = "Runtime for Lambda functions"
   type        = string
