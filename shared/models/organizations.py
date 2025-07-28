@@ -39,21 +39,9 @@ class Organization:
 
     @staticmethod
     def update(org_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        expr = []
-        vals = {}
-        for k, v in updates.items():
-            expr.append(f"{k} = :{k}")
-            vals[f":{k}"] = v
-        if not expr:
-            return None
-        update_expr = "SET " + ", ".join(expr)
-        resp = table.update_item(
-            Key={"org_id": org_id},
-            UpdateExpression=update_expr,
-            ExpressionAttributeValues=vals,
-            ReturnValues="ALL_NEW"
-        )
-        return resp.get("Attributes")
+        updates["org_id"] = org_id
+        table.put_item(Item=updates)
+        return updates
 
     @staticmethod
     def delete(org_id: str) -> bool:

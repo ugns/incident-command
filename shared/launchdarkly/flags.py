@@ -16,6 +16,7 @@ class Flags:
             .set('name', user.get("name"))
             .set('email', user.get("email"))
             .set('sub', user.get("sub"))
+            .set('hd', user.get("hd", None))
             .set('org_id', user.get("org_id"))
             .set('org_name', user.get("org_name"))
             .build()

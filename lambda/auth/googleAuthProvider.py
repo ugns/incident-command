@@ -34,11 +34,12 @@ class GoogleAuthProvider:
             user_info = {
                 'email': token_info.get('email'),
                 'name': token_info.get('name'),
-                'given_name': token_info.get('given_name'),
-                'family_name': token_info.get('family_name'),
+                'givenName': token_info.get('given_name'),
+                'familyName': token_info.get('family_name'),
                 'picture': token_info.get('picture'),
                 'org_id': org.get('org_id'),
                 'org_name': org.get('name'),
+                'hd': token_info.get('hd') if token_info.get('hd') else None,  # Google hosted domain
                 'sub': token_info.get('sub'),
                 'provider': 'google',
                 'raw': token_info

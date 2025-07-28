@@ -138,6 +138,7 @@ resource "aws_dynamodb_table" "activity_logs" {
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "org_id"
   range_key    = "logId"
+  deletion_protection_enabled = true
 
   attribute {
     name = "org_id"
