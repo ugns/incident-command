@@ -48,7 +48,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if 'periodId' not in body:
             body['periodId'] = str(uuid.uuid4())
         body['org_id'] = org_id
-        Period.create_period(body)
+        Period.create(body)
         return build_response(201, {'message': 'Period created', 'id': body['periodId']}, headers=cors_headers)
 
     elif method == 'PUT':
@@ -58,7 +58,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body = json.loads(event.get('body', '{}'))
         body['periodId'] = period_id
         body['org_id'] = org_id
-        Period.update_period(period_id, body)
+        Period.update(period_id, body)
         return build_response(200, {'message': 'Period updated', 'id': period_id}, headers=cors_headers)
 
     elif method == 'DELETE':
@@ -67,7 +67,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return build_response(400, {'error': 'Missing period id in path'}, headers=cors_headers)
         if not Flags.has_admin_access(claims):
             return build_response(403, {'error': 'Admin privileges required for delete'}, headers=cors_headers)
-        Period.delete_period(period_id)
+        Period.delete(period_id)
         return build_response(204, {}, headers=cors_headers)
 
     else:
