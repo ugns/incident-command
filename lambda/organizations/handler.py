@@ -57,7 +57,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if not flags.has_super_admin_access():
             return build_response(403, {'error': 'Super Admin privileges required for update'}, headers=cors_headers)
         body = json.loads(event.get('body', '{}'))
-        updates = {k: v for k, v in body.items() if k in ('aud', 'name')}
+        updates = {k: v for k, v in body.items() if k in ('aud', 'name', 'hd', 'notes')}
         if not updates:
             return build_response(400, {'error': 'No valid fields to update'}, headers=cors_headers)
         org = Organization.update(org_id, updates)
