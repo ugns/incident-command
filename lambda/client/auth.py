@@ -14,19 +14,24 @@ def has_admin_access(user):
     if not ld_client or not ld_client.is_initialized():
         return False
 
-    user_ctx = Context.builder(user.get("email") or user.get("sub")) \
-        .kind('user') \
-        .set('email', user.get("email")) \
+    user_ctx = (
+        Context.builder(user.get("email") or user.get("sub"))
+        .kind('user')
+        .set('email', user.get("email"))
         .build()
-    org_ctx = Context.builder(user.get("org_id")) \
-        .kind('organization') \
-        .set('org_id', user.get("org_id")) \
+    )
+    org_ctx = (
+        Context.builder(user.get("org_id"))
+        .kind('organization')
+        .set('org_id', user.get("org_id"))
         .build()
-    multi_ctx = Context.builder('multi') \
-        .kind('multi') \
-        .set('user', user_ctx) \
-        .set('organization', org_ctx) \
+    )
+    multi_ctx = (
+        Context.multi_builder()
+        .add(user_ctx)
+        .add(org_ctx)
         .build()
+    )
     ld_client.track('auth.callback', multi_ctx)
     return ld_client.variation("admin-access", multi_ctx, False)
 
