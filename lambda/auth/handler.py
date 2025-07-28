@@ -1,12 +1,16 @@
+
 import os
 import json
 import requests
 import time
 import copy
+import logging
 from jose import jwt
 from typing import Protocol, Tuple, Optional, Dict, Any
 from organizations.model import Organization
-from typing import Any, Dict
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 JWT_SECRET = os.environ.get('JWT_SECRET', 'changeme')
 TOKEN_TTL = int(os.environ.get('TOKEN_TTL', '3600'))
@@ -34,14 +38,23 @@ class AuthProvider(Protocol):
 class GoogleAuthProvider:
     def authenticate(self, token: str) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
         try:
+            logger.info(
+                f"Authenticating Google token: {token[:10]}... (truncated)")
             resp = requests.get(
                 f'https://oauth2.googleapis.com/tokeninfo?id_token={token}')
+            logger.info(
+                f"Google tokeninfo response status: {resp.status_code}")
             if resp.status_code != 200:
+                logger.warning(f"Invalid Google token: {resp.text}")
                 return None, {"error": "Invalid Google token"}
             token_info = resp.json()
+            logger.info(f"Token info: {json.dumps(token_info)}")
             # Lookup organization by aud
             org = Organization.get_by_aud(token_info.get('aud'))
+            logger.info(
+                f"Organization lookup by aud={token_info.get('aud')}: {org}")
             if not org:
+                logger.warning("No organization found for this audience (aud)")
                 return None, {"error": "No organization found for this audience (aud)"}
             # Standardize user info
             user_info = {
@@ -53,8 +66,10 @@ class GoogleAuthProvider:
                 'provider': 'google',
                 'raw': token_info
             }
+            logger.info(f"User info constructed: {user_info}")
             return user_info, None
-        except Exception:
+        except Exception as e:
+            logger.error(f"Token validation failed: {e}")
             return None, {"error": "Token validation failed"}
 
 
@@ -66,16 +81,22 @@ PROVIDERS: Dict[str, AuthProvider] = {
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
+        logger.info(
+            f"Received event: {json.dumps(event)[:500]}... (truncated)")
         body = json.loads(event.get('body', '{}'))
         provider_name = body.get('provider', 'google')
         token = body.get('token')
+        logger.info(f"Provider: {provider_name}")
         if not token:
+            logger.warning("Missing token in request body")
             return build_response(400, {"error": "Missing token"})
         provider: Optional[AuthProvider] = PROVIDERS.get(provider_name)
         if not provider:
+            logger.warning(f"Unsupported provider: {provider_name}")
             return build_response(400, {"error": f"Unsupported provider: {provider_name}"})
         user_info, error = provider.authenticate(token)
         if error:
+            logger.warning(f"Authentication error: {error}")
             return build_response(401, error)
         # Copy user_info and add JWT claims
         payload = copy.deepcopy(user_info) if user_info else {}
@@ -85,6 +106,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         # Return user info (excluding sub, iss, provider, raw)
         user_response = {k: v for k, v in user_info.items() if k not in (
             'sub', 'provider', 'raw')} if user_info else {}
+        logger.info(f"Authentication successful for user: {user_response}")
         return build_response(200, {"token": jwt_token, "user": user_response})
     except Exception as e:
+        logger.error(f"Exception in lambda_handler: {e}")
         return build_response(400, {"error": "Invalid request body", "details": str(e)})

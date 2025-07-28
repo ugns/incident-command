@@ -1,10 +1,13 @@
 import json
+import logging
 from boto3.dynamodb.conditions import Key
 from typing import Any, Dict
 from periods.model import Period
 from shared.client.auth import check_auth
 from shared.launchdarkly.flags import Flags
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",

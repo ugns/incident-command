@@ -6,10 +6,10 @@ import glob
 import traceback
 import logging
 from pathlib import Path
-from client.auth import check_auth
+from shared.client.auth import check_auth
 from typing import Any, Dict
 
-logger = logging.getLogger()
+logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 cors_headers = {
