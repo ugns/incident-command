@@ -74,7 +74,7 @@ class GoogleAuthProvider:
                 'provider': 'google',
                 'raw': token_info
             }
-            user_info['is_admin'] = has_admin_access(user_info)
+            # user_info['is_admin'] = has_admin_access(user_info)
             return user_info, None
         except Exception:
             return None, {"error": "Token validation failed"}
