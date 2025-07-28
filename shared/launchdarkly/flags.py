@@ -17,6 +17,7 @@ class Flags:
         user_ctx = (
             Context.builder(user.get("email") or user.get("sub"))
             .kind('user')
+            .set('name', user.get("name"))
             .set('email', user.get("email"))
             .set('sub', user.get("sub"))
             .set('org_id', user.get("org_id"))
@@ -26,8 +27,8 @@ class Flags:
         org_ctx = (
             Context.builder(user.get("org_id"))
             .kind('organization')
+            .set('name', user.get("org_name"))
             .set('org_id', user.get("org_id"))
-            .set('org_name', user.get("org_name"))
             .build()
         )
         multi_ctx = (
