@@ -110,9 +110,9 @@ jobs:
       run: terraform apply -no-color -auto-approve .planfile
 
     - name: Upload shared Lambda Layer zip
-      if: always()  # or if: success() if you only want on success
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: shared-lambda-layer
-        path: ../lambda/shared.zip
+        path: lambda/shared.zip
 
