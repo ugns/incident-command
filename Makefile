@@ -1,17 +1,17 @@
 # Makefile for preparing Lambda deployment packages with shared client code
+# and installing shared Python dependencies.
 
-
-LAMBDA_DIRS = lambda/volunteers lambda/activitylogs lambda/periods lambda/reports lambda/auth
-CLIENT_SRC = lambda/client
-REQUIREMENTS = requirements.txt
-
-
-
-.PHONY: all clean prepare-lambdas install-deps extract-fields
+LAYER_BUILD_DIR = shared/build/python
+SHARED_REQUIREMENTS = shared/requirements.txt
 
 
 
-all: install-deps extract-fields prepare-lambdas
+
+.PHONY: all clean install-deps extract-fields dev-venv
+
+
+
+all: install-deps extract-fields
 extract-fields:
 	@echo "Extracting fields JSON from PDF templates in lambda/reports..."
 	cd lambda/reports && \
@@ -24,34 +24,36 @@ extract-fields:
 	@echo "Done extracting fields JSON."
 
 
-prepare-lambdas:
-	@echo "Copying shared client/ code into each Lambda directory..."
-	@for dir in $(LAMBDA_DIRS); do \
-		rm -rf $$dir/client; \
-		cp -r $(CLIENT_SRC) $$dir/; \
-	done
-	@echo "Done copying client/."
 
-
-install-deps:
-	@echo "Installing Python dependencies into each Lambda directory..."
-	@for dir in $(LAMBDA_DIRS); do \
-		if [ -f $(REQUIREMENTS) ]; then \
-			pip install --upgrade -r $(REQUIREMENTS) -t $$dir; \
-		fi; \
-		if [ -f $$dir/requirements.txt ]; then \
-			pip install --upgrade -r $$dir/requirements.txt -t $$dir; \
+install-deps: clean
+	@echo "Installing shared Python dependencies for Lambda Layer..."
+	mkdir -p $(LAYER_BUILD_DIR)
+	pip install --upgrade -r $(SHARED_REQUIREMENTS) -t $(LAYER_BUILD_DIR)
+	@for dir in shared/*; do \
+		if [ -d $$dir ] && [ "$$(basename $$dir)" != "python" ]; then \
+			cp -r $$dir $(LAYER_BUILD_DIR)/; \
 		fi; \
 	done
-	@echo "Done installing dependencies."
+	@echo "Done installing shared dependencies and copying shared code."
+
+
+
+dev-venv:
+	@echo "Setting up local development virtual environment..."
+	python3 -m venv venv
+	. venv/bin/activate && \
+		pip install --upgrade pip && \
+		pip install -r $(SHARED_REQUIREMENTS)
+	@for dir in shared/*; do \
+		if [ -d $$dir ] && [ "$$dir" != "shared/build" ]; then \
+			. venv/bin/activate && pip install -e $$dir; \
+		fi; \
+	done
+	@echo "Local dev venv ready. Run: source venv/bin/activate"
 
 
 
 clean:
-	@echo "Cleaning all subdirectories and dependencies from Lambda directories..."
-	@for dir in $(LAMBDA_DIRS); do \
-		find $$dir -mindepth 1 -maxdepth 1 -type d -exec rm -rf {} +; \
-		find $$dir -name '*.pyc' -o -name '*.so' -delete; \
-		find $$dir -name 'six.py' -delete; \
-	done
+	@echo "Cleaning all shared dependencies for Lambda Layer..."
+	@rm -rf $(dir $(LAYER_BUILD_DIR))
 	@echo "Done."

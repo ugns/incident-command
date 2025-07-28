@@ -1,0 +1,7 @@
+boto3
+launchdarkly-server-sdk
+pypdf
+pypdf[crypto]
+python-jose
+reportlab
+requests

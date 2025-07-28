@@ -1,3 +1,0 @@
-pypdf
-pypdf[crypto]
-reportlab

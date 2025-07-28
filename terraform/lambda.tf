@@ -59,7 +59,8 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
           aws_dynamodb_table.volunteers.arn,
           aws_dynamodb_table.activity_logs.arn,
           "${aws_dynamodb_table.activity_logs.arn}/index/*",
-          aws_dynamodb_table.periods.arn
+          aws_dynamodb_table.periods.arn,
+          aws_dynamodb_table.organizations.arn
         ]
       },
       {
@@ -72,7 +73,8 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
           aws_dynamodb_table.volunteers.arn,
           aws_dynamodb_table.activity_logs.arn,
           "${aws_dynamodb_table.activity_logs.arn}/index/*",
-          aws_dynamodb_table.periods.arn
+          aws_dynamodb_table.periods.arn,
+          aws_dynamodb_table.organizations.arn
         ]
       }
     ]
@@ -104,20 +106,37 @@ resource "aws_iam_role_policy" "lambda_apigateway_policy" {
 
 # Lambda Functions
 
+# Shared Layer for Python dependencies
+data "archive_file" "shared_layer" {
+  type        = "zip"
+  source_dir  = "../shared/build"
+  output_path = "../lambda/shared.zip"
+}
+
+resource "aws_lambda_layer_version" "shared" {
+  filename            = data.archive_file.shared_layer.output_path
+  layer_name          = "incident_cmd_shared"
+  compatible_runtimes = [var.lambda_runtime]
+  source_code_hash    = data.archive_file.shared_layer.output_base64sha256
+  description         = "Shared Python dependencies and code for incident-cmd Lambdas"
+}
+
 # OpenAPI Export Lambda
 data "archive_file" "openapi" {
   type        = "zip"
-  source_dir  = "../lambda/docs"
+  source_dir  = "../lambda/openapi"
   output_path = "../lambda/openapi.zip"
 }
 
 resource "aws_lambda_function" "openapi" {
   function_name    = "openapi_export"
   filename         = data.archive_file.openapi.output_path
-  handler          = "openapi.lambda_handler"
+  handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.openapi.output_base64sha256
+  layers = [aws_lambda_layer_version.shared.arn]
+
   environment {
     variables = {
       REST_API_ID = aws_api_gateway_rest_api.incident_cmd.id
@@ -137,10 +156,12 @@ data "archive_file" "auth" {
 resource "aws_lambda_function" "auth_callback" {
   function_name    = "auth_callback"
   filename         = data.archive_file.auth.output_path
-  handler          = "callback.lambda_handler"
+  handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.auth.output_base64sha256
+  layers = [aws_lambda_layer_version.shared.arn]
+
   environment {
     variables = {
       GOOGLE_CLIENT_IDS    = var.google_client_ids
@@ -160,10 +181,12 @@ data "archive_file" "volunteers" {
 resource "aws_lambda_function" "volunteers" {
   function_name    = "volunteers"
   filename         = data.archive_file.volunteers.output_path
-  handler          = "volunteers.lambda_handler"
+  handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.volunteers.output_base64sha256
+  layers           = [aws_lambda_layer_version.shared.arn]
+
   environment {
     variables = {
       VOLUNTEERS_TABLE     = aws_dynamodb_table.volunteers.name
@@ -174,8 +197,6 @@ resource "aws_lambda_function" "volunteers" {
   }
 }
 
-
-
 # Activity Logs: single zip, single handler
 data "archive_file" "activitylogs" {
   type        = "zip"
@@ -185,10 +206,12 @@ data "archive_file" "activitylogs" {
 resource "aws_lambda_function" "activitylogs" {
   function_name    = "activitylogs"
   filename         = data.archive_file.activitylogs.output_path
-  handler          = "activitylogs.lambda_handler"
+  handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.activitylogs.output_base64sha256
+  layers           = [aws_lambda_layer_version.shared.arn]
+
   environment {
     variables = {
       ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
@@ -209,10 +232,12 @@ data "archive_file" "periods" {
 resource "aws_lambda_function" "periods" {
   function_name    = "periods"
   filename         = data.archive_file.periods.output_path
-  handler          = "periods.lambda_handler"
+  handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.periods.output_base64sha256
+  layers           = [aws_lambda_layer_version.shared.arn]
+
   environment {
     variables = {
       ICS_PERIODS_TABLE    = aws_dynamodb_table.periods.name
@@ -231,15 +256,42 @@ data "archive_file" "reports" {
 resource "aws_lambda_function" "reports" {
   function_name    = "reports"
   filename         = data.archive_file.reports.output_path
-  handler          = "reports.lambda_handler"
+  handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.reports.output_base64sha256
   timeout          = 30
+  layers           = [aws_lambda_layer_version.shared.arn]
+
   environment {
     variables = {
       ICS214_TEMPLATE_PDF  = "ICS-214-v31.pdf"
       ICS214_FIELDS_JSON   = "ICS-214-v31.json"
+      JWT_SECRET           = random_password.jwt_secret.result
+      LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
+    }
+  }
+}
+
+# Organizations: single zip, single handler
+data "archive_file" "organizations" {
+  type        = "zip"
+  source_dir  = "../lambda/organizations"
+  output_path = "../lambda/organizations.zip"
+}
+
+resource "aws_lambda_function" "organizations" {
+  function_name    = "organizations"
+  filename         = data.archive_file.organizations.output_path
+  handler          = "handler.lambda_handler"
+  runtime          = var.lambda_runtime
+  role             = aws_iam_role.lambda_exec.arn
+  source_code_hash = data.archive_file.organizations.output_base64sha256
+  layers           = [aws_lambda_layer_version.shared.arn]
+
+  environment {
+    variables = {
+      ORGANIZATIONS_TABLE = aws_dynamodb_table.organizations.name
       JWT_SECRET           = random_password.jwt_secret.result
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }

@@ -121,3 +121,37 @@ resource "aws_dynamodb_table" "activity_logs" {
     projection_type = "ALL"
   }
 }
+
+# Organizations Table
+# This table stores organization information, indexed by org_id
+# It allows querying organizations by their unique org_id.
+# The org_id is a unique identifier for each organization.
+# The table also includes an aud attribute to scope organizations to a specific audience.
+# The aud attribute is used to associate organizations with their respective audiences.
+# The table supports a global secondary index on the aud attribute for efficient querying.
+# The aud attribute is used to scope organizations to a specific audience.
+resource "aws_dynamodb_table" "organizations" {
+  name           = "organizations"
+  billing_mode   = "PAY_PER_REQUEST"
+  hash_key       = "org_id"
+
+  attribute {
+    name = "org_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "aud"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "aud-index"
+    hash_key        = "aud"
+    projection_type = "ALL"
+  }
+
+  tags = {
+    Name = "organizations"
+  }
+}

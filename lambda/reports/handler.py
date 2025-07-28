@@ -20,28 +20,28 @@ cors_headers = {
 }
 
 
+def build_response(status_code: int, body: Any) -> Dict[str, Any]:
+    return {
+        'statusCode': status_code,
+        'headers': cors_headers,
+        'body': json.dumps(body),
+    }
+
+
 # Dynamically load and call the reportType's generate_report()
 def dynamic_report_handler(report_type, data):
     module_name = f"{report_type}_form"
     try:
         module = importlib.import_module(module_name)
     except Exception as e:
-        return {
-            'statusCode': 400,
-            'body': json.dumps({'error': f'Could not import module {module_name}', 'details': str(e)}),
-            'headers': {**cors_headers, 'Content-Type': 'application/json'},
-        }
+        return build_response(400, {'error': f'Could not import module {module_name}', 'details': str(e)})
     # Get media type
     media_type = getattr(module, 'MEDIA_TYPE', 'application/pdf')
     # Call generate_report
     try:
         result = module.generate_report(data)
     except Exception as e:
-        return {
-            'statusCode': 500,
-            'body': json.dumps({'error': 'Failed to generate report', 'details': str(e)}),
-            'headers': {**cors_headers, 'Content-Type': 'application/json'},
-        }
+        return build_response(500, {'error': 'Failed to generate report', 'details': str(e)})
     # Generate a short hash from the data for filename uniqueness
     import hashlib
     import mimetypes
@@ -52,7 +52,7 @@ def dynamic_report_handler(report_type, data):
     # Use pathlib to format filename and extension
     base_name = f"{report_type}-{short_hash}"
     filename = str(Path(base_name).with_suffix(ext)) if ext else base_name
-    return {
+    response = {
         'statusCode': 200,
         'body': base64.b64encode(result).decode('utf-8'),
         'isBase64Encoded': True,
@@ -62,17 +62,16 @@ def dynamic_report_handler(report_type, data):
         },
         "mediaType": media_type,
     }
+    # Remove mediaType from response
+    response.pop('mediaType', None)
+    return response
 
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     claims = check_auth(event)
     org_id = claims.get('hd')
     if not org_id:
-        return {
-            'statusCode': 403,
-            'headers': cors_headers,
-            'body': json.dumps({'error': 'Missing organization (hd claim) in token'})
-        }
+        return build_response(403, {'error': 'Missing organization (hd claim) in token'})
 
     try:
         method = event.get('httpMethod', 'GET')
@@ -123,11 +122,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 supported_reports.append(
                     {'type': rtype, 'mediaType': media_type, 'title': media_title})
             logger.info(f"Final supported_reports: {supported_reports}")
-            return {
-                'statusCode': 200,
-                'body': json.dumps({'reports': supported_reports}),
-                'headers': {**cors_headers, 'Content-Type': 'application/json'},
-            }
+            return build_response(200, {'reports': supported_reports})
 
         if report_type:
             logger.info(f"Handling /reports/{report_type} endpoint")
@@ -142,14 +137,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             except Exception as e:
                 logger.error(
                     f"Error parsing request body: {e}\n{traceback.format_exc()}")
-                return {
-                    'statusCode': 400,
-                    'body': json.dumps({'error': 'Invalid request body', 'details': str(e)}),
-                    'headers': {
-                        **cors_headers,
-                        'Content-Type': 'application/json',
-                    }
-                }
+                return build_response(400, {
+                    'error': 'Invalid request body',
+                    'details': str(e)
+                })
+
             response = dynamic_report_handler(report_type, data)
             logger.info(f"Report handler response: {response}")
             if response.get('statusCode') == 200:
@@ -162,22 +154,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return response
 
         logger.warning("No matching endpoint found for event.")
-        return {
-            'statusCode': 404,
-            'body': json.dumps({'error': 'Not found'}),
-            'headers': {
-                **cors_headers,
-                'Content-Type': 'application/json'
-            }
-        }
+        return build_response(404, {'error': 'Not found'})
     except Exception as e:
         logger.error(
             f"Unhandled exception in lambda_handler: {e}\n{traceback.format_exc()}")
-        return {
-            'statusCode': 500,
-            'body': json.dumps({'error': 'Internal server error', 'details': str(e)}),
-            'headers': {
-                **cors_headers,
-                'Content-Type': 'application/json'
-            }
-        }
+        return build_response(500, {'error': 'Internal server error', 'details': str(e)})

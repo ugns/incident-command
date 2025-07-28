@@ -1,3 +1,0 @@
-requests
-python-jose
-launchdarkly-server-sdk
