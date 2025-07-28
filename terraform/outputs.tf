@@ -10,6 +10,11 @@ output "launchdarkly_environment_client_side_id" {
   sensitive   = true
 }
 
+output "launchdarkly_super_admin_access_flag_key" {
+  description = "Key for the LaunchDarkly super-admin-access feature flag."
+  value       = launchdarkly_feature_flag.super_admin_access.key
+}
+
 output "launchdarkly_admin_access_flag_key" {
   description = "Key for the LaunchDarkly admin-access feature flag."
   value       = launchdarkly_feature_flag.admin_access.key
