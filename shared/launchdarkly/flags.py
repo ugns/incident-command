@@ -9,27 +9,31 @@ ld_client = ldclient.get()
 
 
 class Flags:
-  @staticmethod
-  def has_admin_access(user):
-      if not ld_client or not ld_client.is_initialized():
-          return False
+    @staticmethod
+    def has_admin_access(user):
+        if not ld_client or not ld_client.is_initialized():
+            return False
 
-      user_ctx = (
-          Context.builder(user.get("email") or user.get("sub"))
-          .kind('user')
-          .set('email', user.get("email"))
-          .build()
-      )
-      org_ctx = (
-          Context.builder(user.get("org_id"))
-          .kind('organization')
-          .set('org_id', user.get("org_id"))
-          .build()
-      )
-      multi_ctx = (
-          Context.multi_builder()
-          .add(user_ctx)
-          .add(org_ctx)
-          .build()
-      )
-      return ld_client.variation("admin-access", multi_ctx, False)
+        user_ctx = (
+            Context.builder(user.get("email") or user.get("sub"))
+            .kind('user')
+            .set('email', user.get("email"))
+            .set('sub', user.get("sub"))
+            .set('org_id', user.get("org_id"))
+            .set('org_name', user.get("org_name"))
+            .build()
+        )
+        org_ctx = (
+            Context.builder(user.get("org_id"))
+            .kind('organization')
+            .set('org_id', user.get("org_id"))
+            .set('org_name', user.get("org_name"))
+            .build()
+        )
+        multi_ctx = (
+            Context.multi_builder()
+            .add(user_ctx)
+            .add(org_ctx)
+            .build()
+        )
+        return ld_client.variation("admin-access", multi_ctx, False)
