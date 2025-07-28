@@ -1,9 +1,9 @@
 import json
 from boto3.dynamodb.conditions import Key
 from typing import Any, Dict
-from activitylogs.model import ActivityLog
-from shared.client.auth import check_auth
-from shared.launchdarkly.flags import Flags
+from client.auth import check_auth
+from launchdarkly.flags import Flags
+from models.activitylogs import ActivityLog
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",

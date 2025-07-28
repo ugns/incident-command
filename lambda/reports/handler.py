@@ -6,8 +6,8 @@ import glob
 import traceback
 import logging
 from pathlib import Path
-from shared.client.auth import check_auth
 from typing import Any, Dict
+from client.auth import check_auth
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)

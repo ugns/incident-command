@@ -1,9 +1,9 @@
 import json
 import logging
 from typing import Any, Dict
-from shared.models.volunteers import Volunteer
-from shared.client.auth import check_auth
-from shared.launchdarkly.flags import Flags
+from client.auth import check_auth
+from launchdarkly.flags import Flags
+from models.volunteers import Volunteer
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
