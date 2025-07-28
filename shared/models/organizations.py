@@ -10,11 +10,7 @@ table: Any = dynamodb.Table(os.environ.get(  # type: ignore
 
 
 class Organization:
-    @staticmethod
-    def list_all() -> list[dict[str, Any]]:
-        resp = table.scan()
-        return resp.get("Items", [])
-
+    # TODO: Standardize function naming across models
     @staticmethod
     def get_by_org_id(org_id: str) -> Optional[Dict[str, Any]]:
         resp = table.get_item(Key={"org_id": org_id})
@@ -28,6 +24,11 @@ class Organization:
         )
         items = resp.get("Items", [])
         return items[0] if items else None
+
+    @staticmethod
+    def list_all() -> list[dict[str, Any]]:
+        resp = table.scan()
+        return resp.get("Items", [])
 
     @staticmethod
     def create(aud: str, name: str) -> Dict[str, Any]:

@@ -11,6 +11,12 @@ table: Any = dynamodb.Table(os.environ.get(  # type: ignore
 
 class Volunteer:
     @staticmethod
+    def get(org_id: str, volunteer_id: str) -> Optional[Dict[str, Any]]:
+        resp = table.get_item(
+            Key={"org_id": org_id, "volunteerId": volunteer_id})
+        return resp.get("Item")
+
+    @staticmethod
     def get_by_email(org_id: str, email: str) -> Optional[Dict[str, Any]]:
         resp = table.query(
             IndexName="email-index",
@@ -26,12 +32,6 @@ class Volunteer:
             return volunteer
         item = {"email": email, **defaults}
         return Volunteer.create(org_id, item)
-
-    @staticmethod
-    def get(org_id: str, volunteer_id: str) -> Optional[Dict[str, Any]]:
-        resp = table.get_item(
-            Key={"org_id": org_id, "volunteerId": volunteer_id})
-        return resp.get("Item")
 
     @staticmethod
     def list(org_id: str) -> List[Dict[str, Any]]:
