@@ -38,7 +38,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 return build_response(404, {'error': 'Period not found'}, headers=cors_headers)
             return build_response(200, item, headers=cors_headers)
         else:
-            items = Period.list_periods(org_id)
+            items = Period.list(org_id)
             return build_response(200, items, headers=cors_headers)
 
     elif method == 'POST':
