@@ -64,30 +64,6 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     create_before_destroy = true
   }
   depends_on = [
-    aws_api_gateway_integration.openapi_json_get,
-    # Auth integrations
-    aws_api_gateway_integration.auth_login_post,
-    aws_api_gateway_integration.auth_login_options,
-    # Reports integrations
-    aws_api_gateway_integration.report_type_post,
-    aws_api_gateway_integration.report_type_options,
-    aws_api_gateway_integration.reports_options,
-    aws_api_gateway_integration.reports_get,
-    # Periods integrations
-    aws_api_gateway_integration.periods_post,
-    aws_api_gateway_integration.periods_options,
-    aws_api_gateway_integration.periods_get,
-    aws_api_gateway_integration.period_id_put,
-    aws_api_gateway_integration.period_id_options,
-    aws_api_gateway_integration.period_id_get,
-    aws_api_gateway_integration.period_id_delete,
-    # Activitylogs integrations
-    aws_api_gateway_integration.activitylogs_options,
-    aws_api_gateway_integration.activitylogs_get,
-    aws_api_gateway_integration.activitylogs_post,
-    aws_api_gateway_integration.activitylog_id_options,
-    aws_api_gateway_integration.activitylog_id_get,
-    # Volunteers integrations
     aws_api_gateway_integration.volunteers_post,
     aws_api_gateway_integration.volunteers_options,
     aws_api_gateway_integration.volunteers_get,
@@ -101,6 +77,30 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     aws_api_gateway_integration.volunteer_id_checkout_options,
     aws_api_gateway_integration.volunteer_id_checkin_put,
     aws_api_gateway_integration.volunteer_id_checkin_options,
+    aws_api_gateway_integration.report_type_post,
+    aws_api_gateway_integration.report_type_options,
+    aws_api_gateway_integration.reports_options,
+    aws_api_gateway_integration.reports_get,
+    aws_api_gateway_integration.periods_post,
+    aws_api_gateway_integration.periods_options,
+    aws_api_gateway_integration.periods_get,
+    aws_api_gateway_integration.period_id_put,
+    aws_api_gateway_integration.period_id_options,
+    aws_api_gateway_integration.period_id_get,
+    aws_api_gateway_integration.period_id_delete,
+    aws_api_gateway_integration.organizations_root,
+    aws_api_gateway_integration.organizations_options,
+    aws_api_gateway_integration.organizations_id_options,
+    aws_api_gateway_integration.organizations_id,
+    aws_api_gateway_integration.openapi_json_get,
+    aws_api_gateway_integration.auth_login_post,
+    aws_api_gateway_integration.auth_login_options,
+    aws_api_gateway_integration.activitylogs_post,
+    aws_api_gateway_integration.activitylogs_options,
+    aws_api_gateway_integration.activitylogs_get,
+    aws_api_gateway_integration.activitylog_id_options,
+    aws_api_gateway_integration.activitylog_id_get,
+    aws_api_gateway_integration.activitylogs_id_delete,
   ]
 }
 
