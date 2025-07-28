@@ -2,7 +2,7 @@ import json
 import logging
 from boto3.dynamodb.conditions import Key
 from typing import Any, Dict
-from periods.model import Period
+from shared.models.periods import Period
 from shared.client.auth import check_auth
 from shared.launchdarkly.flags import Flags
 

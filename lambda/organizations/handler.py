@@ -1,7 +1,7 @@
 import json
 import logging
 from typing import Any, Dict
-from organizations.model import Organization
+from shared.models.organizations import Organization
 from shared.client.auth import check_auth
 from shared.launchdarkly.flags import Flags
 

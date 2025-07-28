@@ -1,7 +1,7 @@
 import json
 import logging
 from typing import Any, Dict
-from volunteers.model import Volunteer
+from shared.models.volunteers import Volunteer
 from shared.client.auth import check_auth
 from shared.launchdarkly.flags import Flags
 

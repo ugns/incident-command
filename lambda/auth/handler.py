@@ -7,7 +7,7 @@ import copy
 import logging
 from jose import jwt
 from typing import Protocol, Tuple, Optional, Dict, Any
-from organizations.model import Organization
+from shared.models.organizations import Organization
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
