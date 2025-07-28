@@ -108,3 +108,11 @@ jobs:
         TF_VAR_gh_action_role: ${{ env.AWS_GITHUB_ACTIONS_ROLE }}
         TF_VAR_gh_access_token: ${{ steps.generate_token.outputs.token }}
       run: terraform apply -no-color -auto-approve .planfile
+
+    - name: Upload shared Lambda Layer zip
+      if: always()  # or if: success() if you only want on success
+      uses: actions/upload-artifact@v4
+      with:
+        name: shared-lambda-layer
+        path: ../lambda/shared.zip
+
