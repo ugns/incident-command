@@ -100,7 +100,6 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     aws_api_gateway_integration.activitylogs_get,
     aws_api_gateway_integration.activitylog_id_options,
     aws_api_gateway_integration.activitylog_id_get,
-    aws_api_gateway_integration.activitylogs_id_delete,
   ]
 }
 
