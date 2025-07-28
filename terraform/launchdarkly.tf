@@ -8,7 +8,7 @@ resource "launchdarkly_project" "incident_cmd" {
     name  = "Production"
     color = "0073e6"
   }
-  
+
   default_client_side_availability {
     using_environment_id = true
     using_mobile_key     = false
