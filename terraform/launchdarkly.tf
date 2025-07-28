@@ -45,6 +45,11 @@ resource "launchdarkly_feature_flag" "admin_access" {
     on_variation  = 0
     off_variation = 1
   }
+
+  client_side_availability {
+    using_environment_id = true
+    using_mobile_key     = false
+  }
 }
 
 resource "launchdarkly_feature_flag" "show_radio_resources" {
@@ -52,7 +57,7 @@ resource "launchdarkly_feature_flag" "show_radio_resources" {
   key            = "show-radio-resources"
   name           = "Show Radio Resources"
   description    = "Controls visibility of radio resources."
-  tags           = ["features", "resources", "managed-by-terraform"]
+  tags           = ["features", "radios", "resources", "managed-by-terraform"]
   temporary      = false
   variation_type = "boolean"
 
@@ -69,5 +74,10 @@ resource "launchdarkly_feature_flag" "show_radio_resources" {
   defaults {
     on_variation  = 0
     off_variation = 1
+  }
+
+  client_side_availability {
+    using_environment_id = true
+    using_mobile_key     = false
   }
 }
