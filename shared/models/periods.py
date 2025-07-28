@@ -9,6 +9,13 @@ table: Any = dynamodb.Table(os.environ.get(  # type: ignore
 
 
 class Period:
+    @staticmethod
+    def list_by_unit(org_id: str, unit_id: str) -> List[Dict[str, Any]]:
+        resp = table.query(
+            IndexName="unitId-index",
+            KeyConditionExpression=Key("org_id").eq(org_id) & Key("unitId").eq(unit_id)
+        )
+        return resp.get("Items", [])
 
     @staticmethod
     def get(org_id: str, period_id: str) -> Optional[Dict[str, Any]]:
@@ -46,12 +53,6 @@ class Period:
         table.put_item(Item=item)
         return item
 
-    @staticmethod
-    def list_by_unit(org_id: str, unit_id: str) -> List[Dict[str, Any]]:
-        resp = table.scan(
-            FilterExpression=Key("org_id").eq(org_id) & Key("unitId").eq(unit_id)
-        )
-        return resp.get("Items", [])
 
     @staticmethod
     def delete(org_id: str, period_id: str) -> None:

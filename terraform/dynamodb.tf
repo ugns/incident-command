@@ -54,6 +54,12 @@ resource "aws_dynamodb_table" "periods" {
     range_key       = "incidentId"
     projection_type = "ALL"
   }
+  global_secondary_index {
+    name            = "unitId-index"
+    hash_key        = "org_id"
+    range_key       = "unitId"
+    projection_type = "ALL"
+  }
   tags = {
     Name = "periods"
   }
