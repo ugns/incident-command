@@ -1,4 +1,3 @@
-import sys
 import json
 from pypdf import PdfReader
 import re
