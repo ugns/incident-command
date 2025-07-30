@@ -4,7 +4,7 @@ from boto3.dynamodb.conditions import Key
 from typing import Dict, Any, List, Optional
 
 dynamodb = boto3.resource("dynamodb")
-table = dynamodb.Table(os.environ.get(  # type: ignore
+table: Any = dynamodb.Table(os.environ.get(  # type: ignore
     'ACTIVITY_LOGS_TABLE', 'activity_logs'))
 
 
