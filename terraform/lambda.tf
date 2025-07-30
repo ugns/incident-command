@@ -319,7 +319,7 @@ resource "aws_lambda_function" "organizations" {
 }
 
 # Archive and Lambda for Locations
-resource "archive_file" "locations_lambda" {
+data "archive_file" "locations_lambda" {
   type        = "zip"
   source_dir  = "../lambda/locations"
   output_path = "../lambda/locations.zip"
@@ -343,7 +343,7 @@ resource "aws_lambda_function" "locations" {
 }
 
 # Archive and Lambda for Radios
-resource "archive_file" "radios_lambda" {
+data "archive_file" "radios_lambda" {
   type        = "zip"
   source_dir  = "../lambda/radios"
   output_path = "../lambda/radios.zip"
@@ -366,7 +366,7 @@ resource "aws_lambda_function" "radios" {
   }
 }
 # Archive and Lambda for Incidents
-resource "archive_file" "incidents_lambda" {
+data "archive_file" "incidents_lambda" {
   type        = "zip"
   source_dir  = "../lambda/incidents"
   output_path = "../lambda/incidents.zip"
@@ -390,7 +390,7 @@ resource "aws_lambda_function" "incidents" {
 }
 
 # Archive and Lambda for Units
-resource "archive_file" "units_lambda" {
+data "archive_file" "units_lambda" {
   type        = "zip"
   source_dir  = "../lambda/units"
   output_path = "../lambda/units.zip"
