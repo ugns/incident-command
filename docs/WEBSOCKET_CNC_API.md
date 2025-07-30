@@ -19,11 +19,11 @@ This document describes the WebSocket-based CNC API for real-time updates in the
 
 | Type                | Payload Example                                      | Triggers Frontend Action         |
 |---------------------|------------------------------------------------------|----------------------------------|
-| volunteersUpdated   | `{ "type": "volunteersUpdated", "orgId": "...", "periodId": "..." }`     | refreshVolunteers()              |
-| assignmentsUpdated  | `{ "type": "assignmentsUpdated", "orgId": "...", "periodId": "..." }`    | refreshAssignments()             |
-| periodsUpdated      | `{ "type": "periodsUpdated", "orgId": "..." }`                  | refreshPeriods()                 |
-| unitsUpdated        | `{ "type": "unitsUpdated", "orgId": "..." }`                    | refreshUnits()                   |
-| incidentsUpdated    | `{ "type": "incidentsUpdated", "orgId": "..." }`                | refreshIncidents()               |
+| volunteersUpdated   | `{ "action": "volunteersUpdated", "orgId": "...", "periodId": "..." }`     | refreshVolunteers()              |
+| assignmentsUpdated  | `{ "action": "assignmentsUpdated", "orgId": "...", "periodId": "..." }`    | refreshAssignments()             |
+| periodsUpdated      | `{ "action": "periodsUpdated", "orgId": "..." }`                  | refreshPeriods()                 |
+| unitsUpdated        | `{ "action": "unitsUpdated", "orgId": "..." }`                    | refreshUnits()                   |
+| incidentsUpdated    | `{ "action": "incidentsUpdated", "orgId": "..." }`                | refreshIncidents()               |
 
 ---
 

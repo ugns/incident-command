@@ -14,6 +14,8 @@ resource "aws_dynamodb_table" "units" {
     name = "unitId"
     type = "S"
   }
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
   tags = {
     Name = "units"
   }
@@ -60,6 +62,8 @@ resource "aws_dynamodb_table" "periods" {
     range_key       = "unitId"
     projection_type = "ALL"
   }
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
   tags = {
     Name = "periods"
   }
@@ -81,6 +85,8 @@ resource "aws_dynamodb_table" "incidents" {
     name = "incidentId"
     type = "S"
   }
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
   tags = {
     Name = "incidents"
   }
@@ -117,6 +123,8 @@ resource "aws_dynamodb_table" "volunteers" {
     range_key       = "email"
     projection_type = "ALL"
   }
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
   tags = {
     Name = "volunteers"
   }

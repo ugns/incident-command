@@ -1,3 +1,36 @@
+# Event source mappings for DynamoDB Streams to notify_ws_stream Lambda
+resource "aws_lambda_event_source_mapping" "notify_ws_stream_volunteers" {
+  event_source_arn  = aws_dynamodb_table.volunteers.stream_arn
+  function_name     = aws_lambda_function.notify_ws_stream.arn
+  starting_position = "LATEST"
+  batch_size        = 10
+  enabled           = true
+}
+
+resource "aws_lambda_event_source_mapping" "notify_ws_stream_periods" {
+  event_source_arn  = aws_dynamodb_table.periods.stream_arn
+  function_name     = aws_lambda_function.notify_ws_stream.arn
+  starting_position = "LATEST"
+  batch_size        = 10
+  enabled           = true
+}
+
+resource "aws_lambda_event_source_mapping" "notify_ws_stream_units" {
+  event_source_arn  = aws_dynamodb_table.units.stream_arn
+  function_name     = aws_lambda_function.notify_ws_stream.arn
+  starting_position = "LATEST"
+  batch_size        = 10
+  enabled           = true
+}
+
+resource "aws_lambda_event_source_mapping" "notify_ws_stream_incidents" {
+  event_source_arn  = aws_dynamodb_table.incidents.stream_arn
+  function_name     = aws_lambda_function.notify_ws_stream.arn
+  starting_position = "LATEST"
+  batch_size        = 10
+  enabled           = true
+}
+
 # Dedicated IAM policy for WebSocket Lambda functions
 resource "aws_iam_role_policy" "ws_lambda_dynamodb_policy" {
   name = "incident_cmd_ws_lambda_dynamodb_policy"
@@ -81,6 +114,29 @@ resource "aws_lambda_function" "ws_default" {
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
+    }
+  }
+  layers = [aws_lambda_layer_version.shared.arn]
+}
+
+# Archive and Lambda for notify_ws_stream (DynamoDB Streams handler)
+data "archive_file" "notify_ws_stream" {
+  type        = "zip"
+  source_dir  = "../lambda/notify_ws_stream"
+  output_path = "../lambda/notify_ws_stream.zip"
+}
+
+resource "aws_lambda_function" "notify_ws_stream" {
+  function_name    = "notify_ws_stream"
+  filename         = data.archive_file.notify_ws_stream.output_path
+  handler          = "handler.lambda_handler"
+  runtime          = var.lambda_runtime
+  role             = aws_iam_role.lambda_exec.arn
+  source_code_hash = data.archive_file.notify_ws_stream.output_base64sha256
+  environment {
+    variables = {
+      WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
+      WS_API_ENDPOINT      = "wss://${aws_apigatewayv2_domain_name.custom.domain_name}/ws"
     }
   }
   layers = [aws_lambda_layer_version.shared.arn]
