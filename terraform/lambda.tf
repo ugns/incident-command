@@ -329,7 +329,7 @@ resource "aws_lambda_function" "locations" {
   function_name    = "locations-handler"
   handler          = "handler.lambda_handler"
   runtime          = "python3.11"
-  filename         = archive_file.locations_lambda.output_path
+  filename         = data.archive_file.locations_lambda.output_path
   source_code_hash = data.archive_file.locations_lambda.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
   layers           = [aws_lambda_layer_version.shared.arn]
@@ -353,7 +353,7 @@ resource "aws_lambda_function" "radios" {
   function_name    = "radios-handler"
   handler          = "handler.lambda_handler"
   runtime          = "python3.11"
-  filename         = archive_file.radios_lambda.output_path
+  filename         = data.archive_file.radios_lambda.output_path
   source_code_hash = data.archive_file.radios_lambda.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
   layers           = [aws_lambda_layer_version.shared.arn]
@@ -376,7 +376,7 @@ resource "aws_lambda_function" "incidents" {
   function_name    = "incidents-handler"
   handler          = "handler.lambda_handler"
   runtime          = "python3.11"
-  filename         = archive_file.incidents_lambda.output_path
+  filename         = data.archive_file.incidents_lambda.output_path
   source_code_hash = data.archive_file.incidents_lambda.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
   layers           = [aws_lambda_layer_version.shared.arn]
@@ -400,7 +400,7 @@ resource "aws_lambda_function" "units" {
   function_name    = "units-handler"
   handler          = "handler.lambda_handler"
   runtime          = "python3.11"
-  filename         = archive_file.units_lambda.output_path
+  filename         = data.archive_file.units_lambda.output_path
   source_code_hash = data.archive_file.units_lambda.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
   layers           = [aws_lambda_layer_version.shared.arn]
