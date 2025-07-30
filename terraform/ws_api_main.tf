@@ -1,8 +1,10 @@
 # WebSocket API Gateway
 resource "aws_apigatewayv2_api" "ws_api" {
-  name                       = "incident-cmd-ws-api"
-  protocol_type              = "WEBSOCKET"
-  route_selection_expression = "$request.body.action"
+  name                         = "incident-cmd-ws-api"
+  description                  = "API for Security Incident Command Application"
+  disable_execute_api_endpoint = true
+  protocol_type                = "WEBSOCKET"
+  route_selection_expression   = "$request.body.action"
 }
 
 resource "aws_apigatewayv2_stage" "ws_api_stage" {
