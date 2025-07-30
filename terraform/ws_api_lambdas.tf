@@ -17,7 +17,6 @@ resource "aws_iam_role_policy" "ws_lambda_dynamodb_policy" {
         ]
         Resource = [
           aws_dynamodb_table.ws_connections.arn,
-          "${aws_dynamodb_table.ws_connections.arn}/index/*"
         ]
       }
     ]
