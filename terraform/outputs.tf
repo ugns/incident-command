@@ -12,5 +12,5 @@ output "launchdarkly_environment_client_side_id" {
 
 output "api_url" {
   description = "Base URL for the deployed API using the custom domain."
-  value       = "https://${aws_api_gateway_domain_name.custom.domain_name}"
+  value       = "https://${aws_apigatewayv2_domain_name.custom.domain_name}"
 }
