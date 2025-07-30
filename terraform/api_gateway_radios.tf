@@ -1,69 +1,149 @@
 # Radios API Gateway integration
-
-resource "aws_api_gateway_resource" "radios" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  parent_id   = aws_api_gateway_rest_api.api.root_resource_id
+# /radios resource
+resource "aws_api_gateway_resource" "radios_list" {
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  parent_id   = data.aws_api_gateway_resource.root.id
   path_part   = "radios"
 }
 
-resource "aws_api_gateway_resource" "radios_id" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  parent_id   = aws_api_gateway_resource.radios.id
+# /radios/{radioId} resource
+resource "aws_api_gateway_resource" "radio_id" {
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  parent_id   = aws_api_gateway_resource.radios_list.id
   path_part   = "{radioId}"
 }
 
-locals {
-  radios_methods = ["GET", "POST"]
-  radios_id_methods = ["GET", "PUT", "DELETE"]
-}
-
-resource "aws_api_gateway_method" "radios_methods" {
-  for_each    = toset(local.radios_methods)
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios.id
-  http_method = each.key
+# GET /radios
+resource "aws_api_gateway_method" "radios_get" {
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.radios_list.id
+  http_method   = "GET"
   authorization = "NONE"
 }
-
-resource "aws_api_gateway_integration" "radios_methods" {
-  for_each    = toset(local.radios_methods)
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios.id
-  http_method = each.key
+resource "aws_api_gateway_integration" "radios_get" {
+  depends_on              = [aws_api_gateway_method.radios_get]
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.radios_list.id
+  http_method             = aws_api_gateway_method.radios_get.http_method
   integration_http_method = "POST"
-  type        = "AWS_PROXY"
-  uri         = aws_lambda_function.radios.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.radios.invoke_arn
+}
+resource "aws_lambda_permission" "apigw_radios_get" {
+  statement_id  = "AllowAPIGatewayInvokeRadiosGet"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.radios.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/GET/radios"
 }
 
-resource "aws_api_gateway_method" "radios_id_methods" {
-  for_each    = toset(local.radios_id_methods)
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios_id.id
-  http_method = each.key
+# POST /radios
+resource "aws_api_gateway_method" "radios_post" {
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.radios_list.id
+  http_method   = "POST"
   authorization = "NONE"
 }
-
-resource "aws_api_gateway_integration" "radios_id_methods" {
-  for_each    = toset(local.radios_id_methods)
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios_id.id
-  http_method = each.key
+resource "aws_api_gateway_integration" "radios_post" {
+  depends_on              = [aws_api_gateway_method.radios_post]
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.radios_list.id
+  http_method             = aws_api_gateway_method.radios_post.http_method
   integration_http_method = "POST"
-  type        = "AWS_PROXY"
-  uri         = aws_lambda_function.radios.invoke_arn
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.radios.invoke_arn
+}
+resource "aws_lambda_permission" "apigw_radios_post" {
+  statement_id  = "AllowAPIGatewayInvokeRadiosPost"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.radios.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/POST/radios"
+}
+
+# GET /radios/{radioId}
+resource "aws_api_gateway_method" "radio_id_get" {
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.radio_id.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_integration" "radio_id_get" {
+  depends_on              = [aws_api_gateway_method.radio_id_get]
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.radio_id.id
+  http_method             = aws_api_gateway_method.radio_id_get.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.radios.invoke_arn
+}
+resource "aws_lambda_permission" "apigw_radio_id_get" {
+  statement_id  = "AllowAPIGatewayInvokeRadioIdGet"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.radios.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/GET/radios/*"
+}
+
+# PUT /radios/{radioId}
+resource "aws_api_gateway_method" "radio_id_put" {
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.radio_id.id
+  http_method   = "PUT"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_integration" "radio_id_put" {
+  depends_on              = [aws_api_gateway_method.radio_id_put]
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.radio_id.id
+  http_method             = aws_api_gateway_method.radio_id_put.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.radios.invoke_arn
+}
+resource "aws_lambda_permission" "apigw_radio_id_put" {
+  statement_id  = "AllowAPIGatewayInvokeRadioIdPut"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.radios.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/PUT/radios/*"
+}
+
+# DELETE /radios/{radioId}
+resource "aws_api_gateway_method" "radio_id_delete" {
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.radio_id.id
+  http_method   = "DELETE"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_integration" "radio_id_delete" {
+  depends_on              = [aws_api_gateway_method.radio_id_delete]
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.radio_id.id
+  http_method             = aws_api_gateway_method.radio_id_delete.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.radios.invoke_arn
+}
+resource "aws_lambda_permission" "apigw_radio_id_delete" {
+  statement_id  = "AllowAPIGatewayInvokeRadioIdDelete"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.radios.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/DELETE/radios/*"
 }
 
 # CORS OPTIONS for /radios
 resource "aws_api_gateway_method" "radios_options" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios.id
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.radios_list.id
   http_method = "OPTIONS"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "radios_options" {
   depends_on  = [aws_api_gateway_method.radios_options]
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios.id
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.radios_list.id
   http_method = aws_api_gateway_method.radios_options.http_method
   type        = "MOCK"
   request_templates = {
@@ -71,8 +151,8 @@ resource "aws_api_gateway_integration" "radios_options" {
   }
 }
 resource "aws_api_gateway_method_response" "radios_options" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios.id
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.radios_list.id
   http_method = aws_api_gateway_method.radios_options.http_method
   status_code = "200"
   response_parameters = {
@@ -83,8 +163,8 @@ resource "aws_api_gateway_method_response" "radios_options" {
 }
 resource "aws_api_gateway_integration_response" "radios_options" {
   depends_on  = [aws_api_gateway_integration.radios_options]
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios.id
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.radios_list.id
   http_method = aws_api_gateway_method.radios_options.http_method
   status_code = aws_api_gateway_method_response.radios_options.status_code
   response_templates = {
@@ -98,26 +178,26 @@ resource "aws_api_gateway_integration_response" "radios_options" {
 }
 
 # CORS OPTIONS for /radios/{radioId}
-resource "aws_api_gateway_method" "radios_id_options" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios_id.id
+resource "aws_api_gateway_method" "radio_id_options" {
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.radio_id.id
   http_method = "OPTIONS"
   authorization = "NONE"
 }
-resource "aws_api_gateway_integration" "radios_id_options" {
-  depends_on  = [aws_api_gateway_method.radios_id_options]
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios_id.id
-  http_method = aws_api_gateway_method.radios_id_options.http_method
+resource "aws_api_gateway_integration" "radio_id_options" {
+  depends_on  = [aws_api_gateway_method.radio_id_options]
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.radio_id.id
+  http_method = aws_api_gateway_method.radio_id_options.http_method
   type        = "MOCK"
   request_templates = {
     "application/json" = "{\"statusCode\": 200}"
   }
 }
-resource "aws_api_gateway_method_response" "radios_id_options" {
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios_id.id
-  http_method = aws_api_gateway_method.radios_id_options.http_method
+resource "aws_api_gateway_method_response" "radio_id_options" {
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.radio_id.id
+  http_method = aws_api_gateway_method.radio_id_options.http_method
   status_code = "200"
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = true
@@ -125,12 +205,12 @@ resource "aws_api_gateway_method_response" "radios_id_options" {
     "method.response.header.Access-Control-Allow-Origin"  = true
   }
 }
-resource "aws_api_gateway_integration_response" "radios_id_options" {
-  depends_on  = [aws_api_gateway_integration.radios_id_options]
-  rest_api_id = aws_api_gateway_rest_api.api.id
-  resource_id = aws_api_gateway_resource.radios_id.id
-  http_method = aws_api_gateway_method.radios_id_options.http_method
-  status_code = aws_api_gateway_method_response.radios_id_options.status_code
+resource "aws_api_gateway_integration_response" "radio_id_options" {
+  depends_on  = [aws_api_gateway_integration.radio_id_options]
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.radio_id.id
+  http_method = aws_api_gateway_method.radio_id_options.http_method
+  status_code = aws_api_gateway_method_response.radio_id_options.status_code
   response_templates = {
     "application/json" = ""
   }
@@ -139,12 +219,4 @@ resource "aws_api_gateway_integration_response" "radios_id_options" {
     "method.response.header.Access-Control-Allow-Methods" = "'GET,PUT,DELETE,OPTIONS'"
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
-}
-
-resource "aws_lambda_permission" "apigw_radios" {
-  statement_id  = "AllowAPIGatewayInvokeRadios"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.radios.function_name
-  principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.api.execution_arn}/*/*/radios*"
 }
