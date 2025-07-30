@@ -1,6 +1,6 @@
 import os
 import boto3
-from shared.client.auth import require_auth
+from client.auth import require_auth
 from typing import Any
 
 dynamodb = boto3.resource('dynamodb')
