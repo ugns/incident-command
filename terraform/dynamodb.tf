@@ -207,3 +207,43 @@ resource "aws_dynamodb_table" "organizations" {
     Name = "organizations"
   }
 }
+
+# DynamoDB table for Locations
+
+resource "aws_dynamodb_table" "locations" {
+  name         = "locations"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "org_id"
+  range_key    = "locationId"
+  attribute {
+    name = "org_id"
+    type = "S"
+  }
+  attribute {
+    name = "locationId"
+    type = "S"
+  }
+  tags = {
+    Name = "locations"
+  }
+}
+
+# DynamoDB table for Radios
+
+resource "aws_dynamodb_table" "radios" {
+  name         = "radios"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "org_id"
+  range_key    = "radioId"
+  attribute {
+    name = "org_id"
+    type = "S"
+  }
+  attribute {
+    name = "radioId"
+    type = "S"
+  }
+  tags = {
+    Name = "radios"
+  }
+}

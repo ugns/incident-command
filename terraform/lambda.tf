@@ -1,47 +1,3 @@
-# Archive and Lambda for Incidents
-resource "archive_file" "incidents_lambda" {
-  type        = "zip"
-  source_dir  = "${path.module}/../lambda/incidents"
-  output_path = "${path.module}/../lambda/incidents.zip"
-}
-
-resource "aws_lambda_function" "incidents" {
-  function_name = "incidents-handler"
-  handler       = "handler.lambda_handler"
-  runtime       = "python3.11"
-  filename      = archive_file.incidents_lambda.output_path
-  source_code_hash = filebase64sha256(archive_file.incidents_lambda.output_path)
-  role          = aws_iam_role.lambda_exec.arn
-  layers        = [aws_lambda_layer_version.shared.arn]
-  environment {
-    variables = {
-      INCIDENTS_TABLE = aws_dynamodb_table.incidents.name
-    }
-  }
-}
-
-# Archive and Lambda for Units
-resource "archive_file" "units_lambda" {
-  type        = "zip"
-  source_dir  = "${path.module}/../lambda/units"
-  output_path = "${path.module}/../lambda/units.zip"
-}
-
-resource "aws_lambda_function" "units" {
-  function_name = "units-handler"
-  handler       = "handler.lambda_handler"
-  runtime       = "python3.11"
-  filename      = archive_file.units_lambda.output_path
-  source_code_hash = filebase64sha256(archive_file.units_lambda.output_path)
-  role          = aws_iam_role.lambda_exec.arn
-  layers        = [aws_lambda_layer_version.shared.arn]
-  environment {
-    variables = {
-      UNITS_TABLE = aws_dynamodb_table.units.name
-    }
-  }
-}
-
 # API Gateway resources and methods for /incidents and /incidents/{incidentId}
 data "aws_region" "current" {}
 
@@ -113,6 +69,10 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
           "${aws_dynamodb_table.activity_logs.arn}/index/*",
           aws_dynamodb_table.organizations.arn,
           "${aws_dynamodb_table.organizations.arn}/index/*",
+          aws_dynamodb_table.locations.arn,
+          "${aws_dynamodb_table.locations.arn}/index/*",
+          aws_dynamodb_table.radios.arn,
+          "${aws_dynamodb_table.radios.arn}/index/*",
         ]
       },
       {
@@ -134,6 +94,10 @@ resource "aws_iam_role_policy" "lambda_dynamodb_policy" {
           "${aws_dynamodb_table.activity_logs.arn}/index/*",
           aws_dynamodb_table.organizations.arn,
           "${aws_dynamodb_table.organizations.arn}/index/*",
+          aws_dynamodb_table.locations.arn,
+          "${aws_dynamodb_table.locations.arn}/index/*",
+          aws_dynamodb_table.radios.arn,
+          "${aws_dynamodb_table.radios.arn}/index/*",
         ]
       }
     ]
@@ -247,7 +211,6 @@ resource "aws_lambda_function" "volunteers" {
   environment {
     variables = {
       VOLUNTEERS_TABLE     = aws_dynamodb_table.volunteers.name
-      ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
       JWT_SECRET           = random_password.jwt_secret.result
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
@@ -349,6 +312,101 @@ resource "aws_lambda_function" "organizations" {
   environment {
     variables = {
       ORGANIZATIONS_TABLE  = aws_dynamodb_table.organizations.name
+      JWT_SECRET           = random_password.jwt_secret.result
+      LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
+    }
+  }
+}
+
+# Archive and Lambda for Locations
+resource "archive_file" "locations_lambda" {
+  type        = "zip"
+  source_dir  = "${path.module}/../lambda/locations"
+  output_path = "${path.module}/../lambda/locations.zip"
+}
+
+resource "aws_lambda_function" "locations" {
+  function_name = "locations-handler"
+  handler       = "handler.lambda_handler"
+  runtime       = "python3.11"
+  filename      = archive_file.locations_lambda.output_path
+  source_code_hash = filebase64sha256(archive_file.locations_lambda.output_path)
+  role          = aws_iam_role.lambda_exec.arn
+  layers        = [aws_lambda_layer_version.shared.arn]
+  environment {
+    variables = {
+      LOCATIONS_TABLE = aws_dynamodb_table.locations.name
+      JWT_SECRET           = random_password.jwt_secret.result
+      LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
+    }
+  }
+}
+
+# Archive and Lambda for Radios
+resource "archive_file" "radios_lambda" {
+  type        = "zip"
+  source_dir  = "${path.module}/../lambda/radios"
+  output_path = "${path.module}/../lambda/radios.zip"
+}
+
+resource "aws_lambda_function" "radios" {
+  function_name = "radios-handler"
+  handler       = "handler.lambda_handler"
+  runtime       = "python3.11"
+  filename      = archive_file.radios_lambda.output_path
+  source_code_hash = filebase64sha256(archive_file.radios_lambda.output_path)
+  role          = aws_iam_role.lambda_exec.arn
+  layers        = [aws_lambda_layer_version.shared.arn]
+  environment {
+    variables = {
+      RADIOS_TABLE = aws_dynamodb_table.radios.name
+      JWT_SECRET           = random_password.jwt_secret.result
+      LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
+    }
+  }
+}
+# Archive and Lambda for Incidents
+resource "archive_file" "incidents_lambda" {
+  type        = "zip"
+  source_dir  = "${path.module}/../lambda/incidents"
+  output_path = "${path.module}/../lambda/incidents.zip"
+}
+
+resource "aws_lambda_function" "incidents" {
+  function_name = "incidents-handler"
+  handler       = "handler.lambda_handler"
+  runtime       = "python3.11"
+  filename      = archive_file.incidents_lambda.output_path
+  source_code_hash = filebase64sha256(archive_file.incidents_lambda.output_path)
+  role          = aws_iam_role.lambda_exec.arn
+  layers        = [aws_lambda_layer_version.shared.arn]
+  environment {
+    variables = {
+      INCIDENTS_TABLE = aws_dynamodb_table.incidents.name
+      JWT_SECRET           = random_password.jwt_secret.result
+      LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
+    }
+  }
+}
+
+# Archive and Lambda for Units
+resource "archive_file" "units_lambda" {
+  type        = "zip"
+  source_dir  = "${path.module}/../lambda/units"
+  output_path = "${path.module}/../lambda/units.zip"
+}
+
+resource "aws_lambda_function" "units" {
+  function_name = "units-handler"
+  handler       = "handler.lambda_handler"
+  runtime       = "python3.11"
+  filename      = archive_file.units_lambda.output_path
+  source_code_hash = filebase64sha256(archive_file.units_lambda.output_path)
+  role          = aws_iam_role.lambda_exec.arn
+  layers        = [aws_lambda_layer_version.shared.arn]
+  environment {
+    variables = {
+      UNITS_TABLE = aws_dynamodb_table.units.name
       JWT_SECRET           = random_password.jwt_secret.result
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
