@@ -1,8 +1,8 @@
 # DynamoDB table for WebSocket connections
 resource "aws_dynamodb_table" "ws_connections" {
-  name           = "WebSocketConnections"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "connectionId"
+  name         = "WebSocketConnections"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "connectionId"
 
   attribute {
     name = "connectionId"

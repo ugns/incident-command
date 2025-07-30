@@ -18,7 +18,7 @@ data "aws_acm_certificate" "api" {
 
 # API Gateway v2 custom domain
 resource "aws_apigatewayv2_domain_name" "custom" {
-  domain_name              = var.api_subdomain
+  domain_name = var.api_subdomain
   domain_name_configuration {
     certificate_arn = data.aws_acm_certificate.api.arn
     endpoint_type   = "REGIONAL"
@@ -28,17 +28,17 @@ resource "aws_apigatewayv2_domain_name" "custom" {
 
 # Base path mapping for REST API (v1)
 resource "aws_apigatewayv2_api_mapping" "rest" {
-  api_id      = aws_api_gateway_rest_api.incident_cmd.id
-  domain_name = aws_apigatewayv2_domain_name.custom.domain_name
-  stage       = aws_api_gateway_stage.v1.stage_name
+  api_id          = aws_api_gateway_rest_api.incident_cmd.id
+  domain_name     = aws_apigatewayv2_domain_name.custom.domain_name
+  stage           = aws_api_gateway_stage.v1.stage_name
   api_mapping_key = "v1"
 }
 
 # Base path mapping for WebSocket API (ws)
 resource "aws_apigatewayv2_api_mapping" "ws" {
-  api_id      = aws_apigatewayv2_api.ws_api.id
-  domain_name = aws_apigatewayv2_domain_name.custom.domain_name
-  stage       = aws_apigatewayv2_stage.ws_api_stage.name
+  api_id          = aws_apigatewayv2_api.ws_api.id
+  domain_name     = aws_apigatewayv2_domain_name.custom.domain_name
+  stage           = aws_apigatewayv2_stage.ws_api_stage.name
   api_mapping_key = "ws"
 }
 
