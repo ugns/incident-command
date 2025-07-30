@@ -18,6 +18,43 @@
 - **Response utility**: Use `build_response` from `shared/utils/response.py` for all Lambda responses
 - **Handler structure**: Each handler starts with auth, parses method/path, and routes to model methods; always returns via `build_response`
 
+## Additional Copilot Rules for Consistency and Production-Readiness
+
+### Lambda Handler and Model Imports
+- Always use `from models.<resource> import ...` and `from utils.response import build_response` in Lambda handlers. Never use relative or local imports for shared code.
+
+### Handler and Model Method Signatures
+- Handlers and models must use the same method signatures and data shapes as existing resources (e.g., `create(org_id, item: dict)`, `update(org_id, id, item: dict)`, `list(org_id)`).
+- All CRUD handlers must use `pathParameters` for resource IDs and parse JSON bodies for POST/PUT.
+
+### Environment Variables
+- Only add environment variables to Lambda functions if they are actually used in the handler or model code. Do not add unused variables.
+
+### Terraform Resource Patterns
+- Lambda function resources must go in `lambda.tf`.
+- DynamoDB table resources must go in `dynamodb.tf`.
+- All API Gateway resources for a model must go in their own `api_gateway_{model}.tf` file and not be mixed with other models.
+- All DynamoDB tables must be included in the Lambda IAM policy with both table ARN and `/index/*` for GSI access.
+- When generating Terraform, always examine the existing Terraform files to identify and use the correct resource names. Never reference a resource name that does not exist in the codebase.
+
+### CORS and Response Consistency
+- All handlers must use the same `cors_headers` pattern and always return responses via `build_response`.
+
+### No Unused Boilerplate
+- Do not generate unused code, variables, or Terraform resources. Only include what is required for the resource.
+
+### Testing and Validation
+- Generated code should be ready to deploy and test, with no manual refactoring needed to match project conventions.
+
+### Error Handling
+- All handlers must return consistent error responses (e.g., 400 for missing IDs, 404 for not found, 405 for method not allowed).
+
+### Shared Code Usage
+- Always use shared utility functions and models; do not duplicate logic in handlers.
+
+### Documentation and Comments
+- Add comments only where they clarify non-obvious logic, not for standard patterns or boilerplate.
+
 ## Developer Workflows
 - **Build Lambda Layer**: `make install-deps` (see Makefile)
 - **Local dev venv**: `make dev-venv` (installs shared code as editable)
