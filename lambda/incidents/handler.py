@@ -1,8 +1,12 @@
 import json
+import logging
 from typing import Any, Dict
 from client.auth import check_auth
 from models.incidents import Incident
 from utils.response import build_response
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",

@@ -47,8 +47,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body = json.loads(event.get('body', '{}'))
         if 'periodId' not in body:
             body['periodId'] = str(uuid.uuid4())
+        if 'incidentId' not in body:
+            return build_response(400, {'error': 'Missing incidentId in request body'}, headers=cors_headers)
+        incident_id = body['incidentId']
         body['org_id'] = org_id
-        Period.create(body)
+        Period.create(org_id, incident_id, body)
         return build_response(201, {'message': 'Period created', 'id': body['periodId']}, headers=cors_headers)
 
     elif method == 'PUT':

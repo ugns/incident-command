@@ -37,10 +37,9 @@ class Period:
         return resp.get("Items", [])
 
     @staticmethod
-    def create(org_id: str, incident_id: str, unit_id: str, item: Dict[str, Any]) -> Dict[str, Any]:
+    def create(org_id: str, incident_id: str, item: Dict[str, Any]) -> Dict[str, Any]:
         item["org_id"] = org_id
         item["incidentId"] = incident_id
-        item["unitId"] = unit_id
         if "periodId" not in item:
             import uuid
             item["periodId"] = str(uuid.uuid4())
@@ -48,8 +47,8 @@ class Period:
         return item
 
     @staticmethod
-    def update(org_id: str, period_id: str, unit_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
-        item = {"org_id": org_id, "periodId": period_id, "unitId": unit_id, **updates}
+    def update(org_id: str, period_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
+        item = {"org_id": org_id, "periodId": period_id, **updates}
         table.put_item(Item=item)
         return item
 
