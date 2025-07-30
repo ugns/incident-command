@@ -4,7 +4,7 @@ resource "aws_apigatewayv2_integration" "ws_connect" {
   integration_type       = "AWS_PROXY"
   integration_uri        = aws_lambda_function.ws_connect.invoke_arn
   integration_method     = "POST"
-  payload_format_version = "2.0"
+  payload_format_version = "1.0"
 }
 
 resource "aws_apigatewayv2_integration" "ws_disconnect" {
@@ -12,7 +12,7 @@ resource "aws_apigatewayv2_integration" "ws_disconnect" {
   integration_type       = "AWS_PROXY"
   integration_uri        = aws_lambda_function.ws_disconnect.invoke_arn
   integration_method     = "POST"
-  payload_format_version = "2.0"
+  payload_format_version = "1.0"
 }
 
 resource "aws_apigatewayv2_integration" "ws_default" {
@@ -20,5 +20,5 @@ resource "aws_apigatewayv2_integration" "ws_default" {
   integration_type       = "AWS_PROXY"
   integration_uri        = aws_lambda_function.ws_default.invoke_arn
   integration_method     = "POST"
-  payload_format_version = "2.0"
+  payload_format_version = "1.0"
 }
