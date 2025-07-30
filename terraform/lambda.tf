@@ -326,16 +326,16 @@ resource "archive_file" "locations_lambda" {
 }
 
 resource "aws_lambda_function" "locations" {
-  function_name = "locations-handler"
-  handler       = "handler.lambda_handler"
-  runtime       = "python3.11"
-  filename      = archive_file.locations_lambda.output_path
+  function_name    = "locations-handler"
+  handler          = "handler.lambda_handler"
+  runtime          = "python3.11"
+  filename         = archive_file.locations_lambda.output_path
   source_code_hash = filebase64sha256(archive_file.locations_lambda.output_path)
-  role          = aws_iam_role.lambda_exec.arn
-  layers        = [aws_lambda_layer_version.shared.arn]
+  role             = aws_iam_role.lambda_exec.arn
+  layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
-      LOCATIONS_TABLE = aws_dynamodb_table.locations.name
+      LOCATIONS_TABLE      = aws_dynamodb_table.locations.name
       JWT_SECRET           = random_password.jwt_secret.result
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
@@ -350,16 +350,16 @@ resource "archive_file" "radios_lambda" {
 }
 
 resource "aws_lambda_function" "radios" {
-  function_name = "radios-handler"
-  handler       = "handler.lambda_handler"
-  runtime       = "python3.11"
-  filename      = archive_file.radios_lambda.output_path
+  function_name    = "radios-handler"
+  handler          = "handler.lambda_handler"
+  runtime          = "python3.11"
+  filename         = archive_file.radios_lambda.output_path
   source_code_hash = filebase64sha256(archive_file.radios_lambda.output_path)
-  role          = aws_iam_role.lambda_exec.arn
-  layers        = [aws_lambda_layer_version.shared.arn]
+  role             = aws_iam_role.lambda_exec.arn
+  layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
-      RADIOS_TABLE = aws_dynamodb_table.radios.name
+      RADIOS_TABLE         = aws_dynamodb_table.radios.name
       JWT_SECRET           = random_password.jwt_secret.result
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
@@ -373,16 +373,16 @@ resource "archive_file" "incidents_lambda" {
 }
 
 resource "aws_lambda_function" "incidents" {
-  function_name = "incidents-handler"
-  handler       = "handler.lambda_handler"
-  runtime       = "python3.11"
-  filename      = archive_file.incidents_lambda.output_path
+  function_name    = "incidents-handler"
+  handler          = "handler.lambda_handler"
+  runtime          = "python3.11"
+  filename         = archive_file.incidents_lambda.output_path
   source_code_hash = filebase64sha256(archive_file.incidents_lambda.output_path)
-  role          = aws_iam_role.lambda_exec.arn
-  layers        = [aws_lambda_layer_version.shared.arn]
+  role             = aws_iam_role.lambda_exec.arn
+  layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
-      INCIDENTS_TABLE = aws_dynamodb_table.incidents.name
+      INCIDENTS_TABLE      = aws_dynamodb_table.incidents.name
       JWT_SECRET           = random_password.jwt_secret.result
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
@@ -397,16 +397,16 @@ resource "archive_file" "units_lambda" {
 }
 
 resource "aws_lambda_function" "units" {
-  function_name = "units-handler"
-  handler       = "handler.lambda_handler"
-  runtime       = "python3.11"
-  filename      = archive_file.units_lambda.output_path
+  function_name    = "units-handler"
+  handler          = "handler.lambda_handler"
+  runtime          = "python3.11"
+  filename         = archive_file.units_lambda.output_path
   source_code_hash = filebase64sha256(archive_file.units_lambda.output_path)
-  role          = aws_iam_role.lambda_exec.arn
-  layers        = [aws_lambda_layer_version.shared.arn]
+  role             = aws_iam_role.lambda_exec.arn
+  layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
-      UNITS_TABLE = aws_dynamodb_table.units.name
+      UNITS_TABLE          = aws_dynamodb_table.units.name
       JWT_SECRET           = random_password.jwt_secret.result
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }

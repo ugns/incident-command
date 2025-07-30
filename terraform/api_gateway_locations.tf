@@ -135,9 +135,9 @@ resource "aws_lambda_permission" "apigw_location_id_delete" {
 
 # CORS OPTIONS for /locations
 resource "aws_api_gateway_method" "locations_options" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.locations_list.id
-  http_method = "OPTIONS"
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.locations_list.id
+  http_method   = "OPTIONS"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "locations_options" {
@@ -179,9 +179,9 @@ resource "aws_api_gateway_integration_response" "locations_options" {
 
 # CORS OPTIONS for /locations/{locationId}
 resource "aws_api_gateway_method" "location_id_options" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.location_id.id
-  http_method = "OPTIONS"
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.location_id.id
+  http_method   = "OPTIONS"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "location_id_options" {

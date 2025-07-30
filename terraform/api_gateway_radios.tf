@@ -135,9 +135,9 @@ resource "aws_lambda_permission" "apigw_radio_id_delete" {
 
 # CORS OPTIONS for /radios
 resource "aws_api_gateway_method" "radios_options" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.radios_list.id
-  http_method = "OPTIONS"
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.radios_list.id
+  http_method   = "OPTIONS"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "radios_options" {
@@ -179,9 +179,9 @@ resource "aws_api_gateway_integration_response" "radios_options" {
 
 # CORS OPTIONS for /radios/{radioId}
 resource "aws_api_gateway_method" "radio_id_options" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.radio_id.id
-  http_method = "OPTIONS"
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.radio_id.id
+  http_method   = "OPTIONS"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "radio_id_options" {

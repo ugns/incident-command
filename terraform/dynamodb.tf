@@ -134,10 +134,10 @@ resource "aws_dynamodb_table" "volunteers" {
 # The org_id is used to scope the logs to a specific organization.
 # The periodId is used to associate logs with specific operating periods.
 resource "aws_dynamodb_table" "activity_logs" {
-  name         = "activity_logs"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "org_id"
-  range_key    = "logId"
+  name                        = "activity_logs"
+  billing_mode                = "PAY_PER_REQUEST"
+  hash_key                    = "org_id"
+  range_key                   = "logId"
   deletion_protection_enabled = true
 
   attribute {

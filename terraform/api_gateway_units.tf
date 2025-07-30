@@ -135,9 +135,9 @@ resource "aws_lambda_permission" "apigw_unit_id_delete" {
 
 # CORS OPTIONS for /units
 resource "aws_api_gateway_method" "units_options" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.units_list.id
-  http_method = "OPTIONS"
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.units_list.id
+  http_method   = "OPTIONS"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "units_options" {
@@ -179,9 +179,9 @@ resource "aws_api_gateway_integration_response" "units_options" {
 
 # CORS OPTIONS for /units/{unitId}
 resource "aws_api_gateway_method" "unit_id_options" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.unit_id.id
-  http_method = "OPTIONS"
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.unit_id.id
+  http_method   = "OPTIONS"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "unit_id_options" {

@@ -135,9 +135,9 @@ resource "aws_lambda_permission" "apigw_incident_id_delete" {
 
 # CORS OPTIONS for /incidents
 resource "aws_api_gateway_method" "incidents_options" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.incidents_list.id
-  http_method = "OPTIONS"
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.incidents_list.id
+  http_method   = "OPTIONS"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "incidents_options" {
@@ -179,9 +179,9 @@ resource "aws_api_gateway_integration_response" "incidents_options" {
 
 # CORS OPTIONS for /incidents/{incidentId}
 resource "aws_api_gateway_method" "incident_id_options" {
-  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  resource_id = aws_api_gateway_resource.incident_id.id
-  http_method = "OPTIONS"
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.incident_id.id
+  http_method   = "OPTIONS"
   authorization = "NONE"
 }
 resource "aws_api_gateway_integration" "incident_id_options" {
