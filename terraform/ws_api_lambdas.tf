@@ -51,6 +51,21 @@ resource "aws_iam_role_policy" "ws_lambda_dynamodb_policy" {
         Resource = [
           aws_dynamodb_table.ws_connections.arn,
         ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:GetRecords",
+          "dynamodb:GetShardIterator",
+          "dynamodb:DescribeStream",
+          "dynamodb:ListStreams"
+        ]
+        Resource = [
+          aws_dynamodb_table.volunteers.stream_arn,
+          aws_dynamodb_table.periods.stream_arn,
+          aws_dynamodb_table.units.stream_arn,
+          aws_dynamodb_table.incidents.stream_arn
+        ]
       }
     ]
   })
