@@ -1,3 +1,29 @@
+# Dedicated IAM policy for WebSocket Lambda functions
+resource "aws_iam_role_policy" "ws_lambda_dynamodb_policy" {
+  name = "incident_cmd_ws_lambda_dynamodb_policy"
+  role = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:GetItem",
+          "dynamodb:Query",
+          "dynamodb:Scan"
+        ]
+        Resource = [
+          aws_dynamodb_table.ws_connections.arn,
+          "${aws_dynamodb_table.ws_connections.arn}/index/*"
+        ]
+      }
+    ]
+  })
+}
+
 # Lambda functions for WebSocket API
 
 data "archive_file" "ws_connect" {
