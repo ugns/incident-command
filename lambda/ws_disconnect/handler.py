@@ -21,7 +21,7 @@ def lambda_handler(event, context):
     if not org_id:
         logger.warning(
             "org_id not found in authorizer, attempting fallback lookup")
-        resp = table.get_item(Key={'connectionId': connection_id})
+        resp = table.get_item(Key={'orgId': org_id, 'connectionId': connection_id})
         item = resp.get('Item')
         if not item:
             logger.error(
