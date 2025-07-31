@@ -107,7 +107,7 @@ resource "aws_lambda_function" "ws_connect" {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
       JWT_SECRET           = random_password.jwt_secret.result
-      LOG_LEVEL            = "INFO"
+      LOG_LEVEL            = "DEBUG"
     }
   }
   layers = [aws_lambda_layer_version.shared.arn]
@@ -128,7 +128,7 @@ resource "aws_lambda_function" "ws_disconnect" {
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
-      LOG_LEVEL            = "INFO"
+      LOG_LEVEL            = "DEBUG"
     }
   }
   layers = [aws_lambda_layer_version.shared.arn]
@@ -149,7 +149,7 @@ resource "aws_lambda_function" "ws_default" {
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
-      LOG_LEVEL            = "INFO"
+      LOG_LEVEL            = "DEBUG"
     }
   }
   layers = [aws_lambda_layer_version.shared.arn]
@@ -173,7 +173,7 @@ resource "aws_lambda_function" "notify_ws_stream" {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
       WS_API_ENDPOINT      = "https://${aws_apigatewayv2_domain_name.custom.domain_name}/ws"
-      LOG_LEVEL            = "INFO"
+      LOG_LEVEL            = "DEBUG"
     }
   }
   layers = [aws_lambda_layer_version.shared.arn]
