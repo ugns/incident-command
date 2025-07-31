@@ -78,7 +78,7 @@ resource "aws_iam_role_policy" "ws_lambda_dynamodb_policy" {
         ]
         Resource = [
           format(
-            "arn:aws:apigateway:%s:%s:/*/POST/@connections/*",
+            "arn:aws:execute-api:%s:%s:%s/*/POST/@connections/*",
             data.aws_region.current.region,
             data.aws_caller_identity.current.account_id,
             aws_apigatewayv2_api.ws_api.id
