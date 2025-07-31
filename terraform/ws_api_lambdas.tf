@@ -151,7 +151,7 @@ resource "aws_lambda_function" "notify_ws_stream" {
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
-      WS_API_ENDPOINT      = "wss://${aws_apigatewayv2_domain_name.custom.domain_name}/ws"
+      WS_API_ENDPOINT      = "https://${aws_apigatewayv2_domain_name.custom.domain_name}/ws"
     }
   }
   layers = [aws_lambda_layer_version.shared.arn]

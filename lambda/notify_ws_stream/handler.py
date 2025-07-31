@@ -33,7 +33,7 @@ def notify_connections(org_id, message):
         except apigw.exceptions.GoneException:
             # Clean up stale connection
             ws_table.delete_item(
-                Key={'orgId': org_id, 'connectionId': conn['connectionId']})
+                Key={'orgId': conn['orgId'], 'connectionId': conn['connectionId']})
 
 
 def lambda_handler(event, context):
