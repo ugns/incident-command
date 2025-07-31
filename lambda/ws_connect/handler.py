@@ -7,8 +7,14 @@ from typing import Any
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
-logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger(__name__)
+logger.setLevel(LOG_LEVEL)
+if not logger.hasHandlers():
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+logging.getLogger().setLevel(LOG_LEVEL)
 
 dynamodb = boto3.resource('dynamodb')
 TABLE_NAME = os.environ.get('WS_CONNECTIONS_TABLE', 'WebSocketConnections')
