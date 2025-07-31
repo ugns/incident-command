@@ -1,42 +1,60 @@
+
 import os
 import json
 import boto3
+import logging
 from boto3.dynamodb.types import TypeDeserializer
 from boto3.dynamodb.conditions import Key
 from urllib.parse import urlparse
 from typing import Any
 
+
+# Setup logging
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+logging.basicConfig(level=LOG_LEVEL)
+logger = logging.getLogger(__name__)
+
 deserializer = TypeDeserializer()
 dynamodb = boto3.resource('dynamodb')
-ws_table: Any = dynamodb.Table(   # type: ignore
-    os.environ['WS_CONNECTIONS_TABLE'])
-
-# Set this to your WebSocket API endpoint, e.g., wss://<api-id>.execute-api.<region>.amazonaws.com/ws
+TABLE_NAME = os.environ.get('WS_CONNECTIONS_TABLE', 'WebSocketConnections')
+table: Any = dynamodb.Table(TABLE_NAME)  # type: ignore
 WS_API_ENDPOINT = os.environ['WS_API_ENDPOINT']
 
 
 def get_table_from_arn(arn):
     # arn:aws:dynamodb:region:account:table/TableName/stream/timestamp
-    return arn.split(':table/')[-1].split('/')[0]
+    table = arn.split(':table/')[-1].split('/')[0]
+    logger.debug(f"Extracted table name from ARN: {table}")
+    return table
 
 
 def notify_connections(org_id, message):
-    # Query all connections for the org
-    resp = ws_table.query(
-        KeyConditionExpression=Key('orgId').eq(org_id))
+    logger.info(
+        f"Notifying connections for org_id={org_id} with message={message}")
+    try:
+        resp = table.query(KeyConditionExpression=Key('orgId').eq(org_id))
+    except Exception as e:
+        logger.error(f"Error querying table for org_id={org_id}: {e}")
+        return
     apigw = boto3.client('apigatewaymanagementapi',
                          endpoint_url=WS_API_ENDPOINT)
     for conn in resp.get('Items', []):
         try:
+            logger.debug(f"Posting to connection {conn['connectionId']}")
             apigw.post_to_connection(
                 ConnectionId=conn['connectionId'], Data=json.dumps(message).encode('utf-8'))
         except apigw.exceptions.GoneException:
-            # Clean up stale connection
-            ws_table.delete_item(
+            logger.info(
+                f"Stale connection {conn['connectionId']} detected, deleting.")
+            table.delete_item(
                 Key={'orgId': conn['orgId'], 'connectionId': conn['connectionId']})
+        except Exception as e:
+            logger.error(
+                f"Error posting to connection {conn['connectionId']}: {e}")
 
 
 def lambda_handler(event, context):
+    logger.info(f"Received event: {json.dumps(event)[:1000]}")
     for record in event['Records']:
         event_name = record['eventName']  # INSERT, MODIFY, REMOVE
         table_arn = record['eventSourceARN']
@@ -57,7 +75,11 @@ def lambda_handler(event, context):
         # Routing logic by table and event type
         item = new_item or old_item
         if not item:
+            logger.warning(f"No item found in record: {record}")
             continue  # Skip if both new_item and old_item are None
+
+        logger.info(
+            f"Processing {event_name} for table {table_name} and org_id={item.get('org_id')}")
 
         if table_name == 'volunteers' and event_name in ('INSERT', 'MODIFY', 'REMOVE'):
             org_id = item['org_id']
@@ -81,4 +103,7 @@ def lambda_handler(event, context):
             org_id = item['org_id']
             notify_connections(
                 org_id, {"action": "incidentsUpdated", "orgId": org_id})
+        else:
+            logger.debug(
+                f"No routing match for table {table_name} and event {event_name}")
     return {"statusCode": 200}

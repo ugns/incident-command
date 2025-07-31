@@ -1,7 +1,14 @@
 import os
 import boto3
+import logging
 from client.auth import require_auth
 from typing import Any
+
+
+# Setup logging
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+logging.basicConfig(level=LOG_LEVEL)
+logger = logging.getLogger(__name__)
 
 dynamodb = boto3.resource('dynamodb')
 TABLE_NAME = os.environ.get('WS_CONNECTIONS_TABLE', 'WebSocketConnections')
@@ -9,28 +16,33 @@ table: Any = dynamodb.Table(TABLE_NAME)  # type: ignore
 
 
 def lambda_handler(event, context):
-    # API Gateway WebSocket $connect event
+    logger.info(f"Received $connect event: {event}")
     params = event.get('queryStringParameters') or {}
     token = params.get('token')
     if not token:
+        logger.warning("Missing token in query string")
         return {"statusCode": 401, "body": "Missing token in query string"}
-    # Use shared require_auth, passing the token as if it were an Authorization header
     fake_event = {'headers': {'Authorization': f'Bearer {token}'}}
     user = require_auth(fake_event)
     if not user:
+        logger.warning("Unauthorized: token did not resolve to user")
         return {"statusCode": 401, "body": "Unauthorized"}
     connection_id = event['requestContext']['connectionId']
     org_id = user.get('org_id')
-    # Use sub or email as user identifier
     user_identifier = user.get('sub') or user.get('email')
     if not user_identifier:
+        logger.error("Token missing sub or email")
         return {"statusCode": 400, "body": "Token missing sub or email"}
-    # Store connection info
     item = {
         'connectionId': connection_id,
         'orgId': org_id,
         'user': user_identifier,
         'subscriptions': [],
     }
-    table.put_item(Item=item)
+    try:
+        table.put_item(Item=item)
+        logger.info(f"Stored connection: {item}")
+    except Exception as e:
+        logger.error(f"Error storing connection: {e}")
+        return {"statusCode": 500, "body": "Failed to store connection"}
     return {"statusCode": 200, "body": "Connected"}
