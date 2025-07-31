@@ -1,3 +1,6 @@
+# Allow Lambda to manage WebSocket connections (for PostToConnection)
+data "aws_caller_identity" "current" {}
+
 # Event source mappings for DynamoDB Streams to notify_ws_stream Lambda
 resource "aws_lambda_event_source_mapping" "notify_ws_stream_volunteers" {
   event_source_arn  = aws_dynamodb_table.volunteers.stream_arn
@@ -67,6 +70,21 @@ resource "aws_iam_role_policy" "ws_lambda_dynamodb_policy" {
           aws_dynamodb_table.incidents.stream_arn
         ]
       }
+      ,
+      {
+        Effect = "Allow"
+        Action = [
+          "execute-api:ManageConnections"
+        ]
+        Resource = [
+          format(
+            "arn:aws:apigateway:%s:%s:/*/POST/@connections/*",
+            data.aws_region.current.region,
+            data.aws_caller_identity.current.account_id,
+            aws_apigatewayv2_api.ws_api.id
+          )
+        ]
+      }
     ]
   })
 }
@@ -89,6 +107,7 @@ resource "aws_lambda_function" "ws_connect" {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
       JWT_SECRET           = random_password.jwt_secret.result
+      LOG_LEVEL            = "INFO"
     }
   }
   layers = [aws_lambda_layer_version.shared.arn]
@@ -109,6 +128,7 @@ resource "aws_lambda_function" "ws_disconnect" {
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
+      LOG_LEVEL            = "INFO"
     }
   }
   layers = [aws_lambda_layer_version.shared.arn]
@@ -129,6 +149,7 @@ resource "aws_lambda_function" "ws_default" {
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
+      LOG_LEVEL            = "INFO"
     }
   }
   layers = [aws_lambda_layer_version.shared.arn]
@@ -152,6 +173,7 @@ resource "aws_lambda_function" "notify_ws_stream" {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
       WS_API_ENDPOINT      = "https://${aws_apigatewayv2_domain_name.custom.domain_name}/ws"
+      LOG_LEVEL            = "INFO"
     }
   }
   layers = [aws_lambda_layer_version.shared.arn]
