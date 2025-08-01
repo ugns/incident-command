@@ -1,3 +1,6 @@
+import os
+import uuid
+import boto3
 import json
 import logging
 from typing import Any, Dict
@@ -6,8 +9,10 @@ from launchdarkly.flags import Flags
 from models.organizations import Organization
 from utils.response import build_response
 
+# Setup logging
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",

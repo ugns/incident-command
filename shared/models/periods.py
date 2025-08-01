@@ -48,9 +48,10 @@ class Period:
 
     @staticmethod
     def update(org_id: str, period_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
-        item = {"org_id": org_id, "periodId": period_id, **updates}
-        table.put_item(Item=item)
-        return item
+        updates["org_id"] = org_id
+        updates["periodId"] = period_id
+        table.put_item(Item=updates)
+        return updates
 
 
     @staticmethod

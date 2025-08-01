@@ -1,3 +1,5 @@
+import os
+import uuid
 import json
 import logging
 from boto3.dynamodb.conditions import Key
@@ -7,8 +9,10 @@ from launchdarkly.flags import Flags
 from models.periods import Period
 from utils.response import build_response
 
+# Setup logging
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
@@ -59,18 +63,13 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if not period_id:
             return build_response(400, {'error': 'Missing period id in path'}, headers=cors_headers)
         body = json.loads(event.get('body', '{}'))
-        body['periodId'] = period_id
-        body['org_id'] = org_id
-        Period.update(period_id, body)
+        Period.update(org_id, period_id, body)
         return build_response(200, {'message': 'Period updated', 'id': period_id}, headers=cors_headers)
 
     elif method == 'DELETE':
-        # RBAC: Only allow admin users to delete
         if not period_id:
             return build_response(400, {'error': 'Missing period id in path'}, headers=cors_headers)
-        if not Flags.has_admin_access(claims):
-            return build_response(403, {'error': 'Admin privileges required for delete'}, headers=cors_headers)
-        Period.delete(period_id)
+        Period.delete(org_id, period_id)
         return build_response(204, {}, headers=cors_headers)
 
     else:

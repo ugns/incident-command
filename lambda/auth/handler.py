@@ -1,4 +1,3 @@
-
 import os
 import json
 import time
@@ -9,6 +8,11 @@ from typing import Protocol, Tuple, Optional, Dict, Any
 from googleAuthProvider import GoogleAuthProvider
 from models.volunteers import Volunteer
 from utils.response import build_response
+
+# Setup logging
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+logging.basicConfig(level=LOG_LEVEL)
+logger = logging.getLogger(__name__)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
