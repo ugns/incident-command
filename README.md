@@ -16,7 +16,11 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
     ```json
     {
       "token": "<backend_token>",
-      "user": { "email": "string", "name": "string", "org_id": "string" }
+      "user": {
+        "email": "string",
+        "name": "string",
+        "org_id": "string"
+      }
     }
     ```
 
@@ -37,11 +41,18 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
   - Description: Add a new volunteer (check-in)
   - Request body:
     ```json
-    { "name": "string", "contactInfo": "string", "currentLocation": "string", "notes": "string" }
+    {
+      "name": "string",
+      "contactInfo": "string",
+      "currentLocation": "string",
+      "notes": "string"
+    }
     ```
   - Response:
     ```json
-    { "volunteerId": "string" }
+    {
+      "volunteerId": "string"
+    }
     ```
 
 - **GET /volunteers/{volunteerId}**
@@ -65,12 +76,18 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
   - Description: Check in a volunteer for a new day (multi-day check-in)
   - Request body:
     ```json
-    { "checkin_time": "2024-06-01T08:00:00Z" }
+    {
+      "checkin_time": "2024-06-01T08:00:00Z"
+    }
     ```
     (Optional, defaults to now)
   - Response:
     ```json
-    { "message": "Volunteer checked in", "volunteerId": "abc123", "checkin_time": "2024-06-01T08:00:00Z" }
+    {
+      "message": "Volunteer checked in",
+      "volunteerId": "abc123",
+      "checkin_time": "2024-06-01T08:00:00Z"
+    }
     ```
 
 - **POST /volunteers/{volunteerId}/checkout**
@@ -99,18 +116,37 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
   - Description: Create a new ICS-214 operating period
   - Request body:
     ```json
-    { "startTime": "string (optional)", "endTime": "string (optional)", "name": "string", ... }
+    {
+      "startTime": "string (optional)",
+      "endTime": "string (optional)",
+      "name": "string",
+      ...additional metadata...
+    }
     ```
   - Response:
     ```json
-    { "periodId": "string", "startTime": "string", "endTime": "string", "name": "string", ... }
+    {
+      "periodId": "string",
+      "startTime": "string",
+      "endTime": "string",
+      "name": "string",
+      ...additional metadata...
+    }
     ```
 
 - **GET /periods**
   - Description: List all ICS-214 operating periods
   - Response:
     ```json
-    [ { "periodId": "string", "startTime": "string", "endTime": "string", "name": "string", ... } ]
+    [ 
+      {
+        "periodId": "string",
+        "startTime": "string",
+        "endTime": "string",
+        "name": "string",
+        ...additional metadata...
+      }
+    ]
     ```
 
 - **GET /periods/{periodId}**
@@ -124,7 +160,12 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
   - Description: Update an ICS-214 operating period (e.g., close period by setting end_time)
   - Request body:
     ```json
-    { "startTime": "string", "endTime": "string", "name": "string", ... }
+    {
+      "startTime": "string",
+      "endTime": "string",
+      "name": "string",
+      ...additional metadata...
+    }
     ```
   - Response: `204 No Content`
 
@@ -148,13 +189,13 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
 
 ```json
 {
-  "volunteerId": "string",           // Unique identifier
+  "volunteerId": "string",
   "org_id": "string",
   "name": "string",
   "contactInfo": "string",
   "currentLocation": "string",
   "notes": "string",
-  "status": "string",                // e.g., 'checked_in', 'dispatched', 'checked_out'
+  "status": "string",
   ...additional metadata...
 }
 ```
@@ -163,27 +204,27 @@ https://<api-id>.execute-api.<region>.amazonaws.com/<stage>
 
 ```json
 {
-  "logId": "string",                // Unique identifier
+  "logId": "string",
   "org_id": "string",
-  "periodId": "string",             // ICS-214 period association
-  "volunteerId": "string",           // Volunteer associated with the log
-  "timestamp": "ISO8601 string",      // UTC timestamp
-  "action": "string",                // e.g., 'checkin', 'dispatch', 'checkout'
+  "periodId": "string",
+  "volunteerId": "string",
+  "timestamp": "ISO8601 string",
+  "action": "string",
   "location": "string",
-  "details": "string",              // Used for ICS-214 notable activities
+  "details": "string",
   ...additional metadata...
 }
 ```
 
-### ICS-214 Period
+### Period
 
 ```json
 {
-  "periodId": "string",         // Unique identifier
+  "periodId": "string",
   "org_id": "string",
-  "startTime": "ISO8601 string", // UTC start
-  "endTime": "ISO8601 string",   // UTC end
-  "name": "string",              // Descriptive name
+  "startTime": "ISO8601 string",
+  "endTime": "ISO8601 string",
+  "name": "string",
   ...additional metadata...
 }
 ```
