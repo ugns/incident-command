@@ -78,6 +78,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         jwk_dict = jwk.as_dict() if hasattr(jwk, "as_dict") else None
         key_id = jwk_dict.get("kid") if jwk_dict else None
         header = {"alg": "RS256", "typ": "JWT"}
+        header["jku"] = f"{JWT_ISSUER}/.well-known/jwks.json"
         if key_id:
             header["kid"] = key_id
         jwt_token = jwt.encode(header, payload, private_key).decode("utf-8")
