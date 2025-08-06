@@ -97,4 +97,4 @@ junit*.xml
 build/
 dist/
 lambda/reports/*.json
-shared/build/
+shared/
