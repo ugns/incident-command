@@ -1,5 +1,4 @@
 name: Terraform Infrastructure
-
 on:
   push:
     branches:
@@ -9,110 +8,137 @@ on:
       - main
     types: [assigned, opened, synchronize, reopened]
 
-env:
-  AWS_GITHUB_OIDC_ROLE: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE }}
-  AWS_GITHUB_ACTIONS_ROLE: ${{ secrets.AWS_TERRAFORM_DEPLOY_ROLE }}
-  TF_IN_AUTOMATION: true
 
-permissions:
-  id-token: write
-  contents: read
-  pull-requests: write
 
 defaults:
   run:
     shell: bash
-  
-jobs:
-  terraform:
-    runs-on: ubuntu-latest
 
+jobs:
+  versioning:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: EventCoord
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install pip and requirements
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Semantic Release (EventCoord)
+        id: release
+        uses: python-semantic-release/python-semantic-release@v10
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          git_committer_name: "github-actions"
+          git_committer_email: "actions@users.noreply.github.com"
+      - name: Publish (EventCoord)
+        uses: python-semantic-release/publish-action@v10
+        if: steps.release.outputs.released == 'true'
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ steps.release.outputs.tag }}
+
+  build:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    needs: versioning
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y zip
+      - name: Install pip and requirements
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      - name: Run Makefile to package Lambda code
+        run: make
+      - name: Upload shared layer for Terraform
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-layer
+          path: shared/
+  terraform:
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    needs: build
     defaults:
       run:
         working-directory: terraform/
+    env:
+      AWS_GITHUB_OIDC_ROLE: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE }}
+      AWS_GITHUB_ACTIONS_ROLE: ${{ secrets.AWS_TERRAFORM_DEPLOY_ROLE }}
+      TF_IN_AUTOMATION: true
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.13'
-
-    - name: Install system dependencies
-      run: sudo apt-get update && sudo apt-get install -y zip
-
-    - name: Install pip and requirements
-      run: |
-        python -m pip install --upgrade pip
-        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      working-directory: ./
-
-    - name: Run Makefile to package Lambda code
-      run: make
-      working-directory: ./
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume:  ${{ env.AWS_GITHUB_OIDC_ROLE }}
-        aws-region: us-east-1
-
-    - name: Terraform Format
-      id: fmt
-      run: terraform fmt -no-color -check
-      continue-on-error: true
-
-    - name: Terraform Init
-      id: init
-      run: terraform init -no-color -backend-config="key=${{ github.repository }}/terraform.tfstate"
-    
-    - name: Terraform Validate
-      id: validate
-      run: terraform validate -no-color
-
-    - name: Generate GitHub App installation token
-      id: generate_token
-      uses: tibdex/github-app-token@v2
-      with:
-        app_id: ${{ secrets.GH_APP_ID }}
-        private_key: ${{ secrets.GH_PRIVATE_KEY }}
-
-    - name: Terraform Plan
-      id: plan
-      env:
-        TF_VAR_gh_action_role: ${{ env.AWS_GITHUB_ACTIONS_ROLE }}
-        TF_VAR_gh_access_token: ${{ steps.generate_token.outputs.token }}
-        TF_VAR_launchdarkly_access_token: ${{ secrets.LAUNCHDARKLY_ACCESS_TOKEN }}
-      run: terraform plan -out .planfile
-
-    - name: Post PR comment
-      if: github.event_name == 'pull_request' || github.ref == github.event_name == 'pull_request_target'
-      uses: borchero/terraform-plan-comment@v2
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        planfile: .planfile
-        working-directory: terraform/
-
-    - name: Terraform Plan Status
-      if: steps.plan.outcome == 'failure'
-      run: exit 1
-
-    - name: Terraform Apply
-      if: github.ref == 'refs/heads/main'
-      env:
-        TF_VAR_gh_action_role: ${{ env.AWS_GITHUB_ACTIONS_ROLE }}
-        TF_VAR_gh_access_token: ${{ steps.generate_token.outputs.token }}
-      run: terraform apply -no-color -auto-approve .planfile
-
-    - name: Upload shared Lambda Layer zip
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: shared-lambda-layer
-        path: lambda/shared.zip
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume:  ${{ env.AWS_GITHUB_OIDC_ROLE }}
+          aws-region: us-east-1
+      - name: Download shared layer
+        uses: actions/download-artifact@v4
+        with:
+          name: shared-layer
+          path: shared/
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -no-color -check
+        continue-on-error: true
+      - name: Terraform Init
+        id: init
+        run: terraform init -no-color -backend-config="key=${{ github.repository }}/terraform.tfstate"
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+      - name: Generate GitHub App installation token
+        id: generate_token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: ${{ secrets.GH_APP_ID }}
+          private_key: ${{ secrets.GH_PRIVATE_KEY }}
+      - name: Terraform Plan
+        id: plan
+        env:
+          TF_VAR_gh_action_role: ${{ env.AWS_GITHUB_ACTIONS_ROLE }}
+          TF_VAR_gh_access_token: ${{ steps.generate_token.outputs.token }}
+          TF_VAR_launchdarkly_access_token: ${{ secrets.LAUNCHDARKLY_ACCESS_TOKEN }}
+        run: terraform plan -out .planfile
+      - name: Post PR comment
+        if: github.event_name == 'pull_request' || github.ref == github.event_name == 'pull_request_target'
+        uses: borchero/terraform-plan-comment@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          planfile: .planfile
+          working-directory: terraform/
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        env:
+          TF_VAR_gh_action_role: ${{ env.AWS_GITHUB_ACTIONS_ROLE }}
+          TF_VAR_gh_access_token: ${{ steps.generate_token.outputs.token }}
+        run: terraform apply -no-color -auto-approve .planfile
 
