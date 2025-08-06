@@ -48,6 +48,13 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.release.outputs.tag }}
+      - name: Distribution Artifacts (EventCoord)
+        if: steps.release.outputs.released == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: distribution-artifacts
+          path: dist
+          if-no-files-found: error
 
   build:
     permissions:
@@ -146,4 +153,9 @@ jobs:
           TF_VAR_gh_action_role: ${{ env.AWS_GITHUB_ACTIONS_ROLE }}
           TF_VAR_gh_access_token: ${{ steps.generate_token.outputs.token }}
         run: terraform apply -no-color -auto-approve .planfile
-
+      - name: Upload shared Lambda Layer zip
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shared-lambda-layer
+          path: lambda/shared.zip
