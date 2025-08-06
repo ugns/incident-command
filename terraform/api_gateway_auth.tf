@@ -17,7 +17,7 @@ resource "aws_api_gateway_resource" "auth_login" {
 # /.well-known resource
 resource "aws_api_gateway_resource" "auth_well_known" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  parent_id   = aws_api_gateway_resource.root.id
+  parent_id   = data.aws_api_gateway_resource.root.id
   path_part   = ".well-known"
 }
 
