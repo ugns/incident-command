@@ -69,11 +69,13 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Run Makefile to package Lambda code
         run: make
-      - name: Upload shared layer for Terraform
+      - name: Upload shared layer and report JSON field files for Terraform
         uses: actions/upload-artifact@v4
         with:
           name: shared-layer
-          path: shared/
+          path: |
+            shared/
+            lambda/reports/*.json
 
   terraform:
     permissions:

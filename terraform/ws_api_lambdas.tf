@@ -106,7 +106,7 @@ resource "aws_lambda_function" "ws_connect" {
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
-      JWT_SECRET           = random_password.jwt_secret.result
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
       LOG_LEVEL            = "DEBUG"
     }
   }
