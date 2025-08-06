@@ -28,7 +28,7 @@ extract-fields:
 install-deps: clean
 	@echo "Installing EventCoord package and dependencies for Lambda Layer..."
 	mkdir -p $(LAYER_BUILD_DIR)
-	pip install ./EventCoord -t $(LAYER_BUILD_DIR)
+	pip install . -t $(LAYER_BUILD_DIR)
 	@echo "Done installing EventCoord and dependencies."
 
 
@@ -39,7 +39,7 @@ dev-venv:
 	python3 -m venv venv
 	. venv/bin/activate && \
 		pip install --upgrade pip && \
-		pip install -e ./EventCoord
+		pip install -e .
 	@echo "Local dev venv ready. Run: source venv/bin/activate"
 
 
