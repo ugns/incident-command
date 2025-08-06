@@ -52,16 +52,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Install pip and requirements
+      - name: Build Lambda Layer and package in Lambda Python 3.13 Docker
         run: |
-          python -m pip install --upgrade pip
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-      - name: Run Makefile to package Lambda code
-        run: make
+          docker run --rm -v "$PWD":/var/task -w /var/task --entrypoint /bin/bash public.ecr.aws/lambda/python:3.13 -c '
+            python -m pip install --upgrade pip
+            if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+            pip install . -t shared/python
+            cd lambda/reports
+            for pdf in *.pdf; do
+              json="${pdf%.pdf}.json"
+              if [ ! -f "$json" ]; then
+                python extract_fields.py "$pdf" "$json"
+              fi
+            done
+          '
       - name: Upload shared layer and report JSON field files for Terraform
         uses: actions/upload-artifact@v4
         with:
