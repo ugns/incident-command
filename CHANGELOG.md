@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.0 (2025-08-06)
+
+### Features
+
+- Add JWT issuer environment variable and update JWKS URL paths
+  ([`375ef3e`](https://github.com/ugns/incident-command/commit/375ef3ee3dc95775a4d8dc0b5302b6a02fe6d6fb))
+
+
 ## v1.4.2 (2025-08-06)
 
 ### Bug Fixes
