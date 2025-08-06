@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.3.0 (2025-08-06)
+
+### Features
+
+- Implement EventCoord shared code with AWS integration and JWT verification
+  ([`53d0fa6`](https://github.com/ugns/incident-command/commit/53d0fa678850a0e02e7fb00148bab32b950b7b3c))
+
+- Update permissions for Terraform job to allow write access
+  ([`cdde5e6`](https://github.com/ugns/incident-command/commit/cdde5e66eaf206af8997ea41f5fbb55207e5fdf5))
+
+
 ## v1.2.0 (2025-08-06)
 
 ### Features
