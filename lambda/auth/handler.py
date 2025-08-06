@@ -4,7 +4,7 @@ import time
 import copy
 import logging
 import boto3
-from authlib.jose import jwt
+from authlib.jose import jwt, JsonWebKey
 from typing import Protocol, Tuple, Optional, Dict, Any
 from googleAuthProvider import GoogleAuthProvider
 from EventCoord.models.volunteers import Volunteer
@@ -73,7 +73,13 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         payload['iss'] = str(JWT_ISSUER)
         payload['exp'] = int(time.time()) + TOKEN_TTL
         private_key = get_private_key()
+        # Generate kid from the private key so it matches the JWKS
+        jwk = JsonWebKey.import_key(private_key, {"kty": "RSA"})
+        jwk_dict = jwk.as_dict() if hasattr(jwk, "as_dict") else None
+        key_id = jwk_dict.get("kid") if jwk_dict else None
         header = {"alg": "RS256", "typ": "JWT"}
+        if key_id:
+            header["kid"] = key_id
         jwt_token = jwt.encode(header, payload, private_key).decode("utf-8")
         # Return user info (excluding sub, iss, provider, raw)
         user_response = {k: v for k, v in user_info.items() if k not in (
