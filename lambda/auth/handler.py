@@ -73,7 +73,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         payload['exp'] = int(time.time()) + TOKEN_TTL
         private_key = get_private_key()
         header = {"alg": "RS256", "typ": "JWT"}
-        jwt_token = jwt.encode(header, payload, private_key)
+        jwt_token = jwt.encode(header, payload, private_key).decode("utf-8")
         # Return user info (excluding sub, iss, provider, raw)
         user_response = {k: v for k, v in user_info.items() if k not in (
             'sub', 'provider', 'raw')} if user_info else {}
