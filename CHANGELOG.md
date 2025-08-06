@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.5 (2025-08-06)
+
+### Bug Fixes
+
+- Update JWKS_URL to remove redundant auth path in WebSocket Lambda environment variables
+  ([`586c379`](https://github.com/ugns/incident-command/commit/586c379affa46b2fd54a3cddc40a8e9de85056e9))
+
+
 ## v1.5.4 (2025-08-06)
 
 ### Bug Fixes
