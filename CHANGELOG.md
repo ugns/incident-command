@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.3.1 (2025-08-06)
+
+### Bug Fixes
+
+- Update artifact download path in Terraform workflow
+  ([`12ae232`](https://github.com/ugns/incident-command/commit/12ae232cfa73f88986cb74e5695567ab9eb980f4))
+
+
 ## v1.3.0 (2025-08-06)
 
 ### Features
