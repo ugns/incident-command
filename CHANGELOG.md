@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.4.0 (2025-08-06)
+
+### Features
+
+- Add Lambda Secrets Manager policy for JWT key access
+  ([`decd495`](https://github.com/ugns/incident-command/commit/decd495016e4988d74d9bdf09de728ba640faebc))
+
+
 ## v1.3.2 (2025-08-06)
 
 ### Bug Fixes
