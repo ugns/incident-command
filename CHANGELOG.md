@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.2.0 (2025-08-06)
+
+### Features
+
+- Add artifact upload steps for distribution and shared Lambda layer in Terraform workflow
+  ([`c032d80`](https://github.com/ugns/incident-command/commit/c032d80743c48b7b93fde8173146beba943ef8b0))
+
+
 ## v1.1.0 (2025-08-06)
 
 ### Features
