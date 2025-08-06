@@ -4,10 +4,10 @@ import boto3
 import json
 import logging
 from typing import Any, Dict
-from client.auth import check_auth
-from launchdarkly.flags import Flags
-from models.organizations import Organization
-from utils.response import build_response
+from EventCoord.client.auth import check_auth
+from EventCoord.launchdarkly.flags import Flags
+from EventCoord.models.organizations import Organization
+from EventCoord.utils.response import build_response
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()

@@ -1,8 +1,7 @@
 # Makefile for preparing Lambda deployment packages with shared client code
 # and installing shared Python dependencies.
 
-LAYER_BUILD_DIR = shared/build/python
-SHARED_REQUIREMENTS = shared/requirements.txt
+LAYER_BUILD_DIR = shared/python
 
 
 
@@ -25,16 +24,13 @@ extract-fields:
 
 
 
+
 install-deps: clean
-	@echo "Installing shared Python dependencies for Lambda Layer..."
+	@echo "Installing EventCoord package and dependencies for Lambda Layer..."
 	mkdir -p $(LAYER_BUILD_DIR)
-	pip install --upgrade -r $(SHARED_REQUIREMENTS) -t $(LAYER_BUILD_DIR)
-	@for dir in shared/*; do \
-		if [ -d $$dir ] && [ "$$(basename $$dir)" != "python" ]; then \
-			cp -r $$dir $(LAYER_BUILD_DIR)/; \
-		fi; \
-	done
-	@echo "Done installing shared dependencies and copying shared code."
+	pip install ./EventCoord -t $(LAYER_BUILD_DIR)
+	@echo "Done installing EventCoord and dependencies."
+
 
 
 
@@ -43,12 +39,7 @@ dev-venv:
 	python3 -m venv venv
 	. venv/bin/activate && \
 		pip install --upgrade pip && \
-		pip install -r $(SHARED_REQUIREMENTS)
-	@for dir in shared/*; do \
-		if [ -d $$dir ] && [ "$$dir" != "shared/build" ]; then \
-			. venv/bin/activate && pip install -e $$dir; \
-		fi; \
-	done
+		pip install -e ./EventCoord
 	@echo "Local dev venv ready. Run: source venv/bin/activate"
 
 

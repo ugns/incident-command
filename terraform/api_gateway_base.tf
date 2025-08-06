@@ -95,6 +95,8 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     aws_api_gateway_integration.openapi_json_get,
     aws_api_gateway_integration.auth_login_post,
     aws_api_gateway_integration.auth_login_options,
+    aws_api_gateway_integration.auth_jwks_json_options,
+    aws_api_gateway_integration.auth_jwks_json_get,
     aws_api_gateway_integration.activitylogs_post,
     aws_api_gateway_integration.activitylogs_options,
     aws_api_gateway_integration.activitylogs_get,

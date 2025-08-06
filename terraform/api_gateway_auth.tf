@@ -14,6 +14,44 @@ resource "aws_api_gateway_resource" "auth_login" {
   path_part   = "login"
 }
 
+# /auth/.well-known resource
+resource "aws_api_gateway_resource" "auth_well_known" {
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  parent_id   = aws_api_gateway_resource.auth.id
+  path_part   = ".well-known"
+}
+
+# /auth/.well-known/jwks.json resource
+resource "aws_api_gateway_resource" "auth_jwks_json" {
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  parent_id   = aws_api_gateway_resource.auth_well_known.id
+  path_part   = "jwks.json"
+}
+
+# GET /auth/.well-known/jwks.json
+resource "aws_api_gateway_method" "auth_jwks_json_get" {
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.auth_jwks_json.id
+  http_method   = "GET"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_integration" "auth_jwks_json_get" {
+  depends_on              = [aws_api_gateway_method.auth_jwks_json_get]
+  rest_api_id             = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id             = aws_api_gateway_resource.auth_jwks_json.id
+  http_method             = aws_api_gateway_method.auth_jwks_json_get.http_method
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = aws_lambda_function.jwks.invoke_arn
+}
+resource "aws_lambda_permission" "apigw_jwks" {
+  statement_id  = "AllowAPIGatewayInvokeJWKS"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.jwks.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/GET/auth/.well-known/jwks.json"
+}
+
 # POST /auth/login
 resource "aws_api_gateway_method" "auth_login_post" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
@@ -36,6 +74,53 @@ resource "aws_lambda_permission" "apigw_auth_callback" {
   function_name = aws_lambda_function.auth_callback.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/POST/auth/login"
+}
+
+# CORS OPTIONS for /auth/.well-known/jwks.json
+resource "aws_api_gateway_method" "auth_jwks_json_options" {
+  rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id   = aws_api_gateway_resource.auth_jwks_json.id
+  http_method   = "OPTIONS"
+  authorization = "NONE"
+}
+resource "aws_api_gateway_integration" "auth_jwks_json_options" {
+  depends_on  = [aws_api_gateway_method.auth_jwks_json_options]
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.auth_jwks_json.id
+  http_method = aws_api_gateway_method.auth_jwks_json_options.http_method
+  type        = "MOCK"
+  request_templates = {
+    "application/json" = "{\"statusCode\": 200}"
+  }
+}
+resource "aws_api_gateway_method_response" "auth_jwks_json_options" {
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.auth_jwks_json.id
+  http_method = aws_api_gateway_method.auth_jwks_json_options.http_method
+  status_code = "200"
+  response_models = {
+    "application/json" = "Empty"
+  }
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = true
+    "method.response.header.Access-Control-Allow-Methods" = true
+    "method.response.header.Access-Control-Allow-Origin"  = true
+  }
+}
+resource "aws_api_gateway_integration_response" "auth_jwks_json_options" {
+  depends_on  = [aws_api_gateway_integration.auth_jwks_json_options]
+  rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
+  resource_id = aws_api_gateway_resource.auth_jwks_json.id
+  http_method = aws_api_gateway_method.auth_jwks_json_options.http_method
+  status_code = "200"
+  response_templates = {
+    "application/json" = ""
+  }
+  response_parameters = {
+    "method.response.header.Access-Control-Allow-Headers" = "'Content-Type,Authorization'"
+    "method.response.header.Access-Control-Allow-Methods" = "'GET,OPTIONS'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
+  }
 }
 
 # CORS OPTIONS for /auth/login

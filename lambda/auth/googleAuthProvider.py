@@ -3,7 +3,7 @@ import json
 import requests
 import logging
 from typing import Protocol, Tuple, Optional, Dict, Any
-from models.organizations import Organization
+from EventCoord.models.organizations import Organization
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -39,10 +39,9 @@ class GoogleAuthProvider:
                 'picture': token_info.get('picture'),
                 'org_id': org.get('org_id'),
                 'org_name': org.get('name'),
-                'hd': token_info.get('hd') if token_info.get('hd') else None,  # Google hosted domain
+                # Google hosted domain
+                'hd': token_info.get('hd') if token_info.get('hd') else None,
                 'sub': token_info.get('sub'),
-                'provider': 'google',
-                'raw': token_info
             }
             logger.info(f"User info constructed: {user_info}")
             return user_info, None

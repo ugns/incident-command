@@ -3,16 +3,18 @@ import json
 import time
 import copy
 import logging
-from jose import jwt
+import boto3
+from authlib.jose import jwt
 from typing import Protocol, Tuple, Optional, Dict, Any
 from googleAuthProvider import GoogleAuthProvider
-from models.volunteers import Volunteer
-from utils.response import build_response
+from EventCoord.models.volunteers import Volunteer
+from EventCoord.utils.response import build_response
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
 logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
@@ -20,11 +22,18 @@ cors_headers = {
     "Access-Control-Allow-Methods": "POST,OPTIONS"
 }
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-JWT_SECRET = os.environ.get('JWT_SECRET', 'changeme')
+# Use RSA private key from AWS Secrets Manager
+PRIVATE_KEY_SECRET_ARN = os.environ.get('JWT_PRIVATE_KEY_SECRET_ARN')
 TOKEN_TTL = int(os.environ.get('TOKEN_TTL', '3600'))
+
+
+def get_private_key():
+    if not PRIVATE_KEY_SECRET_ARN:
+        logger.error("JWT_PRIVATE_KEY_SECRET_ARN not set in environment")
+        raise Exception("JWT_PRIVATE_KEY_SECRET_ARN not set")
+    client = boto3.client('secretsmanager')
+    response = client.get_secret_value(SecretId=PRIVATE_KEY_SECRET_ARN)
+    return response['SecretString']
 
 
 class AuthProvider(Protocol):
@@ -42,6 +51,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     try:
         logger.info(
             f"Received event: {json.dumps(event)[:500]}... (truncated)")
+        logger.debug(f"Event details: {json.dumps(event)}")
         body = json.loads(event.get('body', '{}'))
         provider_name = body.get('provider', 'google')
         token = body.get('token')
@@ -59,9 +69,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return build_response(401, error, headers=cors_headers)
         # Copy user_info and add JWT claims
         payload = copy.deepcopy(user_info) if user_info else {}
-        payload['iss'] = 'incident-cmd-backend'
+        payload['iss'] = 'event-coordinator-backend'
         payload['exp'] = int(time.time()) + TOKEN_TTL
-        jwt_token = jwt.encode(payload, JWT_SECRET, algorithm='HS256')
+        private_key = get_private_key()
+        header = {"alg": "RS256", "typ": "JWT"}
+        jwt_token = jwt.encode(header, payload, private_key)
         # Return user info (excluding sub, iss, provider, raw)
         user_response = {k: v for k, v in user_info.items() if k not in (
             'sub', 'provider', 'raw')} if user_info else {}

@@ -1,0 +1,64 @@
+[project]
+name = "EventCoord"
+version = "0.1.0"
+description = "Shared code for Event Coordination Lambdas"
+authors = [
+    { name="Jeremy T. Bouse", email="Jeremy.Bouse@UnderGrid.net" },
+]
+requires-python = ">=3.9"
+dependencies = [
+    "Authlib==1.6.1",
+    "boto3==1.39.15",
+    "launchdarkly-server-sdk==9.12.0",
+    "pypdf[crypto]==5.9.0",
+    "reportlab==4.4.3",
+    "requests==2.32.4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "build",
+    "coverage",
+    "flake8",
+    "importlib_metadata",
+    "pytest",
+    "python-semantic-release",
+    "tox",
+    "twine",
+]
+
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["EventCoord*"]
+
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+build_command = """
+    python -m pip install build
+    python -m build --wheel --sdist
+"""
+branch = "main"
+upload_to_pypi = false
+changelog_file = "CHANGELOG.md"
+
+[tool.semantic_release.changelog]
+exclude_commit_patterns = [
+  '''chore(?:\([^)]*?\))?: .+''',
+  '''ci(?:\([^)]*?\))?: .+''',
+  '''refactor(?:\([^)]*?\))?: .+''',
+  '''style(?:\([^)]*?\))?: .+''',
+  '''test(?:\([^)]*?\))?: .+''',
+  '''build\((?!deps\): .+)''',
+  '''Merged? .*''',
+  '''Initial Commit.*''',
+  # Old semantic-release version commits
+  '''^\d+\.\d+\.\d+''',
+]
+mode = "update"

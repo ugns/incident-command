@@ -2,9 +2,9 @@ import json
 import logging
 import os
 from typing import Any, Dict
-from client.auth import check_auth
-from models.radios import Radio
-from utils.response import build_response
+from EventCoord.client.auth import check_auth
+from EventCoord.models.radios import Radio
+from EventCoord.utils.response import build_response
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()

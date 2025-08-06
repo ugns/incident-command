@@ -1,7 +1,7 @@
 import os
 import boto3
 import logging
-from client.auth import require_auth
+from EventCoord.client.auth import require_auth
 from typing import Any
 
 

@@ -1,12 +1,6 @@
 # API Gateway resources and methods for /incidents and /incidents/{incidentId}
 data "aws_region" "current" {}
 
-# Generate a random JWT secret
-resource "random_password" "jwt_secret" {
-  length  = 32
-  special = false
-}
-
 # Lambda IAM Role
 resource "aws_iam_role" "lambda_exec" {
   name = "incident_cmd_lambda_exec"
@@ -132,16 +126,16 @@ resource "aws_iam_role_policy" "lambda_apigateway_policy" {
 # Shared Layer for Python dependencies
 data "archive_file" "shared_layer" {
   type        = "zip"
-  source_dir  = "../shared/build"
+  source_dir  = "../shared"
   output_path = "../lambda/shared.zip"
 }
 
 resource "aws_lambda_layer_version" "shared" {
   filename            = data.archive_file.shared_layer.output_path
-  layer_name          = "incident_cmd_shared"
+  layer_name          = "event_coord_shared"
   compatible_runtimes = [var.lambda_runtime]
   source_code_hash    = data.archive_file.shared_layer.output_base64sha256
-  description         = "Shared Python dependencies and code for incident-cmd Lambdas"
+  description         = "Shared Python dependencies and code for Event Coordination Lambdas"
 }
 
 # OpenAPI Export Lambda
@@ -186,8 +180,31 @@ resource "aws_lambda_function" "auth_callback" {
 
   environment {
     variables = {
-      JWT_SECRET           = random_password.jwt_secret.result
-      LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
+      JWT_PRIVATE_KEY_SECRET_ARN = aws_secretsmanager_secret.jwt_private_key.arn
+      LAUNCHDARKLY_SDK_KEY       = data.launchdarkly_environment.production.api_key
+    }
+  }
+}
+
+# Add JWKS Lambda deployment
+data "archive_file" "jwks" {
+  type        = "zip"
+  source_dir  = "../lambda/auth"
+  output_path = "../lambda/jwks.zip"
+}
+
+resource "aws_lambda_function" "jwks" {
+  function_name    = "jwks"
+  filename         = data.archive_file.jwks.output_path
+  handler          = "jwks.lambda_handler"
+  runtime          = var.lambda_runtime
+  role             = aws_iam_role.lambda_exec.arn
+  source_code_hash = data.archive_file.jwks.output_base64sha256
+  layers           = [aws_lambda_layer_version.shared.arn]
+
+  environment {
+    variables = {
+      JWT_PUBLIC_KEY_SECRET_ARN = aws_secretsmanager_secret.jwt_public_key.arn
     }
   }
 }
@@ -211,7 +228,7 @@ resource "aws_lambda_function" "volunteers" {
   environment {
     variables = {
       VOLUNTEERS_TABLE     = aws_dynamodb_table.volunteers.name
-      JWT_SECRET           = random_password.jwt_secret.result
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -235,7 +252,7 @@ resource "aws_lambda_function" "activitylogs" {
   environment {
     variables = {
       ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
-      JWT_SECRET           = random_password.jwt_secret.result
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -261,7 +278,7 @@ resource "aws_lambda_function" "periods" {
   environment {
     variables = {
       ICS_PERIODS_TABLE    = aws_dynamodb_table.periods.name
-      JWT_SECRET           = random_password.jwt_secret.result
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -287,7 +304,7 @@ resource "aws_lambda_function" "reports" {
     variables = {
       ICS214_TEMPLATE_PDF  = "ICS-214-v31.pdf"
       ICS214_FIELDS_JSON   = "ICS-214-v31.json"
-      JWT_SECRET           = random_password.jwt_secret.result
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -312,7 +329,7 @@ resource "aws_lambda_function" "organizations" {
   environment {
     variables = {
       ORGANIZATIONS_TABLE  = aws_dynamodb_table.organizations.name
-      JWT_SECRET           = random_password.jwt_secret.result
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -336,7 +353,7 @@ resource "aws_lambda_function" "locations" {
   environment {
     variables = {
       LOCATIONS_TABLE      = aws_dynamodb_table.locations.name
-      JWT_SECRET           = random_password.jwt_secret.result
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -360,7 +377,7 @@ resource "aws_lambda_function" "radios" {
   environment {
     variables = {
       RADIOS_TABLE         = aws_dynamodb_table.radios.name
-      JWT_SECRET           = random_password.jwt_secret.result
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -383,7 +400,7 @@ resource "aws_lambda_function" "incidents" {
   environment {
     variables = {
       INCIDENTS_TABLE      = aws_dynamodb_table.incidents.name
-      JWT_SECRET           = random_password.jwt_secret.result
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -407,7 +424,7 @@ resource "aws_lambda_function" "units" {
   environment {
     variables = {
       UNITS_TABLE          = aws_dynamodb_table.units.name
-      JWT_SECRET           = random_password.jwt_secret.result
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }

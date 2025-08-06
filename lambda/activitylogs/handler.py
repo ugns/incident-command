@@ -3,10 +3,10 @@ import logging
 import os
 from boto3.dynamodb.conditions import Key
 from typing import Any, Dict
-from client.auth import check_auth
-from launchdarkly.flags import Flags
-from models.activitylogs import ActivityLog
-from utils.response import build_response
+from EventCoord.client.auth import check_auth
+from EventCoord.launchdarkly.flags import Flags
+from EventCoord.models.activitylogs import ActivityLog
+from EventCoord.utils.response import build_response
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
