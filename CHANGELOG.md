@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.1 (2025-08-06)
+
+### Bug Fixes
+
+- Correct parent_id reference for /.well-known resource in API Gateway
+  ([`0606702`](https://github.com/ugns/incident-command/commit/0606702fb696f68feb21b4020dba1a55d25b1e99))
+
+
 ## v1.5.0 (2025-08-06)
 
 ### Features
