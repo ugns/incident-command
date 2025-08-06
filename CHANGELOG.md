@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.5.4 (2025-08-06)
+
+### Bug Fixes
+
+- Clean up build directory during the clean process in Makefile
+  ([`ae1bf74`](https://github.com/ugns/incident-command/commit/ae1bf7427e98fc6d8ea1ed3580320b1e3caf00fc))
+
+- Update JWT_ISSUER to include trailing slash and import JsonWebKey for key generation
+  ([`30e774b`](https://github.com/ugns/incident-command/commit/30e774b99edc8a6a1f5d1f980fb2a92b87a9a798))
+
+
 ## v1.5.3 (2025-08-06)
 
 ### Bug Fixes
