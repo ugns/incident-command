@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.4.2 (2025-08-06)
+
+### Bug Fixes
+
+- Remove installation of system dependencies from Terraform workflow
+  ([`3c1350d`](https://github.com/ugns/incident-command/commit/3c1350db45d0b581e8b8a534265b8b8f89115322))
+
+
 ## v1.4.1 (2025-08-06)
 
 ### Bug Fixes
