@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.3 (2025-08-06)
+
+### Bug Fixes
+
+- Ensure cryptography dependency is included in the project dependencies
+  ([`6c7a4f5`](https://github.com/ugns/incident-command/commit/6c7a4f5f55b310b60aee5f1291b0fb4a3f5b524b))
+
+
 ## v1.5.2 (2025-08-06)
 
 ### Bug Fixes
