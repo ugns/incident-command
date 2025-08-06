@@ -19,8 +19,3 @@ variable "domain_name" {
   description = "The root domain name (e.g., example.com) for Route53 lookup."
   type        = string
 }
-
-variable "api_subdomain" {
-  description = "The full API subdomain (e.g., api.example.com) for the custom domain."
-  type        = string
-}
