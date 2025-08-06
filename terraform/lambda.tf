@@ -121,6 +121,29 @@ resource "aws_iam_role_policy" "lambda_apigateway_policy" {
   })
 }
 
+# Lambda Secrets Manager Policy
+resource "aws_iam_role_policy" "lambda_secretsmanager_policy" {
+  name = "incident_cmd_lambda_secretsmanager_policy"
+  role = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue",
+          "secretsmanager:DescribeSecret",
+          "secretsmanager:ListSecretVersionIds"
+        ]
+        Resource = [
+          aws_secretsmanager_secret.jwt_private_key.arn,
+          aws_secretsmanager_secret.jwt_public_key.arn
+        ]
+      }
+    ]
+  })
+}
+
 # Lambda Functions
 
 # Shared Layer for Python dependencies
