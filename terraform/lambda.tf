@@ -204,7 +204,7 @@ resource "aws_lambda_function" "auth_callback" {
   environment {
     variables = {
       JWT_PRIVATE_KEY_SECRET_ARN = aws_secretsmanager_secret.jwt_private_key.arn
-      JWT_ISSUER                 = "https://${aws_api_gateway_domain_name.custom.domain_name}/"
+      JWT_ISSUER                 = "https://${aws_api_gateway_domain_name.custom.domain_name}"
       LAUNCHDARKLY_SDK_KEY       = data.launchdarkly_environment.production.api_key
     }
   }
