@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.7 (2025-08-06)
+
+### Bug Fixes
+
+- Remove trailing slash from JWT issuer URL in auth_callback environment variables
+  ([`b9325a4`](https://github.com/ugns/incident-command/commit/b9325a401dd06e2061574289767924343997c876))
+
+
 ## v1.5.6 (2025-08-06)
 
 ### Bug Fixes
