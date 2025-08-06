@@ -21,6 +21,7 @@ cors_headers = {
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     claims = check_auth(event)
+    flags = Flags(claims)
     org_id = claims.get('org_id')
     if not org_id:
         return build_response(403, {'error': 'Missing organization (org_id claim) in token'}, headers=cors_headers)
@@ -66,7 +67,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     elif method == 'DELETE':
         if not volunteer_id:
             return build_response(400, {'error': 'Missing volunteer id in path'}, headers=cors_headers)
-        if not Flags.has_admin_access(claims):
+        if not flags.has_admin_access():
             return build_response(403, {'error': 'Admin privileges required for delete'}, headers=cors_headers)
         Volunteer.delete(org_id, volunteer_id)
         return build_response(204, {}, headers=cors_headers)

@@ -23,6 +23,7 @@ cors_headers = {
 
 def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     claims = check_auth(event)
+    flags = Flags(claims)
     org_id = claims.get('org_id')
     if not org_id:
         return {
@@ -37,7 +38,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     if method == 'GET':
         if period_id:
-            item = Period.get_period(period_id)
+            item = Period.get(org_id, period_id)
             if not item or item.get('org_id') != org_id:
                 return build_response(404, {'error': 'Period not found'}, headers=cors_headers)
             return build_response(200, item, headers=cors_headers)

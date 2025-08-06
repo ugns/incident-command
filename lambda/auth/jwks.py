@@ -1,7 +1,7 @@
 import os
 import boto3
 from authlib.jose import JsonWebKey
-from utils.response import build_response
+from EventCoord.utils.response import build_response
 
 # Use RSA public key from AWS Secrets Manager
 PUBLIC_KEY_SECRET_ARN = os.environ.get('JWT_PUBLIC_KEY_SECRET_ARN')
