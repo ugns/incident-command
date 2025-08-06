@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.2 (2025-08-06)
+
+### Bug Fixes
+
+- Update Docker build process to use --no-cache-dir for pip installations
+  ([`5f469bc`](https://github.com/ugns/incident-command/commit/5f469bc85b0810bdc9c120f716a1b781a0e021ed))
+
+
 ## v1.5.1 (2025-08-06)
 
 ### Bug Fixes
