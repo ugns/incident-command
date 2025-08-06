@@ -86,7 +86,7 @@ jobs:
 
   terraform:
     permissions:
-      contents: read
+      contents: write
       id-token: write
       pull-requests: write
     runs-on: ubuntu-latest
