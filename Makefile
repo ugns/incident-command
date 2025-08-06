@@ -47,4 +47,5 @@ dev-venv:
 clean:
 	@echo "Cleaning all shared dependencies for Lambda Layer..."
 	@rm -rf $(dir $(LAYER_BUILD_DIR))
+	@rm -rf build
 	@echo "Done."
