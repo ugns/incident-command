@@ -24,6 +24,7 @@ cors_headers = {
 
 # Use RSA private key from AWS Secrets Manager
 PRIVATE_KEY_SECRET_ARN = os.environ.get('JWT_PRIVATE_KEY_SECRET_ARN')
+JWT_ISSUER = os.environ.get('JWT_ISSUER', 'event-coordinator-backend')
 TOKEN_TTL = int(os.environ.get('TOKEN_TTL', '3600'))
 
 
@@ -69,7 +70,7 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             return build_response(401, error, headers=cors_headers)
         # Copy user_info and add JWT claims
         payload = copy.deepcopy(user_info) if user_info else {}
-        payload['iss'] = 'event-coordinator-backend'
+        payload['iss'] = str(JWT_ISSUER)
         payload['exp'] = int(time.time()) + TOKEN_TTL
         private_key = get_private_key()
         header = {"alg": "RS256", "typ": "JWT"}

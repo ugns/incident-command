@@ -14,21 +14,21 @@ resource "aws_api_gateway_resource" "auth_login" {
   path_part   = "login"
 }
 
-# /auth/.well-known resource
+# /.well-known resource
 resource "aws_api_gateway_resource" "auth_well_known" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
-  parent_id   = aws_api_gateway_resource.auth.id
+  parent_id   = aws_api_gateway_resource.root.id
   path_part   = ".well-known"
 }
 
-# /auth/.well-known/jwks.json resource
+# /.well-known/jwks.json resource
 resource "aws_api_gateway_resource" "auth_jwks_json" {
   rest_api_id = aws_api_gateway_rest_api.incident_cmd.id
   parent_id   = aws_api_gateway_resource.auth_well_known.id
   path_part   = "jwks.json"
 }
 
-# GET /auth/.well-known/jwks.json
+# GET /.well-known/jwks.json
 resource "aws_api_gateway_method" "auth_jwks_json_get" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
   resource_id   = aws_api_gateway_resource.auth_jwks_json.id
@@ -49,7 +49,7 @@ resource "aws_lambda_permission" "apigw_jwks" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.jwks.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/GET/auth/.well-known/jwks.json"
+  source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/GET/.well-known/jwks.json"
 }
 
 # POST /auth/login
@@ -76,7 +76,7 @@ resource "aws_lambda_permission" "apigw_auth_callback" {
   source_arn    = "${aws_api_gateway_rest_api.incident_cmd.execution_arn}/*/POST/auth/login"
 }
 
-# CORS OPTIONS for /auth/.well-known/jwks.json
+# CORS OPTIONS for /.well-known/jwks.json
 resource "aws_api_gateway_method" "auth_jwks_json_options" {
   rest_api_id   = aws_api_gateway_rest_api.incident_cmd.id
   resource_id   = aws_api_gateway_resource.auth_jwks_json.id

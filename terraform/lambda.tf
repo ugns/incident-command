@@ -204,6 +204,7 @@ resource "aws_lambda_function" "auth_callback" {
   environment {
     variables = {
       JWT_PRIVATE_KEY_SECRET_ARN = aws_secretsmanager_secret.jwt_private_key.arn
+      JWT_ISSUER                 = "https://${aws_api_gateway_domain_name.custom.domain_name}"
       LAUNCHDARKLY_SDK_KEY       = data.launchdarkly_environment.production.api_key
     }
   }
@@ -251,7 +252,7 @@ resource "aws_lambda_function" "volunteers" {
   environment {
     variables = {
       VOLUNTEERS_TABLE     = aws_dynamodb_table.volunteers.name
-      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -275,7 +276,7 @@ resource "aws_lambda_function" "activitylogs" {
   environment {
     variables = {
       ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
-      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -301,7 +302,7 @@ resource "aws_lambda_function" "periods" {
   environment {
     variables = {
       ICS_PERIODS_TABLE    = aws_dynamodb_table.periods.name
-      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -327,7 +328,7 @@ resource "aws_lambda_function" "reports" {
     variables = {
       ICS214_TEMPLATE_PDF  = "ICS-214-v31.pdf"
       ICS214_FIELDS_JSON   = "ICS-214-v31.json"
-      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -352,7 +353,7 @@ resource "aws_lambda_function" "organizations" {
   environment {
     variables = {
       ORGANIZATIONS_TABLE  = aws_dynamodb_table.organizations.name
-      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -376,7 +377,7 @@ resource "aws_lambda_function" "locations" {
   environment {
     variables = {
       LOCATIONS_TABLE      = aws_dynamodb_table.locations.name
-      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -400,7 +401,7 @@ resource "aws_lambda_function" "radios" {
   environment {
     variables = {
       RADIOS_TABLE         = aws_dynamodb_table.radios.name
-      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -423,7 +424,7 @@ resource "aws_lambda_function" "incidents" {
   environment {
     variables = {
       INCIDENTS_TABLE      = aws_dynamodb_table.incidents.name
-      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
@@ -447,7 +448,7 @@ resource "aws_lambda_function" "units" {
   environment {
     variables = {
       UNITS_TABLE          = aws_dynamodb_table.units.name
-      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/auth/.well-known/jwks.json"
+      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
