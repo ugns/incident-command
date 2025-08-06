@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.4.1 (2025-08-06)
+
+### Bug Fixes
+
+- Decode JWT token to UTF-8 before returning
+  ([`81b4a1d`](https://github.com/ugns/incident-command/commit/81b4a1dace84336eedca104d6e92f79e42f9c146))
+
+
 ## v1.4.0 (2025-08-06)
 
 ### Features
