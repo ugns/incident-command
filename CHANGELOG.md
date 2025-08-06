@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.6 (2025-08-06)
+
+### Bug Fixes
+
+- Add JKU header to JWT for JWKS URL in lambda_handler
+  ([`40e2017`](https://github.com/ugns/incident-command/commit/40e2017e382b5358a08ad816be86b7c9984d6970))
+
+
 ## v1.5.5 (2025-08-06)
 
 ### Bug Fixes
