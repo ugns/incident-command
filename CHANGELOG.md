@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.8 (2025-08-07)
+
+### Bug Fixes
+
+- Set logging level for EventCoord.client.auth to match global LOG_LEVEL
+  ([`8622bb7`](https://github.com/ugns/incident-command/commit/8622bb74d207fc30314cfad9c921ebda571fc302))
+
+
 ## v1.5.7 (2025-08-06)
 
 ### Bug Fixes
