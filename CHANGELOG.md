@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.10 (2025-08-07)
+
+### Bug Fixes
+
+- Increase timeout for JWKS URL request to improve reliability
+  ([`c0f7005`](https://github.com/ugns/incident-command/commit/c0f7005927710a2ef3d7fe5d5f7f261734026cfd))
+
+
 ## v1.5.9 (2025-08-07)
 
 ### Bug Fixes
