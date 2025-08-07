@@ -11,24 +11,28 @@ logger.setLevel(logging.INFO)
 def verify_jwt_token(token):
     JWKS_URL = os.environ.get(
         'JWKS_URL', 'https://your-api-domain/auth/.well-known/jwks.json')
-    try:
-        logger.info(f"Verifying JWT token: {token[:10]}... (truncated)")
-        resp = requests.get(JWKS_URL, timeout=5)
-        logger.debug("JWKS endpoint responded")
-        resp.raise_for_status()
-        logger.debug("JWKS response status OK")
-        jwks = resp.json()['keys']
-        logger.debug(f"JWKS keys: {jwks}")
-        jwt_obj = JsonWebToken(['RS256'])
-        logger.debug("About to decode JWT")
-        claims = jwt_obj.decode(token, jwks)
-        logger.debug("Decoded JWT, about to validate exp")
-        claims.validate_exp(now=int(time.time()), leeway=3)
-        logger.debug(f"Decoded JWT payload: {claims}")
-        return dict(claims)
-    except Exception as e:
-        logger.warning(f"JWT verification general error: {e}", exc_info=True)
-        return None
+    max_retries = 3
+    for attempt in range(1, max_retries + 1):
+        try:
+            logger.info(f"Verifying JWT token: {token[:10]}... (truncated) [attempt {attempt}]")
+            resp = requests.get(JWKS_URL, timeout=5)
+            logger.debug("JWKS endpoint responded")
+            resp.raise_for_status()
+            logger.debug("JWKS response status OK")
+            jwks = resp.json()['keys']
+            logger.debug(f"JWKS keys: {jwks}")
+            jwt_obj = JsonWebToken(['RS256'])
+            logger.debug("About to decode JWT")
+            claims = jwt_obj.decode(token, jwks)
+            logger.debug("Decoded JWT, about to validate exp")
+            claims.validate_exp(now=int(time.time()), leeway=3)
+            logger.debug(f"Decoded JWT payload: {claims}")
+            return dict(claims)
+        except Exception as e:
+            logger.warning(f"JWT verification error (attempt {attempt}): {e}", exc_info=True)
+            if attempt == max_retries:
+                return None
+            time.sleep(0.5 * attempt)  # Exponential backoff
 
 
 def require_auth(event):
