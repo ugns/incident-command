@@ -103,6 +103,8 @@ resource "aws_lambda_function" "ws_connect" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.ws_connect.output_base64sha256
+  timeout          = 10
+  layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
@@ -110,7 +112,6 @@ resource "aws_lambda_function" "ws_connect" {
       LOG_LEVEL            = "DEBUG"
     }
   }
-  layers = [aws_lambda_layer_version.shared.arn]
 }
 
 data "archive_file" "ws_disconnect" {
@@ -125,13 +126,14 @@ resource "aws_lambda_function" "ws_disconnect" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.ws_disconnect.output_base64sha256
+  timeout          = 10
+  layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
       LOG_LEVEL            = "DEBUG"
     }
   }
-  layers = [aws_lambda_layer_version.shared.arn]
 }
 
 data "archive_file" "ws_default" {
@@ -146,13 +148,14 @@ resource "aws_lambda_function" "ws_default" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.ws_default.output_base64sha256
+  timeout          = 10
+  layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
       LOG_LEVEL            = "DEBUG"
     }
   }
-  layers = [aws_lambda_layer_version.shared.arn]
 }
 
 # Archive and Lambda for notify_ws_stream (DynamoDB Streams handler)
@@ -169,6 +172,8 @@ resource "aws_lambda_function" "notify_ws_stream" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.notify_ws_stream.output_base64sha256
+  timeout          = 10
+  layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
@@ -176,5 +181,4 @@ resource "aws_lambda_function" "notify_ws_stream" {
       LOG_LEVEL            = "DEBUG"
     }
   }
-  layers = [aws_lambda_layer_version.shared.arn]
 }
