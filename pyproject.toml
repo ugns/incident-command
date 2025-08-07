@@ -13,6 +13,7 @@ dependencies = [
     "pypdf[crypto]==5.9.0",
     "reportlab==4.4.3",
     "requests==2.32.4",
+    "aws-lambda-typing==2.20.0",
 ]
 
 [project.optional-dependencies]
