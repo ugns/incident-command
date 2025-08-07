@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.6.0 (2025-08-07)
+
+### Features
+
+- Add shared layer to OpenAPI Lambda function
+  ([`6e8bd3b`](https://github.com/ugns/incident-command/commit/6e8bd3bb3daaef165e3f66b46b5d3b4061eab642))
+
+
 ## v1.5.10 (2025-08-07)
 
 ### Bug Fixes
