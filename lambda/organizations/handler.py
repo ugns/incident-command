@@ -3,7 +3,9 @@ import uuid
 import boto3
 import json
 import logging
-from typing import Any, Dict
+from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.context import Context as LambdaContext
+from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from EventCoord.client.auth import check_auth
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.organizations import Organization
@@ -22,7 +24,10 @@ cors_headers = {
 }
 
 
-def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+def lambda_handler(
+    event: APIGatewayProxyEventV2,
+    context: LambdaContext
+) -> APIGatewayProxyResponseV2:
     claims = check_auth(event)
     flags = Flags(claims)
     method = event.get('httpMethod', 'GET')
@@ -34,12 +39,20 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if org_id:
             org = Organization.get_by_org_id(org_id)
             if not org:
-                return build_response(404, {'error': 'Organization not found'}, headers=cors_headers)
+                return build_response(
+                    404,
+                    {'error': 'Organization not found'},
+                    headers=cors_headers
+                )
             return build_response(200, org, headers=cors_headers)
         elif aud:
             org = Organization.get_by_aud(aud)
             if not org:
-                return build_response(404, {'error': 'Organization not found'}, headers=cors_headers)
+                return build_response(
+                    404,
+                    {'error': 'Organization not found'},
+                    headers=cors_headers
+                )
             return build_response(200, org, headers=cors_headers)
         else:
             items = Organization.list_all()
@@ -48,34 +61,67 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     elif method == 'POST':
         body = json.loads(event.get('body', '{}'))
         if not flags.has_super_admin_access():
-            return build_response(403, {'error': 'Super Admin privileges required for create'}, headers=cors_headers)
+            return build_response(
+                403,
+                {'error': 'Super Admin privileges required for create'},
+                headers=cors_headers
+            )
 
         aud = body.get('aud')
         name = body.get('name')
         if not aud or not name:
-            return build_response(400, {'error': 'Missing aud or name in request body'}, headers=cors_headers)
+            return build_response(
+                400,
+                {'error': 'Missing aud or name in request body'},
+                headers=cors_headers
+            )
         org = Organization.create(aud, name)
         return build_response(201, org, headers=cors_headers)
 
     elif method == 'PUT':
         if not org_id:
-            return build_response(400, {'error': 'Missing org_id in path'}, headers=cors_headers)
+            return build_response(
+                400,
+                {'error': 'Missing org_id in path'},
+                headers=cors_headers
+            )
         if not flags.has_super_admin_access():
-            return build_response(403, {'error': 'Super Admin privileges required for update'}, headers=cors_headers)
+            return build_response(
+                403,
+                {'error': 'Super Admin privileges required for update'},
+                headers=cors_headers
+            )
         body = json.loads(event.get('body', '{}'))
-        updates = {k: v for k, v in body.items() if k in ('aud', 'name', 'hd', 'notes')}
+        updates = {k: v for k, v in body.items() if k in (
+            'aud', 'name', 'hd', 'notes')}
         if not updates:
-            return build_response(400, {'error': 'No valid fields to update'}, headers=cors_headers)
+            return build_response(
+                400,
+                {'error': 'No valid fields to update'},
+                headers=cors_headers
+            )
         org = Organization.update(org_id, updates)
         if not org:
-            return build_response(404, {'error': 'Organization not found'}, headers=cors_headers)
+            return build_response(
+                404,
+                {'error': 'Organization not found'},
+                headers=cors_headers
+            )
         return build_response(200, org, headers=cors_headers)
 
     elif method == 'DELETE':
         if not org_id:
-            return build_response(400, {'error': 'Missing org_id in path'}, headers=cors_headers)
+            return build_response(
+                400,
+                {'error': 'Missing org_id in path'},
+                headers=cors_headers
+            )
         if not flags.has_super_admin_access():
-            return build_response(403, {'error': 'Super Admin privileges required for delete'}, headers=cors_headers)
+            return build_response(
+                403,
+                {'error': 'Super Admin privileges required for delete'},
+                headers=cors_headers
+            )
         Organization.delete(org_id)
         return build_response(204, {}, headers=cors_headers)
 

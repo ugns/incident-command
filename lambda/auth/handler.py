@@ -6,6 +6,9 @@ import logging
 import boto3
 from authlib.jose import jwt, JsonWebKey
 from typing import Protocol, Tuple, Optional, Dict, Any
+from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.context import Context as LambdaContext
+from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from googleAuthProvider import GoogleAuthProvider
 from EventCoord.models.volunteers import Volunteer
 from EventCoord.utils.response import build_response
@@ -48,7 +51,10 @@ PROVIDERS: Dict[str, AuthProvider] = {
 }
 
 
-def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+def lambda_handler(
+    event: APIGatewayProxyEventV2,
+    context: LambdaContext
+) -> APIGatewayProxyResponseV2:
     try:
         logger.info(
             f"Received event: {json.dumps(event)[:500]}... (truncated)")
@@ -63,11 +69,19 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         provider: Optional[AuthProvider] = PROVIDERS.get(provider_name)
         if not provider:
             logger.warning(f"Unsupported provider: {provider_name}")
-            return build_response(400, {"error": f"Unsupported provider: {provider_name}"}, headers=cors_headers)
+            return build_response(
+                400,
+                {"error": f"Unsupported provider: {provider_name}"},
+                headers=cors_headers
+            )
         user_info, error = provider.authenticate(token)
         if error:
             logger.warning(f"Authentication error: {error}")
-            return build_response(401, error, headers=cors_headers)
+            return build_response(
+                401,
+                error,
+                headers=cors_headers
+            )
         # Copy user_info and add JWT claims
         payload = copy.deepcopy(user_info) if user_info else {}
         payload['iss'] = str(JWT_ISSUER)
@@ -83,15 +97,35 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             header["kid"] = key_id
         jwt_token = jwt.encode(header, payload, private_key).decode("utf-8")
         # Return user info (excluding sub, iss, provider, raw)
-        user_response = {k: v for k, v in user_info.items() if k not in (
-            'sub', 'provider', 'raw')} if user_info else {}
+        user_response: Dict[str, Any] = {}
+        if user_info:
+            user_response = {k: v for k, v in user_info.items(
+            ) if k not in ('sub', 'provider', 'raw')}
+        else:
+            logger.error(
+                "user_info is None after authentication, cannot proceed")
+            return build_response(
+                401,
+                {"error": "Authentication failed"},
+                headers=cors_headers
+            )
+
         logger.info(f"Authentication successful for user: {user_response}")
-        volunteer = Volunteer.get_or_create_by_email(
-            org_id=user_response.get("org_id"),
-            email=user_response.get("email"),
-            defaults=user_response
+        # TODO: Create or update volunteer record
+        # volunteer = Volunteer.get_or_create_by_email(
+        #     org_id=user_response.get("org_id"),
+        #     email=user_response.get("email"),
+        #     defaults=user_response
+        # )
+        return build_response(
+            200,
+            {"token": jwt_token, "user": user_response},
+            headers=cors_headers
         )
-        return build_response(200, {"token": jwt_token, "user": user_response}, headers=cors_headers)
     except Exception as e:
         logger.error(f"Exception in lambda_handler: {e}")
-        return build_response(400, {"error": "Invalid request body", "details": str(e)}, headers=cors_headers)
+        return build_response(
+            400,
+            {"error": "Invalid request body", "details": str(e)},
+            headers=cors_headers
+        )

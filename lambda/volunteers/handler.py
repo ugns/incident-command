@@ -1,7 +1,9 @@
 import json
 import logging
 import os
-from typing import Any, Dict
+from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.context import Context as LambdaContext
+from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from EventCoord.client.auth import check_auth
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.volunteers import Volunteer
@@ -20,12 +22,19 @@ cors_headers = {
 }
 
 
-def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+def lambda_handler(
+    event: APIGatewayProxyEventV2,
+    context: LambdaContext
+) -> APIGatewayProxyResponseV2:
     claims = check_auth(event)
     flags = Flags(claims)
     org_id = claims.get('org_id')
     if not org_id:
-        return build_response(403, {'error': 'Missing organization (org_id claim) in token'}, headers=cors_headers)
+        return build_response(
+            403,
+            {'error': 'Missing organization (org_id claim) in token'},
+            headers=cors_headers
+        )
 
     method = event.get('httpMethod', 'GET')
     path_params = event.get('pathParameters') or {}
@@ -36,7 +45,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if volunteer_id:
             item = Volunteer.get(org_id, volunteer_id)
             if not item:
-                return build_response(404, {'error': 'Volunteer not found'}, headers=cors_headers)
+                return build_response(
+                    404,
+                    {'error': 'Volunteer not found'},
+                    headers=cors_headers
+                )
             return build_response(200, item, headers=cors_headers)
         else:
             items = Volunteer.list(org_id)
@@ -44,15 +57,27 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
     elif method == 'POST':
         if volunteer_id:
-            return build_response(405, {'error': 'Method not allowed: use PUT to update volunteer'}, headers=cors_headers)
+            return build_response(
+                405,
+                {'error': 'Method not allowed: use PUT to update volunteer'},
+                headers=cors_headers
+            )
         import uuid
         body = json.loads(event.get('body', '{}'))
         item = Volunteer.create(org_id, body)
-        return build_response(201, {'message': 'Volunteer created', 'id': item['volunteerId']}, headers=cors_headers)
+        return build_response(
+            201,
+            {'message': 'Volunteer created', 'id': item['volunteerId']},
+            headers=cors_headers
+        )
 
     elif method == 'PUT':
         if not volunteer_id:
-            return build_response(400, {'error': 'Missing volunteer id in path'}, headers=cors_headers)
+            return build_response(
+                400,
+                {'error': 'Missing volunteer id in path'},
+                headers=cors_headers
+            )
         body = json.loads(event.get('body', '{}'))
         body['volunteerId'] = volunteer_id
         body['org_id'] = org_id
@@ -63,13 +88,25 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         elif '/dispatch' in resource_path:
             body['status'] = 'dispatched'
         Volunteer.update(org_id, volunteer_id, body)
-        return build_response(200, {'message': 'Volunteer updated', 'id': volunteer_id}, headers=cors_headers)
+        return build_response(
+            200,
+            {'message': 'Volunteer updated', 'id': volunteer_id},
+            headers=cors_headers
+        )
 
     elif method == 'DELETE':
         if not volunteer_id:
-            return build_response(400, {'error': 'Missing volunteer id in path'}, headers=cors_headers)
+            return build_response(
+                400,
+                {'error': 'Missing volunteer id in path'},
+                headers=cors_headers
+            )
         if not flags.has_admin_access():
-            return build_response(403, {'error': 'Admin privileges required for delete'}, headers=cors_headers)
+            return build_response(
+                403,
+                {'error': 'Admin privileges required for delete'},
+                headers=cors_headers
+            )
         Volunteer.delete(org_id, volunteer_id)
         return build_response(204, {}, headers=cors_headers)
 

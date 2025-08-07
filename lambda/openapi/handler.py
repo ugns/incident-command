@@ -1,7 +1,15 @@
 import os
 import boto3
+from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.context import Context as LambdaContext
+from aws_lambda_typing.responses import APIGatewayProxyResponseV2
+from EventCoord.utils.response import build_response
 
-def lambda_handler(event, context):
+
+def lambda_handler(
+    event: APIGatewayProxyEventV2,
+    context: LambdaContext
+) -> APIGatewayProxyResponseV2:
     rest_api_id = os.environ['REST_API_ID']
     stage_name = os.environ['STAGE_NAME']
     client = boto3.client('apigateway')
@@ -14,20 +22,20 @@ def lambda_handler(event, context):
             accepts='application/json'
         )
         spec = response['body'].read()
-        return {
-            'statusCode': 200,
-            'body': spec.decode('utf-8'),
-            'headers': {
+        return build_response(
+            200,
+            spec.decode('utf-8'),
+            {
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             }
-        }
+        )
     except Exception as e:
-        return {
-            'statusCode': 500,
-            'body': str(e),
-            'headers': {
+        return build_response(
+            500,
+            str(e),
+            {
                 'Content-Type': 'text/plain',
                 'Access-Control-Allow-Origin': '*'
             }
-        }
+        )

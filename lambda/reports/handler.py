@@ -7,6 +7,9 @@ import traceback
 import logging
 from pathlib import Path
 from typing import Any, Dict
+from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.context import Context as LambdaContext
+from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from EventCoord.client.auth import check_auth
 from EventCoord.utils.response import build_response
 
@@ -25,19 +28,31 @@ cors_headers = {
 
 
 # Dynamically load and call the reportType's generate_report()
-def dynamic_report_handler(report_type, data):
+def dynamic_report_handler(
+    report_type: str,
+    data: dict[str, Any]
+) -> APIGatewayProxyResponseV2:
     module_name = f"{report_type}_form"
     try:
         module = importlib.import_module(module_name)
     except Exception as e:
-        return build_response(400, {'error': f'Could not import module {module_name}', 'details': str(e)}, headers=cors_headers)
+        return build_response(
+            400,
+            {'error': f'Could not import module {module_name}',
+                'details': str(e)},
+            headers=cors_headers
+        )
     # Get media type
     media_type = getattr(module, 'MEDIA_TYPE', 'application/pdf')
     # Call generate_report
     try:
         result = module.generate_report(data)
     except Exception as e:
-        return build_response(500, {'error': 'Failed to generate report', 'details': str(e)}, headers=cors_headers)
+        return build_response(
+            500,
+            {'error': 'Failed to generate report', 'details': str(e)},
+            headers=cors_headers
+        )
     # Generate a short hash from the data for filename uniqueness
     import hashlib
     import mimetypes
@@ -48,26 +63,31 @@ def dynamic_report_handler(report_type, data):
     # Use pathlib to format filename and extension
     base_name = f"{report_type}-{short_hash}"
     filename = str(Path(base_name).with_suffix(ext)) if ext else base_name
-    response = {
+    response: APIGatewayProxyResponseV2 = {
         'statusCode': 200,
         'body': base64.b64encode(result).decode('utf-8'),
         'isBase64Encoded': True,
         'headers': {
             **cors_headers,
             'Content-Disposition': f'attachment; filename="{filename}"',
+            'Content-Type': media_type,
         },
-        "mediaType": media_type,
     }
-    # Remove mediaType from response
-    response.pop('mediaType', None)
     return response
 
 
-def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+def lambda_handler(
+    event: APIGatewayProxyEventV2,
+    context: LambdaContext
+) -> APIGatewayProxyResponseV2:
     claims = check_auth(event)
     org_id = claims.get('hd')
     if not org_id:
-        return build_response(403, {'error': 'Missing organization (hd claim) in token'}, headers=cors_headers)
+        return build_response(
+            403,
+            {'error': 'Missing organization (hd claim) in token'},
+            headers=cors_headers
+        )
 
     try:
         method = event.get('httpMethod', 'GET')
@@ -140,13 +160,6 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
             response = dynamic_report_handler(report_type, data)
             logger.info(f"Report handler response: {response}")
-            if response.get('statusCode') == 200:
-                headers = dict(response.get('headers', {}))
-                headers['Content-Type'] = response.get(
-                    'mediaType', 'application/pdf')
-                response['headers'] = headers
-                # Remove mediaType from response
-                response.pop('mediaType', None)
             return response
 
         logger.warning("No matching endpoint found for event.")
@@ -154,4 +167,8 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     except Exception as e:
         logger.error(
             f"Unhandled exception in lambda_handler: {e}\n{traceback.format_exc()}")
-        return build_response(500, {'error': 'Internal server error', 'details': str(e)}, headers=cors_headers)
+        return build_response(
+            500,
+            {'error': 'Internal server error', 'details': str(e)},
+            headers=cors_headers
+        )

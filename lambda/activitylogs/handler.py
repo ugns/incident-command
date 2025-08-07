@@ -1,8 +1,9 @@
 import json
 import logging
 import os
-from boto3.dynamodb.conditions import Key
-from typing import Any, Dict
+from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.context import Context as LambdaContext
+from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from EventCoord.client.auth import check_auth
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.activitylogs import ActivityLog
@@ -21,12 +22,19 @@ cors_headers = {
 }
 
 
-def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
+def lambda_handler(
+    event: APIGatewayProxyEventV2,
+    context: LambdaContext
+) -> APIGatewayProxyResponseV2:
     claims = check_auth(event)
     flags = Flags(claims)
     org_id = claims.get('org_id')
     if not org_id:
-        return build_response(403, {'error': 'Missing organization (org_id claim) in token'}, headers=cors_headers)
+        return build_response(
+            403,
+            {'error': 'Missing organization (org_id claim) in token'},
+            headers=cors_headers
+        )
 
     method = event.get('httpMethod', 'GET')
     path_params = event.get('pathParameters') or {}
@@ -37,7 +45,11 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if log_id:
             item = ActivityLog.get_activity_log(log_id)
             if not item or item.get('org_id') != org_id:
-                return build_response(404, {'error': 'Activity log not found'}, headers=cors_headers)
+                return build_response(
+                    404,
+                    {'error': 'Activity log not found'},
+                    headers=cors_headers
+                )
             return build_response(200, item, headers=cors_headers)
         # volunteer_id query is not implemented in model.py, keep direct query for now
         elif volunteer_id:
@@ -56,34 +68,62 @@ def lambda_handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if 'logId' not in body:
             body['logId'] = str(uuid.uuid4())
         if 'periodId' not in body or not body['periodId']:
-            return build_response(400, {'error': 'Missing required field: periodId'}, headers=cors_headers)
+            return build_response(
+                400,
+                {'error': 'Missing required field: periodId'},
+                headers=cors_headers
+            )
         if 'timestamp' not in body or not body['timestamp']:
             body['timestamp'] = datetime.now(
                 timezone.utc).isoformat().replace('+00:00', 'Z')
         body['org_id'] = org_id
         ActivityLog.create_activity_log(body)
-        return build_response(201, {'message': 'Activity log created', 'id': body['logId']}, headers=cors_headers)
+        return build_response(
+            201,
+            {'message': 'Activity log created', 'id': body['logId']},
+            headers=cors_headers
+        )
 
     elif method == 'PUT':
         if not log_id:
-            return build_response(400, {'error': 'Missing activity log id in path'}, headers=cors_headers)
+            return build_response(
+                400,
+                {'error': 'Missing activity log id in path'},
+                headers=cors_headers
+            )
         from datetime import datetime, timezone
         body = json.loads(event.get('body', '{}'))
         body['logId'] = log_id
         if 'periodId' not in body or not body['periodId']:
-            return build_response(400, {'error': 'Missing required field: periodId'}, headers=cors_headers)
+            return build_response(
+                400,
+                {'error': 'Missing required field: periodId'},
+                headers=cors_headers
+            )
         if 'timestamp' not in body or not body['timestamp']:
             body['timestamp'] = datetime.now(
                 timezone.utc).isoformat().replace('+00:00', 'Z')
         body['org_id'] = org_id
         ActivityLog.update_activity_log(log_id, body)
-        return build_response(200, {'message': 'Activity log updated', 'id': log_id}, headers=cors_headers)
+        return build_response(
+            200,
+            {'message': 'Activity log updated', 'id': log_id},
+            headers=cors_headers
+        )
 
     elif method == 'DELETE':
         if not log_id:
-            return build_response(400, {'error': 'Missing activity log id in path'}, headers=cors_headers)
+            return build_response(
+                400,
+                {'error': 'Missing activity log id in path'},
+                headers=cors_headers
+            )
         if not flags.has_super_admin_access():
-            return build_response(403, {'error': 'Admin privileges required for delete'}, headers=cors_headers)
+            return build_response(
+                403,
+                {'error': 'Admin privileges required for delete'},
+                headers=cors_headers
+            )
         ActivityLog.delete_activity_log(log_id)
         return build_response(204, {}, headers=cors_headers)
 
