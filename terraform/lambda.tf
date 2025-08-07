@@ -203,6 +203,7 @@ resource "aws_lambda_function" "auth_callback" {
 
   environment {
     variables = {
+      LOG_LEVEL                  = "DEBUG"
       JWT_PRIVATE_KEY_SECRET_ARN = aws_secretsmanager_secret.jwt_private_key.arn
       JWT_ISSUER                 = "https://${aws_api_gateway_domain_name.custom.domain_name}"
       LAUNCHDARKLY_SDK_KEY       = data.launchdarkly_environment.production.api_key
@@ -251,6 +252,7 @@ resource "aws_lambda_function" "volunteers" {
 
   environment {
     variables = {
+      LOG_LEVEL            = "DEBUG"
       VOLUNTEERS_TABLE     = aws_dynamodb_table.volunteers.name
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
@@ -275,6 +277,7 @@ resource "aws_lambda_function" "activitylogs" {
 
   environment {
     variables = {
+      LOG_LEVEL            = "DEBUG"
       ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
@@ -301,6 +304,7 @@ resource "aws_lambda_function" "periods" {
 
   environment {
     variables = {
+      LOG_LEVEL            = "DEBUG"
       ICS_PERIODS_TABLE    = aws_dynamodb_table.periods.name
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
@@ -326,6 +330,7 @@ resource "aws_lambda_function" "reports" {
 
   environment {
     variables = {
+      LOG_LEVEL            = "DEBUG"
       ICS214_TEMPLATE_PDF  = "ICS-214-v31.pdf"
       ICS214_FIELDS_JSON   = "ICS-214-v31.json"
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
@@ -352,6 +357,7 @@ resource "aws_lambda_function" "organizations" {
 
   environment {
     variables = {
+      LOG_LEVEL            = "DEBUG"
       ORGANIZATIONS_TABLE  = aws_dynamodb_table.organizations.name
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
@@ -376,6 +382,7 @@ resource "aws_lambda_function" "locations" {
   layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
+      LOG_LEVEL            = "DEBUG"
       LOCATIONS_TABLE      = aws_dynamodb_table.locations.name
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
@@ -400,6 +407,7 @@ resource "aws_lambda_function" "radios" {
   layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
+      LOG_LEVEL            = "DEBUG"
       RADIOS_TABLE         = aws_dynamodb_table.radios.name
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
@@ -423,6 +431,7 @@ resource "aws_lambda_function" "incidents" {
   layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
+      LOG_LEVEL            = "DEBUG"
       INCIDENTS_TABLE      = aws_dynamodb_table.incidents.name
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
@@ -447,6 +456,7 @@ resource "aws_lambda_function" "units" {
   layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
+      LOG_LEVEL            = "DEBUG"
       UNITS_TABLE          = aws_dynamodb_table.units.name
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key

@@ -10,6 +10,7 @@ from EventCoord.utils.response import build_response
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
 logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger(__name__)
+logging.getLogger("EventCoord.client.auth").setLevel(LOG_LEVEL)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",

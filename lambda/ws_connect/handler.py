@@ -15,6 +15,7 @@ if not logger.hasHandlers():
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 logging.getLogger().setLevel(LOG_LEVEL)
+logging.getLogger("EventCoord.client.auth").setLevel(LOG_LEVEL)
 
 dynamodb = boto3.resource('dynamodb')
 TABLE_NAME = os.environ.get('WS_CONNECTIONS_TABLE', 'WebSocketConnections')

@@ -17,19 +17,10 @@ def verify_jwt_token(token):
         resp.raise_for_status()
         jwks = resp.json()['keys']
         jwt_obj = JsonWebToken(['RS256'])
-        # Try each key in JWKS
-        for jwk_dict in jwks:
-            try:
-                claims = jwt_obj.decode(token, jwk_dict)
-                claims.validate_exp(now=int(time.time()), leeway=30)
-                logger.debug(f"Decoded JWT payload: {claims}")
-                return dict(claims)
-            except Exception as e:
-                logger.debug(
-                    f"JWT verification failed for key: {jwk_dict.get('kid')}, error: {e}")
-                continue
-        logger.warning("JWT verification failed for all keys in JWKS.")
-        return None
+        claims = jwt_obj.decode(token, jwks)
+        claims.validate_exp(now=int(time.time()), leeway=3)
+        logger.debug(f"Decoded JWT payload: {claims}")
+        return dict(claims)
     except Exception as e:
         logger.warning(f"JWT verification general error: {e}")
         return None
