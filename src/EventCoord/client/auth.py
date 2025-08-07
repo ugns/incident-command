@@ -14,8 +14,11 @@ def verify_jwt_token(token):
     try:
         logger.info(f"Verifying JWT token: {token[:10]}... (truncated)")
         resp = requests.get(JWKS_URL, timeout=5)
+        logger.debug("JWKS endpoint responded")
         resp.raise_for_status()
+        logger.debug("JWKS response status OK")
         jwks = resp.json()['keys']
+        logger.debug(f"JWKS keys: {jwks}")
         jwt_obj = JsonWebToken(['RS256'])
         logger.debug("About to decode JWT")
         claims = jwt_obj.decode(token, jwks)
