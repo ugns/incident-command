@@ -200,6 +200,7 @@ resource "aws_lambda_function" "auth_callback" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.auth.output_base64sha256
+  timeout          = 10
   layers           = [aws_lambda_layer_version.shared.arn]
 
   environment {
@@ -226,6 +227,7 @@ resource "aws_lambda_function" "jwks" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.jwks.output_base64sha256
+  timeout          = 10
   layers           = [aws_lambda_layer_version.shared.arn]
 
   environment {
@@ -249,6 +251,7 @@ resource "aws_lambda_function" "volunteers" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.volunteers.output_base64sha256
+  timeout          = 10
   layers           = [aws_lambda_layer_version.shared.arn]
 
   environment {
@@ -274,6 +277,7 @@ resource "aws_lambda_function" "activitylogs" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.activitylogs.output_base64sha256
+  timeout          = 10
   layers           = [aws_lambda_layer_version.shared.arn]
 
   environment {
@@ -301,6 +305,7 @@ resource "aws_lambda_function" "periods" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.periods.output_base64sha256
+  timeout          = 10
   layers           = [aws_lambda_layer_version.shared.arn]
 
   environment {
@@ -354,6 +359,7 @@ resource "aws_lambda_function" "organizations" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.organizations.output_base64sha256
+  timeout          = 10
   layers           = [aws_lambda_layer_version.shared.arn]
 
   environment {
@@ -380,6 +386,7 @@ resource "aws_lambda_function" "locations" {
   filename         = data.archive_file.locations_lambda.output_path
   source_code_hash = data.archive_file.locations_lambda.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
+  timeout          = 10
   layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
@@ -405,6 +412,7 @@ resource "aws_lambda_function" "radios" {
   filename         = data.archive_file.radios_lambda.output_path
   source_code_hash = data.archive_file.radios_lambda.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
+  timeout          = 10
   layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
@@ -429,6 +437,7 @@ resource "aws_lambda_function" "incidents" {
   filename         = data.archive_file.incidents_lambda.output_path
   source_code_hash = data.archive_file.incidents_lambda.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
+  timeout          = 10
   layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
@@ -454,6 +463,7 @@ resource "aws_lambda_function" "units" {
   filename         = data.archive_file.units_lambda.output_path
   source_code_hash = data.archive_file.units_lambda.output_base64sha256
   role             = aws_iam_role.lambda_exec.arn
+  timeout          = 10
   layers           = [aws_lambda_layer_version.shared.arn]
   environment {
     variables = {
