@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.7.0 (2025-08-07)
+
+### Features
+
+- Set timeout for multiple Lambda functions to 10 seconds
+  ([`c6fd4ce`](https://github.com/ugns/incident-command/commit/c6fd4ced658737e0fb3e8ad36eebb2ef89657123))
+
+
 ## v1.6.0 (2025-08-07)
 
 ### Features
