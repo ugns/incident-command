@@ -175,6 +175,7 @@ resource "aws_lambda_function" "openapi" {
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.openapi.output_base64sha256
+  layers           = [aws_lambda_layer_version.shared.arn]
 
   environment {
     variables = {
