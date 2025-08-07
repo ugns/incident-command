@@ -1,4 +1,5 @@
 import os
+import logging
 import boto3
 from authlib.jose import JsonWebKey
 from EventCoord.utils.response import build_response
@@ -10,6 +11,9 @@ cors_headers = {
     "Access-Control-Allow-Headers": "Content-Type,Authorization",
     "Access-Control-Allow-Methods": "GET,OPTIONS"
 }
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def get_public_keys():
@@ -40,6 +44,13 @@ def lambda_handler(event, context):
             jwk = JsonWebKey.import_key(key_pem, {'kty': 'RSA'})
             jwks_keys.append(jwk.as_dict())
         jwks = {"keys": jwks_keys}
+        logger.info(
+            f"JWKS published with {len(jwks_keys)} keys, kids: {[k.get('kid') for k in jwks_keys]}")
         return build_response(200, jwks, headers=cors_headers)
     except Exception as e:
-        return build_response(500, {"error": "Failed to publish JWKS", "details": str(e)}, headers=cors_headers)
+        logger.error(f"Failed to publish JWKS: {e}", exc_info=True)
+        return build_response(
+            500,
+            {"error": "Failed to publish JWKS", "details": str(e)},
+            headers=cors_headers
+        )
