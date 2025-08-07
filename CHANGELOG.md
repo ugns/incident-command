@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.8.0 (2025-08-07)
+
+### Features
+
+- Set timeout and add shared layer to WebSocket Lambda functions
+  ([`643581e`](https://github.com/ugns/incident-command/commit/643581ef95e57fa572f1e8cb9bfe39a9e9609444))
+
+
 ## v1.7.0 (2025-08-07)
 
 ### Features
