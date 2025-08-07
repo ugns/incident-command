@@ -1,6 +1,6 @@
 [project]
 name = "EventCoord"
-version = "1.5.8"
+version = "1.5.9"
 description = "Shared code for Event Coordination Lambdas"
 authors = [
     { name="Jeremy T. Bouse", email="Jeremy.Bouse@UnderGrid.net" },

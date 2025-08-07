@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.5.9 (2025-08-07)
+
+### Bug Fixes
+
+- Add aws-lambda-typing dependency for improved type safety
+  ([`433ac50`](https://github.com/ugns/incident-command/commit/433ac50ec50ab06f8acbed73cc68c8e300a7652c))
+
+
 ## v1.5.8 (2025-08-07)
 
 ### Bug Fixes
