@@ -13,7 +13,7 @@ def verify_jwt_token(token):
         'JWKS_URL', 'https://your-api-domain/auth/.well-known/jwks.json')
     try:
         logger.info(f"Verifying JWT token: {token[:10]}... (truncated)")
-        resp = requests.get(JWKS_URL, timeout=3)
+        resp = requests.get(JWKS_URL, timeout=5)
         resp.raise_for_status()
         jwks = resp.json()['keys']
         jwt_obj = JsonWebToken(['RS256'])
