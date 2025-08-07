@@ -2,6 +2,8 @@ import os
 import json
 import boto3
 import logging
+from aws_lambda_typing.events import DynamoDBStreamEvent
+from aws_lambda_typing.context import Context as LambdaContext
 from boto3.dynamodb.types import TypeDeserializer
 from boto3.dynamodb.conditions import Key
 from urllib.parse import urlparse
@@ -58,11 +60,14 @@ def notify_connections(org_id, message):
                 f"Error posting to connection {conn['connectionId']}: {e}")
 
 
-def lambda_handler(event, context):
+def lambda_handler(
+    event: DynamoDBStreamEvent,
+    context: LambdaContext
+) -> None:
     logger.info(f"Received event: {json.dumps(event)[:1000]}")
     for record in event['Records']:
-        event_name = record['eventName']  # INSERT, MODIFY, REMOVE
-        table_arn = record['eventSourceARN']
+        event_name = record.get('eventName')  # INSERT, MODIFY, REMOVE
+        table_arn = record.get('eventSourceArn')
         table_name = get_table_from_arn(table_arn)
         new_image = record.get('dynamodb', {}).get('NewImage')
         old_image = record.get('dynamodb', {}).get('OldImage')
@@ -111,4 +116,3 @@ def lambda_handler(event, context):
         else:
             logger.debug(
                 f"No routing match for table {table_name} and event {event_name}")
-    return {"statusCode": 200}

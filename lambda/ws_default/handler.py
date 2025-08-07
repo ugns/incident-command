@@ -1,7 +1,8 @@
 import json
 import os
 import logging
-
+from aws_lambda_typing.events import WebSocketRouteEvent
+from aws_lambda_typing.context import Context as LambdaContext
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
@@ -9,13 +10,17 @@ logger = logging.getLogger(__name__)
 logger.setLevel(LOG_LEVEL)
 if not logger.hasHandlers():
     handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
+    formatter = logging.Formatter(
+        '%(asctime)s %(levelname)s %(name)s %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 logging.getLogger().setLevel(LOG_LEVEL)
 
 
-def lambda_handler(event, context):
+def lambda_handler(
+    event: WebSocketRouteEvent,
+    context: LambdaContext
+) -> dict[str, str | int]:
     logger.info(f"Received ws_default event: {event}")
     body = event.get('body')
     try:

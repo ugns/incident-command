@@ -1,6 +1,8 @@
 import os
 import boto3
 import logging
+from aws_lambda_typing.events import WebSocketConnectEvent
+from aws_lambda_typing.context import Context as LambdaContext
 from typing import Any
 
 
@@ -10,7 +12,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel(LOG_LEVEL)
 if not logger.hasHandlers():
     handler = logging.StreamHandler()
-    formatter = logging.Formatter('%(asctime)s %(levelname)s %(name)s %(message)s')
+    formatter = logging.Formatter(
+        '%(asctime)s %(levelname)s %(name)s %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 logging.getLogger().setLevel(LOG_LEVEL)
@@ -20,14 +23,18 @@ TABLE_NAME = os.environ.get('WS_CONNECTIONS_TABLE', 'WebSocketConnections')
 table: Any = dynamodb.Table(TABLE_NAME)  # type: ignore
 
 
-def lambda_handler(event, context):
+def lambda_handler(
+    event: WebSocketConnectEvent,
+    context: LambdaContext
+) -> dict[str, str | int]:
     logger.info(f"Received $disconnect event: {event}")
     connection_id = event['requestContext']['connectionId']
     org_id = event['requestContext'].get('authorizer', {}).get('org_id')
     if not org_id:
         logger.warning(
             "org_id not found in authorizer, attempting fallback lookup")
-        resp = table.get_item(Key={'orgId': org_id, 'connectionId': connection_id})
+        resp = table.get_item(
+            Key={'orgId': org_id, 'connectionId': connection_id})
         item = resp.get('Item')
         if not item:
             logger.error(
