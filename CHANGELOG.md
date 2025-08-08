@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.9.0 (2025-08-08)
+
+### Features
+
+- Add CORS headers and JSON parsing to API Gateway response in handler.py
+  ([`692f834`](https://github.com/ugns/incident-command/commit/692f834367581e0ff93d8b623f48ef99a60c2b81))
+
+
 ## v1.8.0 (2025-08-07)
 
 ### Features
