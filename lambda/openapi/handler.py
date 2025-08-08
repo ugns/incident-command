@@ -1,9 +1,16 @@
 import os
 import boto3
+import json
 from aws_lambda_typing.events import APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from EventCoord.utils.response import build_response
+
+cors_headers = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET,OPTIONS"
+}
 
 
 def lambda_handler(
@@ -22,12 +29,13 @@ def lambda_handler(
             accepts='application/json'
         )
         spec = response['body'].read()
+        spec_json = json.loads(spec.decode('utf-8'))
         return build_response(
             200,
-            spec.decode('utf-8'),
+            spec_json,
             {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
+                **cors_headers,
+                'Content-Type': 'application/json'
             }
         )
     except Exception as e:
@@ -35,7 +43,7 @@ def lambda_handler(
             500,
             str(e),
             {
-                'Content-Type': 'text/plain',
-                'Access-Control-Allow-Origin': '*'
+                **cors_headers,
+                'Content-Type': 'text/plain'
             }
         )

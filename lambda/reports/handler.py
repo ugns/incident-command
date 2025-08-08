@@ -6,7 +6,7 @@ import glob
 import traceback
 import logging
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 from aws_lambda_typing.events import APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
