@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.16.0 (2025-08-13)
+
+### Features
+
+- Consolidate API Gateway integration responses into local variables for improved organization
+  ([`ecef73c`](https://github.com/ugns/incident-command/commit/ecef73c50cc65562452da95f80bfe014ffac0118))
+
+
 ## v1.15.0 (2025-08-13)
 
 ### Features
