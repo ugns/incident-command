@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v1.14.0 (2025-08-13)
+
+### Features
+
+- Update WebSocket disconnect handler to use DynamoDB query for connection retrieval and enhance
+  error logging
+  ([`6186a7b`](https://github.com/ugns/incident-command/commit/6186a7bf8dc078986528bc76522d5112fd6f3bdd))
+
+
 ## v1.13.0 (2025-08-13)
 
 ### Bug Fixes
