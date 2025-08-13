@@ -6,7 +6,6 @@ from aws_lambda_typing.events import DynamoDBStreamEvent
 from aws_lambda_typing.context import Context as LambdaContext
 from boto3.dynamodb.types import TypeDeserializer
 from boto3.dynamodb.conditions import Key
-from urllib.parse import urlparse
 from typing import Any
 
 

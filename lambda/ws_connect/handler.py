@@ -1,7 +1,7 @@
 import os
 import boto3
 import logging
-from aws_lambda_typing.events import WebSocketConnectEvent
+from aws_lambda_typing.events import WebSocketConnectEvent, APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
 from EventCoord.client.auth import require_auth
 from typing import Any
@@ -35,21 +35,25 @@ def lambda_handler(
     if not token:
         logger.warning("Missing token in query string")
         return {"statusCode": 401, "body": "Missing token in query string"}
-    fake_event = {'headers': {'Authorization': f'Bearer {token}'}}
+    fake_event: APIGatewayProxyEventV2 = {
+        'headers': {
+            'Authorization': f'Bearer {token}'
+        }
+    }
     user = require_auth(fake_event)
     if not user:
         logger.warning("Unauthorized: token did not resolve to user")
         return {"statusCode": 401, "body": "Unauthorized"}
     connection_id = event['requestContext']['connectionId']
     org_id = user.get('org_id')
-    user_identifier = user.get('sub') or user.get('email')
-    if not user_identifier:
+    user_id = user.get('sub') or user.get('email')
+    if not user_id:
         logger.error("Token missing sub or email")
         return {"statusCode": 400, "body": "Token missing sub or email"}
     item = {
         'connectionId': connection_id,
         'orgId': org_id,
-        'user': user_identifier,
+        'user': user_id,
         'subscriptions': [],
     }
     try:
