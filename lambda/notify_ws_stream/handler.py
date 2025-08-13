@@ -68,9 +68,9 @@ def lambda_handler(
     logger.debug(f"Received event (full): {json.dumps(event)}")
     for record in event['Records']:
         event_name = record.get('eventName')
-        table_arn = record.get('eventSourceArn')
+        table_arn = record.get('eventSourceARN')
         if not table_arn:
-            logger.warning(f"Missing eventSourceArn in record: {record}")
+            logger.warning(f"Missing eventSourceARN in record: {record}")
             continue
         table_name = get_table_from_arn(table_arn)
         new_image = record.get('dynamodb', {}).get('NewImage')
