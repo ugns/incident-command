@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.15.0 (2025-08-13)
+
+### Features
+
+- Allow access to all indexes of ws_connections DynamoDB table in IAM policy
+  ([`c3758d9`](https://github.com/ugns/incident-command/commit/c3758d9946e4868e92fc4af976bfe7196991a6f8))
+
+
 ## v1.14.0 (2025-08-13)
 
 ### Features
