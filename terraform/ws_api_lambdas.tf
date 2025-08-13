@@ -109,7 +109,7 @@ resource "aws_lambda_function" "ws_connect" {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
-      LOG_LEVEL            = "DEBUG"
+      LOG_LEVEL            = "INFO"
     }
   }
   tracing_config {
@@ -134,7 +134,7 @@ resource "aws_lambda_function" "ws_disconnect" {
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
-      LOG_LEVEL            = "DEBUG"
+      LOG_LEVEL            = "INFO"
     }
   }
   tracing_config {
@@ -159,7 +159,7 @@ resource "aws_lambda_function" "ws_default" {
   environment {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
-      LOG_LEVEL            = "DEBUG"
+      LOG_LEVEL            = "INFO"
     }
   }
   tracing_config {
@@ -187,7 +187,7 @@ resource "aws_lambda_function" "notify_ws_stream" {
     variables = {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
       WS_API_ENDPOINT      = "https://${aws_apigatewayv2_domain_name.custom.domain_name}/ws"
-      LOG_LEVEL            = "DEBUG"
+      LOG_LEVEL            = "INFO"
     }
   }
   tracing_config {
