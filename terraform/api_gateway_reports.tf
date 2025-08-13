@@ -155,3 +155,12 @@ resource "aws_api_gateway_integration_response" "report_type_options" {
     "application/json" = ""
   }
 }
+
+locals {
+  reports_integrations = [
+    aws_api_gateway_integration.report_type_post,
+    aws_api_gateway_integration.report_type_options,
+    aws_api_gateway_integration.reports_options,
+    aws_api_gateway_integration.reports_get,
+  ]
+}

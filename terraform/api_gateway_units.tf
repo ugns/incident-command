@@ -219,3 +219,15 @@ resource "aws_api_gateway_integration_response" "unit_id_options" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
+
+locals {
+  units_integrations = [
+    aws_api_gateway_integration.units_get,
+    aws_api_gateway_integration.units_post,
+    aws_api_gateway_integration.unit_id_get,
+    aws_api_gateway_integration.unit_id_put,
+    aws_api_gateway_integration.unit_id_delete,
+    aws_api_gateway_integration.units_options,
+    aws_api_gateway_integration.unit_id_options,
+  ]
+}

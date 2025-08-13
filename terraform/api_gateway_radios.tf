@@ -220,3 +220,15 @@ resource "aws_api_gateway_integration_response" "radio_id_options" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
+
+locals {
+  radios_integrations = [
+    aws_api_gateway_integration.radios_get,
+    aws_api_gateway_integration.radios_post,
+    aws_api_gateway_integration.radio_id_get,
+    aws_api_gateway_integration.radio_id_put,
+    aws_api_gateway_integration.radio_id_delete,
+    aws_api_gateway_integration.radios_options,
+    aws_api_gateway_integration.radio_id_options,
+  ]
+}

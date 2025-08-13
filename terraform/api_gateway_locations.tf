@@ -220,3 +220,15 @@ resource "aws_api_gateway_integration_response" "location_id_options" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
+
+locals {
+  locations_integrations = [
+    aws_api_gateway_integration.locations_get,
+    aws_api_gateway_integration.locations_post,
+    aws_api_gateway_integration.location_id_get,
+    aws_api_gateway_integration.location_id_put,
+    aws_api_gateway_integration.location_id_delete,
+    aws_api_gateway_integration.locations_options,
+    aws_api_gateway_integration.location_id_options,
+  ]
+}

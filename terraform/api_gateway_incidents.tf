@@ -220,3 +220,15 @@ resource "aws_api_gateway_integration_response" "incident_id_options" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
+
+locals {
+  incidents_integrations = [
+    aws_api_gateway_integration.incidents_get,
+    aws_api_gateway_integration.incidents_post,
+    aws_api_gateway_integration.incident_id_get,
+    aws_api_gateway_integration.incident_id_put,
+    aws_api_gateway_integration.incident_id_delete,
+    aws_api_gateway_integration.incidents_options,
+    aws_api_gateway_integration.incident_id_options,
+  ]
+}

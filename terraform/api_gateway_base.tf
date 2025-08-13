@@ -63,72 +63,17 @@ resource "aws_api_gateway_deployment" "incident_cmd" {
     create_before_destroy = true
   }
   depends_on = [
-    aws_api_gateway_integration.volunteers_post,
-    aws_api_gateway_integration.volunteers_options,
-    aws_api_gateway_integration.volunteers_get,
-    aws_api_gateway_integration.volunteer_id_put,
-    aws_api_gateway_integration.volunteer_id_options,
-    aws_api_gateway_integration.volunteer_id_get,
-    aws_api_gateway_integration.volunteer_id_dispatch_put,
-    aws_api_gateway_integration.volunteer_id_dispatch_options,
-    aws_api_gateway_integration.volunteer_id_delete,
-    aws_api_gateway_integration.volunteer_id_checkout_put,
-    aws_api_gateway_integration.volunteer_id_checkout_options,
-    aws_api_gateway_integration.volunteer_id_checkin_put,
-    aws_api_gateway_integration.volunteer_id_checkin_options,
-    aws_api_gateway_integration.report_type_post,
-    aws_api_gateway_integration.report_type_options,
-    aws_api_gateway_integration.reports_options,
-    aws_api_gateway_integration.reports_get,
-    aws_api_gateway_integration.periods_post,
-    aws_api_gateway_integration.periods_options,
-    aws_api_gateway_integration.periods_get,
-    aws_api_gateway_integration.period_id_put,
-    aws_api_gateway_integration.period_id_options,
-    aws_api_gateway_integration.period_id_get,
-    aws_api_gateway_integration.period_id_delete,
-    aws_api_gateway_integration.organizations_root,
-    aws_api_gateway_integration.organizations_options,
-    aws_api_gateway_integration.organizations_id_options,
-    aws_api_gateway_integration.organizations_id,
-    aws_api_gateway_integration.openapi_json_get,
-    aws_api_gateway_integration.auth_login_post,
-    aws_api_gateway_integration.auth_login_options,
-    aws_api_gateway_integration.auth_jwks_json_options,
-    aws_api_gateway_integration.auth_jwks_json_get,
-    aws_api_gateway_integration.activitylogs_post,
-    aws_api_gateway_integration.activitylogs_options,
-    aws_api_gateway_integration.activitylogs_get,
-    aws_api_gateway_integration.activitylog_id_options,
-    aws_api_gateway_integration.activitylog_id_get,
-    aws_api_gateway_integration.incidents_get,
-    aws_api_gateway_integration.incidents_post,
-    aws_api_gateway_integration.incident_id_get,
-    aws_api_gateway_integration.incident_id_put,
-    aws_api_gateway_integration.incident_id_delete,
-    aws_api_gateway_integration.incidents_options,
-    aws_api_gateway_integration.incident_id_options,
-    aws_api_gateway_integration.units_get,
-    aws_api_gateway_integration.units_post,
-    aws_api_gateway_integration.unit_id_get,
-    aws_api_gateway_integration.unit_id_put,
-    aws_api_gateway_integration.unit_id_delete,
-    aws_api_gateway_integration.units_options,
-    aws_api_gateway_integration.unit_id_options,
-    aws_api_gateway_integration.locations_get,
-    aws_api_gateway_integration.locations_post,
-    aws_api_gateway_integration.location_id_get,
-    aws_api_gateway_integration.location_id_put,
-    aws_api_gateway_integration.location_id_delete,
-    aws_api_gateway_integration.locations_options,
-    aws_api_gateway_integration.location_id_options,
-    aws_api_gateway_integration.radios_get,
-    aws_api_gateway_integration.radios_post,
-    aws_api_gateway_integration.radio_id_get,
-    aws_api_gateway_integration.radio_id_put,
-    aws_api_gateway_integration.radio_id_delete,
-    aws_api_gateway_integration.radios_options,
-    aws_api_gateway_integration.radio_id_options
+    aws_api_gateway_integration.openapi_json_get, # /openapi.json API endpoint
+    local.auth_integrations,                      # /auth API endpoints
+    local.organizations_integrations,             # /organizations API endpoints
+    local.incidents_integrations,                 # /incidents API endpoints
+    local.units_integrations,                     # /units API endpoints
+    local.locations_integrations,                 # /locations API endpoints
+    local.periods_integrations,                   # /periods API endpoints
+    local.volunteers_integrations,                # /volunteers API endpoints
+    local.radios_integrations,                    # /radios API endpoints
+    local.activitylogs_integrations,              # /activitylogs API endpoints
+    local.reports_integrations,                   # /reports API endpoints
   ]
 }
 

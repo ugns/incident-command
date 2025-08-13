@@ -451,3 +451,21 @@ resource "aws_api_gateway_integration_response" "volunteer_id_checkout_options" 
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
+
+locals {
+  volunteers_integrations = [
+    aws_api_gateway_integration.volunteers_post,
+    aws_api_gateway_integration.volunteers_options,
+    aws_api_gateway_integration.volunteers_get,
+    aws_api_gateway_integration.volunteer_id_put,
+    aws_api_gateway_integration.volunteer_id_options,
+    aws_api_gateway_integration.volunteer_id_get,
+    aws_api_gateway_integration.volunteer_id_dispatch_put,
+    aws_api_gateway_integration.volunteer_id_dispatch_options,
+    aws_api_gateway_integration.volunteer_id_delete,
+    aws_api_gateway_integration.volunteer_id_checkout_put,
+    aws_api_gateway_integration.volunteer_id_checkout_options,
+    aws_api_gateway_integration.volunteer_id_checkin_put,
+    aws_api_gateway_integration.volunteer_id_checkin_options,
+  ]
+}

@@ -140,3 +140,12 @@ resource "aws_api_gateway_integration_response" "organizations_id_options" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
+
+locals {
+  organizations_integrations = [
+    aws_api_gateway_integration.organizations_root,
+    aws_api_gateway_integration.organizations_options,
+    aws_api_gateway_integration.organizations_id_options,
+    aws_api_gateway_integration.organizations_id,
+  ]
+}

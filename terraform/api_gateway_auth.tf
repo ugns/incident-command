@@ -169,3 +169,12 @@ resource "aws_api_gateway_integration_response" "auth_login_options" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
+
+locals {
+  auth_integrations = [
+    aws_api_gateway_integration.auth_login_post,
+    aws_api_gateway_integration.auth_login_options,
+    aws_api_gateway_integration.auth_jwks_json_options,
+    aws_api_gateway_integration.auth_jwks_json_get,
+  ]
+}

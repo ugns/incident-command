@@ -178,3 +178,13 @@ resource "aws_api_gateway_integration_response" "activitylog_id_options" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
+
+locals {
+  activitylogs_integrations = [
+    aws_api_gateway_integration.activitylogs_post,
+    aws_api_gateway_integration.activitylogs_options,
+    aws_api_gateway_integration.activitylogs_get,
+    aws_api_gateway_integration.activitylog_id_options,
+    aws_api_gateway_integration.activitylog_id_get,
+  ]
+}

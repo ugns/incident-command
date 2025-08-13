@@ -227,3 +227,15 @@ resource "aws_api_gateway_integration_response" "period_id_options" {
     "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 }
+
+locals {
+  periods_integrations = [
+    aws_api_gateway_integration.periods_post,
+    aws_api_gateway_integration.periods_options,
+    aws_api_gateway_integration.periods_get,
+    aws_api_gateway_integration.period_id_put,
+    aws_api_gateway_integration.period_id_options,
+    aws_api_gateway_integration.period_id_get,
+    aws_api_gateway_integration.period_id_delete,
+  ]
+}
