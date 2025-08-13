@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.12.1 (2025-08-13)
+
+### Bug Fixes
+
+- Correct eventSourceArn to eventSourceARN in lambda_handler logging
+  ([`aec5be8`](https://github.com/ugns/incident-command/commit/aec5be804c2b90a4b06bd25c0c14f9a0880221e3))
+
+
 ## v1.12.0 (2025-08-13)
 
 ### Features
