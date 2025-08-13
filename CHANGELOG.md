@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.12.0 (2025-08-13)
+
+### Features
+
+- Add logging for missing eventSourceArn in lambda_handler
+  ([`5e6e0c9`](https://github.com/ugns/incident-command/commit/5e6e0c91bfeae0e7b8e700bc83071247130fbe3c))
+
+
 ## v1.11.0 (2025-08-13)
 
 ### Features
