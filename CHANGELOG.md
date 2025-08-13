@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.11.0 (2025-08-13)
+
+### Features
+
+- Update Lambda function names to include EventCoord prefix for clarity
+  ([`1b89c3d`](https://github.com/ugns/incident-command/commit/1b89c3db6168a14dd85535f75f449a0f861ee596))
+
+
 ## v1.10.0 (2025-08-13)
 
 ### Features
