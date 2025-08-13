@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.10.0 (2025-08-13)
+
+### Features
+
+- Enhance JWT verification with improved error handling and audience validation
+  ([`4e8941c`](https://github.com/ugns/incident-command/commit/4e8941c0ff97950c31578677c77abdd226d9ae19))
+
+
 ## v1.9.0 (2025-08-08)
 
 ### Features
