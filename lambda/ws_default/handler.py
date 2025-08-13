@@ -3,6 +3,11 @@ import os
 import logging
 from aws_lambda_typing.events import WebSocketRouteEvent
 from aws_lambda_typing.context import Context as LambdaContext
+from aws_xray_sdk.core import patch_all, xray_recorder
+
+patch_all()  # Automatically patches boto3, requests, etc.
+
+xray_recorder.configure(service='incident-cmd')
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()

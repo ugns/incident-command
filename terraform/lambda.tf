@@ -144,6 +144,22 @@ resource "aws_iam_role_policy" "lambda_secretsmanager_policy" {
   })
 }
 
+resource "aws_iam_role_policy" "lambda_xray_policy" {
+  name = "incident_cmd_lambda_xray_policy"
+  role = aws_iam_role.lambda_exec.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "xray:PutTraceSegments",
+        "xray:PutTelemetryRecords"
+      ]
+      Resource = "*"
+    }]
+  })
+}
+
 # Lambda Functions
 
 # Shared Layer for Python dependencies
@@ -185,6 +201,9 @@ resource "aws_lambda_function" "openapi" {
       STAGE_NAME = "v1"
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
 }
 
 # Auth: single zip for callback handler
@@ -211,6 +230,9 @@ resource "aws_lambda_function" "auth_callback" {
       LAUNCHDARKLY_SDK_KEY       = data.launchdarkly_environment.production.api_key
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
 }
 
 # Add JWKS Lambda deployment
@@ -234,6 +256,9 @@ resource "aws_lambda_function" "jwks" {
     variables = {
       JWT_PUBLIC_KEY_SECRET_ARN = aws_secretsmanager_secret.jwt_public_key.arn
     }
+  }
+  tracing_config {
+    mode = "Active"
   }
 }
 
@@ -262,6 +287,9 @@ resource "aws_lambda_function" "volunteers" {
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
 }
 
 # Activity Logs: single zip, single handler
@@ -287,6 +315,9 @@ resource "aws_lambda_function" "activitylogs" {
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
+  }
+  tracing_config {
+    mode = "Active"
   }
 }
 
@@ -316,6 +347,9 @@ resource "aws_lambda_function" "periods" {
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
 }
 
 # Reports: single zip, single handler
@@ -342,6 +376,9 @@ resource "aws_lambda_function" "reports" {
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
+  }
+  tracing_config {
+    mode = "Active"
   }
 }
 
@@ -370,6 +407,9 @@ resource "aws_lambda_function" "organizations" {
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
 }
 
 # Archive and Lambda for Locations
@@ -395,6 +435,9 @@ resource "aws_lambda_function" "locations" {
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
+  }
+  tracing_config {
+    mode = "Active"
   }
 }
 
@@ -422,7 +465,11 @@ resource "aws_lambda_function" "radios" {
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
 }
+
 # Archive and Lambda for Incidents
 data "archive_file" "incidents_lambda" {
   type        = "zip"
@@ -446,6 +493,9 @@ resource "aws_lambda_function" "incidents" {
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
+  }
+  tracing_config {
+    mode = "Active"
   }
 }
 
@@ -472,5 +522,8 @@ resource "aws_lambda_function" "units" {
       JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
     }
+  }
+  tracing_config {
+    mode = "Active"
   }
 }

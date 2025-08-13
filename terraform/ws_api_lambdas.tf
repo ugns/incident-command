@@ -112,6 +112,9 @@ resource "aws_lambda_function" "ws_connect" {
       LOG_LEVEL            = "DEBUG"
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
 }
 
 data "archive_file" "ws_disconnect" {
@@ -134,6 +137,9 @@ resource "aws_lambda_function" "ws_disconnect" {
       LOG_LEVEL            = "DEBUG"
     }
   }
+  tracing_config {
+    mode = "Active"
+  }
 }
 
 data "archive_file" "ws_default" {
@@ -155,6 +161,9 @@ resource "aws_lambda_function" "ws_default" {
       WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
       LOG_LEVEL            = "DEBUG"
     }
+  }
+  tracing_config {
+    mode = "Active"
   }
 }
 
@@ -180,5 +189,8 @@ resource "aws_lambda_function" "notify_ws_stream" {
       WS_API_ENDPOINT      = "https://${aws_apigatewayv2_domain_name.custom.domain_name}/ws"
       LOG_LEVEL            = "DEBUG"
     }
+  }
+  tracing_config {
+    mode = "Active"
   }
 }

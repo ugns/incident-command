@@ -8,6 +8,11 @@ from EventCoord.client.auth import check_auth
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.activitylogs import ActivityLog
 from EventCoord.utils.response import build_response
+from aws_xray_sdk.core import patch_all, xray_recorder
+
+patch_all()  # Automatically patches boto3, requests, etc.
+
+xray_recorder.configure(service='incident-cmd')
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()

@@ -3,6 +3,11 @@ import logging
 import boto3
 from authlib.jose import JsonWebKey
 from EventCoord.utils.response import build_response
+from aws_xray_sdk.core import patch_all, xray_recorder
+
+patch_all()  # Automatically patches boto3, requests, etc.
+
+xray_recorder.configure(service='incident-cmd')
 
 # Use RSA public key from AWS Secrets Manager
 PUBLIC_KEY_SECRET_ARN = os.environ.get('JWT_PUBLIC_KEY_SECRET_ARN')

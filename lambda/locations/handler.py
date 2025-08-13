@@ -7,6 +7,11 @@ from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from EventCoord.client.auth import check_auth
 from EventCoord.models.locations import Location
 from EventCoord.utils.response import build_response
+from aws_xray_sdk.core import patch_all, xray_recorder
+
+patch_all()  # Automatically patches boto3, requests, etc.
+
+xray_recorder.configure(service='incident-cmd')
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()

@@ -5,6 +5,11 @@ from aws_lambda_typing.events import APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from EventCoord.utils.response import build_response
+from aws_xray_sdk.core import patch_all, xray_recorder
+
+patch_all()  # Automatically patches boto3, requests, etc.
+
+xray_recorder.configure(service='incident-cmd')
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
