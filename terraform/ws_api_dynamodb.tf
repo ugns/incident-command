@@ -15,8 +15,8 @@ resource "aws_dynamodb_table" "ws_connections" {
   }
 
   global_secondary_index {
-    name               = "ConnectionIdIndex"
-    hash_key           = "connectionId"
-    projection_type    = "ALL"
+    name            = "ConnectionIdIndex"
+    hash_key        = "connectionId"
+    projection_type = "ALL"
   }
 }
