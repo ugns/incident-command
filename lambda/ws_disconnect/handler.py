@@ -3,6 +3,7 @@ import boto3
 import logging
 from aws_lambda_typing.events import WebSocketConnectEvent
 from aws_lambda_typing.context import Context as LambdaContext
+from boto3.dynamodb.conditions import Key
 from typing import Any
 from aws_xray_sdk.core import patch_all, xray_recorder
 
@@ -33,23 +34,19 @@ def lambda_handler(
 ) -> dict[str, str | int]:
     logger.info(f"Received $disconnect event: {event}")
     connection_id = event['requestContext']['connectionId']
-    org_id = event['requestContext'].get('authorizer', {}).get('org_id')
-    if not org_id:
-        logger.warning(
-            "org_id not found in authorizer, attempting fallback lookup")
-        resp = table.get_item(
-            Key={'orgId': org_id, 'connectionId': connection_id})
-        item = resp.get('Item')
-        if not item:
-            logger.error(
-                f"Connection {connection_id} not found for disconnect")
-            return {"statusCode": 404, "body": "Connection not found"}
-        org_id = item['orgId']
     try:
+        resp = table.query(
+            IndexName="ConnectionIdIndex",
+            KeyConditionExpression=Key('connectionId').eq(connection_id)
+        )
+        items = resp.get('Items', [])
+        if not items:
+            logger.warning(f"No connection found for connectionId={connection_id}")
+            return {"statusCode": 404, "body": "Connection not found"}
+        org_id = items[0]['orgId']
         table.delete_item(Key={'orgId': org_id, 'connectionId': connection_id})
-        logger.info(
-            f"Deleted connection: orgId={org_id}, connectionId={connection_id}")
+        logger.info(f"Deleted connection: orgId={org_id}, connectionId={connection_id}")
+        return {"statusCode": 200, "body": "Disconnected"}
     except Exception as e:
-        logger.error(f"Error deleting connection: {e}")
+        logger.error(f"Error disconnecting connectionId={connection_id}: {e}")
         return {"statusCode": 500, "body": "Failed to disconnect"}
-    return {"statusCode": 200, "body": "Disconnected"}

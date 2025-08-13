@@ -13,9 +13,10 @@ resource "aws_dynamodb_table" "ws_connections" {
     name = "connectionId"
     type = "S"
   }
-  # attribute {
-  #   name = "userId"
-  #   type = "S"
-  # }
-  # Add more attributes/indexes as needed for queries
+
+  global_secondary_index {
+    name               = "ConnectionIdIndex"
+    hash_key           = "connectionId"
+    projection_type    = "ALL"
+  }
 }

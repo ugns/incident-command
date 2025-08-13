@@ -1,8 +1,6 @@
 import os
-import uuid
 import json
 import logging
-from boto3.dynamodb.conditions import Key
 from aws_lambda_typing.events import APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
