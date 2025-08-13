@@ -169,7 +169,7 @@ data "archive_file" "openapi" {
 }
 
 resource "aws_lambda_function" "openapi" {
-  function_name    = "openapi_export"
+  function_name    = "EventCoord-openapi_handler"
   filename         = data.archive_file.openapi.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
@@ -194,7 +194,7 @@ data "archive_file" "auth" {
   output_path = "../lambda/auth.zip"
 }
 resource "aws_lambda_function" "auth_callback" {
-  function_name    = "auth_callback"
+  function_name    = "EventCoord-auth_handler"
   filename         = data.archive_file.auth.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
@@ -221,7 +221,7 @@ data "archive_file" "jwks" {
 }
 
 resource "aws_lambda_function" "jwks" {
-  function_name    = "jwks"
+  function_name    = "EventCoord-jwks_handler"
   filename         = data.archive_file.jwks.output_path
   handler          = "jwks.lambda_handler"
   runtime          = var.lambda_runtime
@@ -245,7 +245,7 @@ data "archive_file" "volunteers" {
   output_path = "../lambda/volunteers.zip"
 }
 resource "aws_lambda_function" "volunteers" {
-  function_name    = "volunteers"
+  function_name    = "EventCoord-volunteers_handler"
   filename         = data.archive_file.volunteers.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
@@ -271,7 +271,7 @@ data "archive_file" "activitylogs" {
   output_path = "../lambda/activitylogs.zip"
 }
 resource "aws_lambda_function" "activitylogs" {
-  function_name    = "activitylogs"
+  function_name    = "EventCoord-activitylogs_handler"
   filename         = data.archive_file.activitylogs.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
@@ -299,7 +299,7 @@ data "archive_file" "periods" {
   output_path = "../lambda/periods.zip"
 }
 resource "aws_lambda_function" "periods" {
-  function_name    = "periods"
+  function_name    = "EventCoord-periods_handler"
   filename         = data.archive_file.periods.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
@@ -325,7 +325,7 @@ data "archive_file" "reports" {
   output_path = "../lambda/reports.zip"
 }
 resource "aws_lambda_function" "reports" {
-  function_name    = "reports"
+  function_name    = "EventCoord-reports_handler"
   filename         = data.archive_file.reports.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
@@ -353,7 +353,7 @@ data "archive_file" "organizations" {
 }
 
 resource "aws_lambda_function" "organizations" {
-  function_name    = "organizations"
+  function_name    = "EventCoord-organizations_handler"
   filename         = data.archive_file.organizations.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
@@ -380,7 +380,7 @@ data "archive_file" "locations_lambda" {
 }
 
 resource "aws_lambda_function" "locations" {
-  function_name    = "locations-handler"
+  function_name    = "EventCoord-locations_handler"
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   filename         = data.archive_file.locations_lambda.output_path
@@ -406,7 +406,7 @@ data "archive_file" "radios_lambda" {
 }
 
 resource "aws_lambda_function" "radios" {
-  function_name    = "radios-handler"
+  function_name    = "EventCoord-radios_handler"
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   filename         = data.archive_file.radios_lambda.output_path
@@ -431,7 +431,7 @@ data "archive_file" "incidents_lambda" {
 }
 
 resource "aws_lambda_function" "incidents" {
-  function_name    = "incidents-handler"
+  function_name    = "EventCoord-incidents_handler"
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   filename         = data.archive_file.incidents_lambda.output_path
@@ -457,7 +457,7 @@ data "archive_file" "units_lambda" {
 }
 
 resource "aws_lambda_function" "units" {
-  function_name    = "units-handler"
+  function_name    = "EventCoord-units_handler"
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   filename         = data.archive_file.units_lambda.output_path

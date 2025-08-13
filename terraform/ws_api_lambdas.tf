@@ -97,7 +97,7 @@ data "archive_file" "ws_connect" {
   output_path = "../lambda/ws_connect.zip"
 }
 resource "aws_lambda_function" "ws_connect" {
-  function_name    = "ws_connect"
+  function_name    = "EventCoord-ws_connect_handler"
   filename         = data.archive_file.ws_connect.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
@@ -120,7 +120,7 @@ data "archive_file" "ws_disconnect" {
   output_path = "../lambda/ws_disconnect.zip"
 }
 resource "aws_lambda_function" "ws_disconnect" {
-  function_name    = "ws_disconnect"
+  function_name    = "EventCoord-ws_disconnect_handler"
   filename         = data.archive_file.ws_disconnect.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
@@ -142,7 +142,7 @@ data "archive_file" "ws_default" {
   output_path = "../lambda/ws_default.zip"
 }
 resource "aws_lambda_function" "ws_default" {
-  function_name    = "ws_default"
+  function_name    = "EventCoord-ws_default_handler"
   filename         = data.archive_file.ws_default.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
@@ -166,7 +166,7 @@ data "archive_file" "notify_ws_stream" {
 }
 
 resource "aws_lambda_function" "notify_ws_stream" {
-  function_name    = "notify_ws_stream"
+  function_name    = "EventCoord-notify_ws_stream_handler"
   filename         = data.archive_file.notify_ws_stream.output_path
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
