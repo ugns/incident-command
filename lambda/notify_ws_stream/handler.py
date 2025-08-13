@@ -65,9 +65,13 @@ def lambda_handler(
     context: LambdaContext
 ) -> None:
     logger.info(f"Received event: {json.dumps(event)[:1000]}")
+    logger.debug(f"Received event (full): {json.dumps(event)}")
     for record in event['Records']:
-        event_name = record.get('eventName')  # INSERT, MODIFY, REMOVE
+        event_name = record.get('eventName')
         table_arn = record.get('eventSourceArn')
+        if not table_arn:
+            logger.warning(f"Missing eventSourceArn in record: {record}")
+            continue
         table_name = get_table_from_arn(table_arn)
         new_image = record.get('dynamodb', {}).get('NewImage')
         old_image = record.get('dynamodb', {}).get('OldImage')
