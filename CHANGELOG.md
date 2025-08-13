@@ -2,6 +2,22 @@
 
 <!-- version list -->
 
+## v1.13.0 (2025-08-13)
+
+### Bug Fixes
+
+- Change LOG_LEVEL from DEBUG to INFO in Lambda functions for improved logging clarity
+  ([`6620cf3`](https://github.com/ugns/incident-command/commit/6620cf3225910441bb67ce156485c1844c467dc3))
+
+### Features
+
+- Add APIGatewayProxyEventV2 import and update user identifier handling in ws_connect lambda
+  ([`9920170`](https://github.com/ugns/incident-command/commit/9920170c2f8c104f21957b19a4268f2098573f79))
+
+- Integrate AWS X-Ray SDK for enhanced tracing across Lambda functions
+  ([`d575d6a`](https://github.com/ugns/incident-command/commit/d575d6ad49f21a15c34902a038bb1fa328df261e))
+
+
 ## v1.12.1 (2025-08-13)
 
 ### Bug Fixes
