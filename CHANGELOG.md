@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v1.19.0 (2025-08-14)
+
+### Features
+
+- Refactor Lambda function configurations to use archive_file data sources for improved
+  maintainability
+  ([`73ea3d7`](https://github.com/ugns/incident-command/commit/73ea3d7812a56487a305c5e41449a9d18417d112))
+
+
 ## v1.18.0 (2025-08-14)
 
 ### Features
