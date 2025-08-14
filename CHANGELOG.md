@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.18.0 (2025-08-14)
+
+### Features
+
+- Update notify_ws_stream Lambda function to use specific handler file path
+  ([`fe67703`](https://github.com/ugns/incident-command/commit/fe677037857001dc2678c33209d9f660dd543b95))
+
+
 ## v1.17.0 (2025-08-14)
 
 ### Features
