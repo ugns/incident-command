@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v1.17.0 (2025-08-14)
+
+### Features
+
+- Update Lambda function configurations to use specific handler files and remove unused archive_file
+  resources
+  ([`b0123cf`](https://github.com/ugns/incident-command/commit/b0123cfce91b238f54fbc4927f06ed49bf6b717f))
+
+
 ## v1.16.0 (2025-08-13)
 
 ### Features
