@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.20.0 (2025-08-14)
+
+### Features
+
+- Update GitHub Actions workflow to ensure proper job dependencies and execution conditions
+  ([`952a423`](https://github.com/ugns/incident-command/commit/952a423b18c128cb44928693a3653c6d82a7faa7))
+
+
 ## v1.19.0 (2025-08-14)
 
 ### Features
