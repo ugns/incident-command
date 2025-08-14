@@ -177,7 +177,7 @@ resource "aws_lambda_function" "ws_default" {
 
 resource "aws_lambda_function" "notify_ws_stream" {
   function_name    = "EventCoord-notify_ws_stream_handler"
-  filename         = data.archive_file.notify_ws_stream.output_path
+  filename         = "../lambda/notify_ws_stream/handler.py"
   handler          = "handler.lambda_handler"
   runtime          = var.lambda_runtime
   role             = aws_iam_role.lambda_exec.arn
