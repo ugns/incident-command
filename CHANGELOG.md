@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.21.0 (2025-08-14)
+
+### Features
+
+- Update GitHub Actions workflow to restrict job execution to push events on main branch
+  ([`8233c10`](https://github.com/ugns/incident-command/commit/8233c100020cb29b1cf5307a5e2f16344027d07d))
+
+
 ## v1.20.0 (2025-08-14)
 
 ### Features
