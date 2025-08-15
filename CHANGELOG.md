@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.22.0 (2025-08-15)
+
+### Features
+
+- Add concurrency settings to Terraform job in GitHub Actions workflow
+  ([`201e0b1`](https://github.com/ugns/incident-command/commit/201e0b152e51de09e5f2467c69a04bbfc93382e2))
+
+
 ## v1.21.0 (2025-08-14)
 
 ### Features
