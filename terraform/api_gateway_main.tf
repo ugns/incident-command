@@ -83,21 +83,6 @@
 #   stage_name    = "v1"
 # }
 
-moved {
-  from = aws_api_gateway_rest_api.incident_cmd
-  to   = module.api.aws_api_gateway_rest_api.this[0]
-}
-
-moved {
-  from = aws_api_gateway_stage.v1
-  to   = module.api.aws_api_gateway_stage.this[0]
-}
-
-moved {
-  from = aws_api_gateway_deployment.incident_cmd
-  to   = module.api.aws_api_gateway_deployment.this[0]
-}
-
 module "api" {
   source  = "cloudposse/api-gateway/aws"
   version = "0.9.0"
@@ -105,5 +90,7 @@ module "api" {
   openapi_config       = templatefile("${path.module}/openapi.tftpl", merge({}, local.lambda_invoke_arn_map))
   stage_name           = var.stage_name
   xray_tracing_enabled = true
+  endpoint_type        = "REGIONAL"
+  logging_level        = "INFO"
   context              = module.this.context
 }
