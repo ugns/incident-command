@@ -13,10 +13,39 @@ paths:
         timeoutInMillis: 29000
         type: aws_proxy
   /.well-known/jwks.json:
+    options:
+      x-amazon-apigateway-integration:
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "mock"
     get:
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${well_known_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+  /organizations:
+    options:
+      x-amazon-apigateway-integration:
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "mock"
+    get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${organizations_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    post:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${organizations_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
