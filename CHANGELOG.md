@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.22.3 (2025-08-15)
+
+### Bug Fixes
+
+- Add API Gateway source ARN and permissions for Lambda invocation
+  ([`9b2b21a`](https://github.com/ugns/incident-command/commit/9b2b21a0d3236feda5394f22fe6b7243e9d5d101))
+
+
 ## v1.22.2 (2025-08-15)
 
 ### Bug Fixes
