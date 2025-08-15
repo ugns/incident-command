@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.22.5 (2025-08-15)
+
+### Bug Fixes
+
+- Update API descriptions and add CORS support for various endpoints
+  ([`01d31c8`](https://github.com/ugns/incident-command/commit/01d31c84580bd49a2c50f57e1c8408b45ed9f741))
+
+
 ## v1.22.4 (2025-08-15)
 
 ### Bug Fixes
