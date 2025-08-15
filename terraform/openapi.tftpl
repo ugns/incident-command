@@ -1,25 +1,58 @@
 openapi: "3.0.1"
 info:
   title: "eventcoord-prod"
-  description: "API for Security Incident Command Application"
+  description: "REST API for Event Coordination Application"
   version: "2.0"
+x-amazon-apigateway-binary-media-types:
+- "application/pdf"
+- "application/octet-stream"
+- "application/zip"
+- "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+- "application/msword"
+- "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+- "image/*"
 paths:
   /openapi.json:
     get:
       x-amazon-apigateway-integration:
         httpMethod: POST
-        uri: "${well_known_invoke_arn}"
+        uri: "${openapi_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: aws_proxy
   /.well-known/jwks.json:
     options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
       x-amazon-apigateway-integration:
+        type: mock
         requestTemplates:
           application/json: "{\"statusCode\": 200}"
-        passthroughBehavior: "when_no_match"
-        timeoutInMillis: 29000
-        type: "mock"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
     get:
       x-amazon-apigateway-integration:
         httpMethod: "POST"
@@ -27,14 +60,79 @@ paths:
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-  /organizations:
+  /auth/login:
     options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
       x-amazon-apigateway-integration:
+        type: mock
         requestTemplates:
           application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+    post:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${auth_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
-        type: "mock"
+        type: "aws_proxy"
+  /organizations:
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
     get:
       x-amazon-apigateway-integration:
         httpMethod: "POST"
