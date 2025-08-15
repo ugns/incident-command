@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.22.4 (2025-08-15)
+
+### Bug Fixes
+
+- Add OpenAPI specification for organization endpoint
+  ([`a74b7ae`](https://github.com/ugns/incident-command/commit/a74b7ae85f6591f9582f38723fba81b36b5c5ca8))
+
+
 ## v1.22.3 (2025-08-15)
 
 ### Bug Fixes
