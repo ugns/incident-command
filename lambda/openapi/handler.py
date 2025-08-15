@@ -22,8 +22,9 @@ def lambda_handler(
     event: APIGatewayProxyEventV2,
     context: LambdaContext
 ) -> APIGatewayProxyResponseV2:
-    rest_api_id = os.environ['REST_API_ID']
-    stage_name = os.environ['STAGE_NAME']
+    requestContext = event.get('requestContext', {})
+    rest_api_id = requestContext.get('apiId')
+    stage_name = requestContext.get('stage')
     client = boto3.client('apigateway')
     try:
         response = client.get_export(

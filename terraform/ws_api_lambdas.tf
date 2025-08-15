@@ -1,199 +1,83 @@
-# Allow Lambda to manage WebSocket connections (for PostToConnection)
-data "aws_caller_identity" "current" {}
-
-# Event source mappings for DynamoDB Streams to notify_ws_stream Lambda
-resource "aws_lambda_event_source_mapping" "notify_ws_stream_volunteers" {
-  event_source_arn  = aws_dynamodb_table.volunteers.stream_arn
-  function_name     = aws_lambda_function.notify_ws_stream.arn
-  starting_position = "LATEST"
-  batch_size        = 10
-  enabled           = true
-}
-
-resource "aws_lambda_event_source_mapping" "notify_ws_stream_periods" {
-  event_source_arn  = aws_dynamodb_table.periods.stream_arn
-  function_name     = aws_lambda_function.notify_ws_stream.arn
-  starting_position = "LATEST"
-  batch_size        = 10
-  enabled           = true
-}
-
-resource "aws_lambda_event_source_mapping" "notify_ws_stream_units" {
-  event_source_arn  = aws_dynamodb_table.units.stream_arn
-  function_name     = aws_lambda_function.notify_ws_stream.arn
-  starting_position = "LATEST"
-  batch_size        = 10
-  enabled           = true
-}
-
-resource "aws_lambda_event_source_mapping" "notify_ws_stream_incidents" {
-  event_source_arn  = aws_dynamodb_table.incidents.stream_arn
-  function_name     = aws_lambda_function.notify_ws_stream.arn
-  starting_position = "LATEST"
-  batch_size        = 10
-  enabled           = true
-}
-
-# Dedicated IAM policy for WebSocket Lambda functions
-resource "aws_iam_role_policy" "ws_lambda_dynamodb_policy" {
-  name = "incident_cmd_ws_lambda_dynamodb_policy"
-  role = aws_iam_role.lambda_exec.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "dynamodb:PutItem",
-          "dynamodb:DeleteItem",
-          "dynamodb:UpdateItem",
-          "dynamodb:GetItem",
-          "dynamodb:Query",
-          "dynamodb:Scan"
-        ]
-        Resource = [
-          aws_dynamodb_table.ws_connections.arn,
-          "${aws_dynamodb_table.ws_connections.arn}/index/*",
-        ]
-      },
-      {
-        Effect = "Allow"
-        Action = [
-          "dynamodb:GetRecords",
-          "dynamodb:GetShardIterator",
-          "dynamodb:DescribeStream",
-          "dynamodb:ListStreams"
-        ]
-        Resource = [
-          aws_dynamodb_table.volunteers.stream_arn,
-          aws_dynamodb_table.periods.stream_arn,
-          aws_dynamodb_table.units.stream_arn,
-          aws_dynamodb_table.incidents.stream_arn
-        ]
+locals {
+  ws_lambdas = {
+    ws_connect = {
+      handler = null
+      environment = {
+        LOG_LEVEL            = "INFO"
+        WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
+        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
       }
-      ,
-      {
-        Effect = "Allow"
-        Action = [
-          "execute-api:ManageConnections"
-        ]
-        Resource = [
-          format(
-            "arn:aws:execute-api:%s:%s:%s/*/POST/@connections/*",
-            data.aws_region.current.region,
-            data.aws_caller_identity.current.account_id,
-            aws_apigatewayv2_api.ws_api.id
-          )
-        ]
+      source_arn = "${aws_apigatewayv2_api.ws_api.execution_arn}/*/$connect"
+    }
+    ws_disconnect = {
+      handler = null
+      environment = {
+        LOG_LEVEL            = "INFO"
+        WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
       }
-    ]
-  })
+      source_arn = "${aws_apigatewayv2_api.ws_api.execution_arn}/*/$disconnect"
+    }
+    ws_default = {
+      handler = null
+      environment = {
+        LOG_LEVEL            = "INFO"
+        WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
+      }
+      source_arn = "${aws_apigatewayv2_api.ws_api.execution_arn}/*/$default"
+    }
+    notify_ws_stream = {
+      handler = null
+      environment = {
+        LOG_LEVEL            = "INFO"
+        WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
+        WS_API_ENDPOINT      = "https://${aws_apigatewayv2_domain_name.custom.domain_name}/ws"
+      }
+      source_arn = null
+    }
+  }
+}
+
+# Lambda function archive ZIP files
+data "archive_file" "ws_lambda" {
+  for_each    = local.ws_lambdas
+  type        = "zip"
+  source_dir  = "../lambda/${each.key}"
+  output_path = "../lambda/${each.key}.zip"
+}
+
+module "ws_lambda_label" {
+  source   = "cloudposse/label/null"
+  version  = "0.25.0"
+  for_each = local.ws_lambdas
+
+  name    = each.key
+  context = module.this.context
 }
 
 # Lambda functions for WebSocket API
+module "ws_lambda" {
+  source   = "cloudposse/lambda-function/aws"
+  version  = "0.6.1"
+  for_each = local.ws_lambdas
 
-data "archive_file" "ws_connect" {
-  type        = "zip"
-  source_dir  = "../lambda/ws_connect"
-  output_path = "../lambda/ws_connect.zip"
+  function_name                      = module.ws_lambda_label[each.key].id
+  handler                            = each.value.handler != null ? each.value.handler : "handler.lambda_handler"
+  filename                           = data.archive_file.ws_lambda[each.key].output_path
+  source_code_hash                   = data.archive_file.ws_lambda[each.key].output_base64sha256
+  timeout                            = 30
+  layers                             = [aws_lambda_layer_version.shared.arn]
+  lambda_environment                 = each.value.environment != null ? { variables = each.value.environment } : null
+  invoke_function_permissions        = each.value.source_arn != null ? [{ principal = "apigateway.amazonaws.com", source_arn = each.value.source_arn }] : []
+  cloudwatch_logs_retention_in_days  = 14
+  cloudwatch_lambda_insights_enabled = true
+  tracing_config_mode                = "Active"
+  runtime                            = var.lambda_runtime
+  attributes                         = ["handler"]
+  context                            = module.ws_lambda_label[each.key].context
 }
 
-resource "aws_lambda_function" "ws_connect" {
-  function_name    = "EventCoord-ws_connect_handler"
-  filename         = data.archive_file.ws_connect.output_path
-  handler          = "handler.lambda_handler"
-  runtime          = var.lambda_runtime
-  role             = aws_iam_role.lambda_exec.arn
-  source_code_hash = data.archive_file.ws_connect.output_base64sha256
-  timeout          = 10
-  layers           = [aws_lambda_layer_version.shared.arn]
-  environment {
-    variables = {
-      WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
-      JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
-      LOG_LEVEL            = "INFO"
-    }
-  }
-  tracing_config {
-    mode = "Active"
-  }
-}
-
-data "archive_file" "ws_disconnect" {
-  type        = "zip"
-  source_dir  = "../lambda/ws_disconnect"
-  output_path = "../lambda/ws_disconnect.zip"
-}
-
-resource "aws_lambda_function" "ws_disconnect" {
-  function_name    = "EventCoord-ws_disconnect_handler"
-  filename         = data.archive_file.ws_disconnect.output_path
-  handler          = "handler.lambda_handler"
-  runtime          = var.lambda_runtime
-  role             = aws_iam_role.lambda_exec.arn
-  source_code_hash = data.archive_file.ws_disconnect.output_base64sha256
-  timeout          = 10
-  layers           = [aws_lambda_layer_version.shared.arn]
-  environment {
-    variables = {
-      WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
-      LOG_LEVEL            = "INFO"
-    }
-  }
-  tracing_config {
-    mode = "Active"
-  }
-}
-
-data "archive_file" "ws_default" {
-  type        = "zip"
-  source_dir  = "../lambda/ws_default"
-  output_path = "../lambda/ws_default.zip"
-}
-
-resource "aws_lambda_function" "ws_default" {
-  function_name    = "EventCoord-ws_default_handler"
-  filename         = data.archive_file.ws_default.output_path
-  handler          = "handler.lambda_handler"
-  runtime          = var.lambda_runtime
-  role             = aws_iam_role.lambda_exec.arn
-  source_code_hash = data.archive_file.ws_default.output_base64sha256
-  timeout          = 10
-  layers           = [aws_lambda_layer_version.shared.arn]
-  environment {
-    variables = {
-      WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
-      LOG_LEVEL            = "INFO"
-    }
-  }
-  tracing_config {
-    mode = "Active"
-  }
-}
-
-data "archive_file" "notify_ws_stream" {
-  type        = "zip"
-  source_dir  = "../lambda/notify_ws_stream"
-  output_path = "../lambda/notify_ws_stream.zip"
-}
-
-resource "aws_lambda_function" "notify_ws_stream" {
-  function_name    = "EventCoord-notify_ws_stream_handler"
-  filename         = data.archive_file.notify_ws_stream.output_path
-  handler          = "handler.lambda_handler"
-  runtime          = var.lambda_runtime
-  role             = aws_iam_role.lambda_exec.arn
-  source_code_hash = data.archive_file.notify_ws_stream.output_base64sha256
-  timeout          = 10
-  layers           = [aws_lambda_layer_version.shared.arn]
-  environment {
-    variables = {
-      WS_CONNECTIONS_TABLE = aws_dynamodb_table.ws_connections.name
-      WS_API_ENDPOINT      = "https://${aws_apigatewayv2_domain_name.custom.domain_name}/ws"
-      LOG_LEVEL            = "INFO"
-    }
-  }
-  tracing_config {
-    mode = "Active"
-  }
+resource "aws_iam_role_policy_attachment" "ws_dynamodb" {
+  for_each   = local.ws_lambdas
+  policy_arn = aws_iam_policy.ws_lambda_dynamodb_policy.arn
+  role       = module.ws_lambda[each.key].role_name
 }
