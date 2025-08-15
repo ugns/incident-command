@@ -4,6 +4,8 @@ locals {
     "${name}_invoke_arn" => module.lambda[name].invoke_arn
   }
 
+  api_gateway_source_arn = "arn:aws:execute-api:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:*/*/*"
+
   lambdas = {
     openapi = {
       handler     = null
@@ -154,6 +156,7 @@ module "lambda" {
   timeout                            = 120
   layers                             = [aws_lambda_layer_version.shared.arn]
   lambda_environment                 = each.value.environment != null ? { variables = each.value.environment } : null
+  invoke_function_permissions        = [{ principal = "apigateway.amazonaws.com", source_arn = local.api_gateway_source_arn }]
   cloudwatch_logs_retention_in_days  = 14
   cloudwatch_lambda_insights_enabled = true
   tracing_config_mode                = "Active"
