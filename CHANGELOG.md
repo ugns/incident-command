@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.22.1 (2025-08-15)
+
+### Bug Fixes
+
+- Work to correct format of openapi_config
+  ([`82a953c`](https://github.com/ugns/incident-command/commit/82a953cc4b95233efd2a34fc5b3270eb4b93dada))
+
+
 ## v1.22.0 (2025-08-15)
 
 ### Features
