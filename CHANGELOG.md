@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.22.2 (2025-08-15)
+
+### Bug Fixes
+
+- Start debugging by going basic
+  ([`e33cc34`](https://github.com/ugns/incident-command/commit/e33cc34c5220c814826fb2bfd4d229dccf5033a4))
+
+
 ## v1.22.1 (2025-08-15)
 
 ### Bug Fixes
