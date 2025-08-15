@@ -87,6 +87,9 @@ jobs:
       id-token: write
       pull-requests: write
     runs-on: ubuntu-latest
+    concurrency:
+      group: terraform-${{ github.ref }}
+      cancel-in-progress: false
     defaults:
       run:
         working-directory: terraform/
