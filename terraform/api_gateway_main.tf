@@ -91,6 +91,6 @@ module "api" {
   stage_name           = var.stage_name
   xray_tracing_enabled = true
   endpoint_type        = "REGIONAL"
-  logging_level        = "INFO"
+  logging_level        = "OFF"
   context              = module.this.context
 }
