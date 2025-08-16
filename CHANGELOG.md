@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.22.6 (2025-08-16)
+
+### Bug Fixes
+
+- Add CORS support for multiple endpoints and improve integration responses
+  ([`4896e09`](https://github.com/ugns/incident-command/commit/4896e09442e371fe18ec665b461a5ab8114f7e22))
+
+
 ## v1.22.5 (2025-08-15)
 
 ### Bug Fixes
