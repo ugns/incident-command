@@ -2,7 +2,7 @@ openapi: "3.0.1"
 info:
   title: "eventcoord-prod"
   description: "REST API for Event Coordination Application"
-  version: "2.0"
+  version: "2.1"
 x-amazon-apigateway-binary-media-types:
 - "application/pdf"
 - "application/octet-stream"
@@ -22,6 +22,13 @@ paths:
         type: aws_proxy
 
   /.well-known/jwks.json:
+    get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${well_known_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
     options:
       summary: CORS support
       description: |
@@ -54,15 +61,15 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
-    get:
+
+  /auth/login:
+    post:
       x-amazon-apigateway-integration:
         httpMethod: "POST"
-        uri: "${well_known_invoke_arn}"
+        uri: "${auth_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-
-  /auth/login:
     options:
       summary: CORS support
       description: |
@@ -95,15 +102,15 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
-    post:
+
+  /reports:
+    get:
       x-amazon-apigateway-integration:
         httpMethod: "POST"
-        uri: "${auth_invoke_arn}"
+        uri: "${reports_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-
-  /reports:
     options:
       summary: CORS support
       description: |
@@ -136,15 +143,68 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
-    get:
+  /reports/{reportType}:
+    post:
+      parameters:
+      - name: "reportType"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${reports_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
 
   /organizations:
+    get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${organizations_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    post:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${organizations_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
     options:
       summary: CORS support
       description: |
@@ -177,22 +237,94 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
+  /organizations/{org_id}:
     get:
+      parameters:
+      - name: "org_id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${organizations_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-    post:
+    put:
+      parameters:
+      - name: "org_id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${organizations_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
+    delete:
+      parameters:
+      - name: "org_id"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${organizations_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
 
   /incidents:
+    get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${incidents_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    post:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${incidents_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
     options:
       summary: CORS support
       description: |
@@ -225,22 +357,94 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
+  /incidents/{incidentId}:
     get:
+      parameters:
+      - name: "incidentId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${incidents_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-    post:
+    put:
+      parameters:
+      - name: "incidentId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${incidents_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
+    delete:
+      parameters:
+      - name: "incidentId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${incidents_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
 
   /locations:
+    get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${locations_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    post:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${locations_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
     options:
       summary: CORS support
       description: |
@@ -273,22 +477,94 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
+  /locations/{locationId}:
     get:
+      parameters:
+      - name: "locationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${locations_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-    post:
+    put:
+      parameters:
+      - name: "locationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${locations_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
+    delete:
+      parameters:
+      - name: "locationId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${locations_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
 
   /units:
+    get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${units_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    post:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${units_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
     options:
       summary: CORS support
       description: |
@@ -321,22 +597,94 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
+  /units/{unitId}:
     get:
+      parameters:
+      - name: "unitId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${units_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-    post:
+    put:
+      parameters:
+      - name: "unitId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${units_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
+    delete:
+      parameters:
+      - name: "unitId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${units_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
 
   /periods:
+    get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${periods_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    post:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${periods_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
     options:
       summary: CORS support
       description: |
@@ -369,22 +717,94 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
+  /periods/{periodId}:
     get:
+      parameters:
+      - name: "periodId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${periods_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-    post:
+    put:
+      parameters:
+      - name: "periodId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${periods_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
+    delete:
+      parameters:
+      - name: "periodId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${periods_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
 
   /volunteers:
+    get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${volunteers_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    post:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${volunteers_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
     options:
       summary: CORS support
       description: |
@@ -417,22 +837,232 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
+  /volunteers/{volunteerId}:
     get:
+      parameters:
+      - name: "volunteerId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${volunteers_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-    post:
+    put:
+      parameters:
+      - name: "volunteerId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${volunteers_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
+    delete:
+      parameters:
+      - name: "volunteerId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${volunteers_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+  /volunteers/{volunteerId}/checkin:
+    put:
+      parameters:
+      - name: "volunteerId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${volunteers_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'PUT,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+  /volunteers/{volunteerId}/checkout:
+    put:
+      parameters:
+      - name: "volunteerId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${volunteers_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'PUT,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+  /volunteers/{volunteerId}/dispatch:
+    put:
+      parameters:
+      - name: "volunteerId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${volunteers_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'PUT,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
 
   /radios:
+    get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${radios_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    post:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${radios_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
     options:
       summary: CORS support
       description: |
@@ -465,22 +1095,94 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
+  /radios/{radioId}:
     get:
+      parameters:
+      - name: "radioId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${radios_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-    post:
+    put:
+      parameters:
+      - name: "radioId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${radios_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
+    delete:
+      parameters:
+      - name: "radioId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${radios_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
+      x-amazon-apigateway-integration:
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,PUT,DELETE,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
 
   /activitylogs:
+    get:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${activitylogs_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
+    post:
+      x-amazon-apigateway-integration:
+        httpMethod: "POST"
+        uri: "${activitylogs_invoke_arn}"
+        passthroughBehavior: "when_no_match"
+        timeoutInMillis: 29000
+        type: "aws_proxy"
     options:
       summary: CORS support
       description: |
@@ -513,17 +1215,49 @@ paths:
               method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
               method.response.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
+  /activitylogs/{volunteerId}:
     get:
+      parameters:
+      - name: "volunteerId"
+        in: "path"
+        required: true
+        schema:
+          type: "string"
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${activitylogs_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
-    post:
+    options:
+      summary: CORS support
+      description: |
+        Enable CORS by returning correct headers
+      tags:
+      - CORS
+      responses:
+        200:
+          description: Default response for CORS method
+          headers:
+            Access-Control-Allow-Origin:
+              schema:
+                type: "string"
+            Access-Control-Allow-Methods:
+              schema:
+                type: "string"
+            Access-Control-Allow-Headers:
+              schema:
+                type: "string"
+          content: {}
       x-amazon-apigateway-integration:
-        httpMethod: "POST"
-        uri: "${activitylogs_invoke_arn}"
-        passthroughBehavior: "when_no_match"
-        timeoutInMillis: 29000
-        type: "aws_proxy"
+        type: mock
+        requestTemplates:
+          application/json: "{\"statusCode\": 200}"
+        passthroughBehavior: "never"
+        responses:
+          default:
+            statusCode: "200"
+            responseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
