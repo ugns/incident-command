@@ -109,7 +109,7 @@ resource "aws_iam_policy" "lambda_secretsmanager_policy" {
 
 # IAM policy for WebSocket Lambda functions
 resource "aws_iam_policy" "ws_lambda_dynamodb_policy" {
-  name = "incident_cmd_ws_lambda_dynamodb_policy"
+  name = format("%s_ws_lambda_dynamodb_policy", module.this.id)
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
