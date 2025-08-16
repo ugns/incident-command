@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.22.10 (2025-08-16)
+
+### Bug Fixes
+
+- Add stream ARNs for locations and radios to WebSocket Lambda DynamoDB policy
+  ([`47c6586`](https://github.com/ugns/incident-command/commit/47c6586c8fa031ba67ab4037000b28af2ee466c4))
+
+
 ## v1.22.9 (2025-08-16)
 
 ### Bug Fixes
