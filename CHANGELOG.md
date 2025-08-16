@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.22.8 (2025-08-16)
+
+### Bug Fixes
+
+- Revise Copilot instructions for clarity and consistency in architecture overview and conventions
+  ([`be9c6c8`](https://github.com/ugns/incident-command/commit/be9c6c8175107a8f3aa96c94776d366f6616bbc6))
+
+- Update WebSocket Lambda DynamoDB policy name formatting
+  ([`1150e68`](https://github.com/ugns/incident-command/commit/1150e6810f26e247a2347127fff6013a97222b13))
+
+
 ## v1.22.7 (2025-08-16)
 
 ### Bug Fixes
