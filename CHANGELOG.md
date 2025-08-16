@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.22.7 (2025-08-16)
+
+### Bug Fixes
+
+- Update OpenAPI specification to enhance CORS support and API versioning
+  ([`9eedc13`](https://github.com/ugns/incident-command/commit/9eedc1365ca28d36330609c13114301971017fb1))
+
+
 ## v1.22.6 (2025-08-16)
 
 ### Bug Fixes
