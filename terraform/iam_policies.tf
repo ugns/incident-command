@@ -140,7 +140,9 @@ resource "aws_iam_policy" "ws_lambda_dynamodb_policy" {
           aws_dynamodb_table.volunteers.stream_arn,
           aws_dynamodb_table.periods.stream_arn,
           aws_dynamodb_table.units.stream_arn,
-          aws_dynamodb_table.incidents.stream_arn
+          aws_dynamodb_table.incidents.stream_arn,
+          aws_dynamodb_table.locations.stream_arn,
+          aws_dynamodb_table.radios.stream_arn,
         ]
       }
       ,
