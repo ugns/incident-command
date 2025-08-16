@@ -8,9 +8,9 @@ authors = [
 requires-python = ">=3.9"
 dependencies = [
     "Authlib==1.6.1",
-    "boto3==1.39.15",
+    "boto3==1.40.11",
     "launchdarkly-server-sdk==9.12.0",
-    "pypdf[crypto]==5.9.0",
+    "pypdf[crypto]==6.0.0",
     "reportlab==4.4.3",
     "requests==2.32.4",
     "aws-lambda-typing==2.20.0",
