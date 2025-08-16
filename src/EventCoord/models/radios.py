@@ -22,18 +22,17 @@ class Radio:
 
     @staticmethod
     def create(org_id: str, item: Dict[str, Any]) -> Dict[str, Any]:
-        if "unitId" not in item:
-            item["unitId"] = str(uuid.uuid4())
+        if "radioId" not in item:
+            item["radioId"] = str(uuid.uuid4())
         item["org_id"] = org_id
         table.put_item(Item=item)
         return item
 
     @staticmethod
     def update(org_id: str, radio_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
-        updates["org_id"] = org_id
-        updates["radioId"] = radio_id
-        table.put_item(Item=updates)
-        return updates
+        item = {"org_id": org_id, "radioId": radio_id, **updates}
+        table.put_item(Item=item)
+        return item
 
     @staticmethod
     def delete(org_id: str, radio_id: str) -> None:

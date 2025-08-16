@@ -12,7 +12,8 @@ table: Any = dynamodb.Table(os.environ.get(  # type: ignore
 class Location:
     @staticmethod
     def get(org_id: str, location_id: str) -> Optional[Dict[str, Any]]:
-        resp = table.get_item(Key={"org_id": org_id, "locationId": location_id})
+        resp = table.get_item(
+            Key={"org_id": org_id, "locationId": location_id})
         return resp.get("Item")
 
     @staticmethod
@@ -30,10 +31,9 @@ class Location:
 
     @staticmethod
     def update(org_id: str, location_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
-        updates["org_id"] = org_id
-        updates["locationId"] = location_id
-        table.put_item(Item=updates)
-        return updates
+        item = {"org_id": org_id, "locationId": location_id, **updates}
+        table.put_item(Item=item)
+        return item
 
     @staticmethod
     def delete(org_id: str, location_id: str) -> None:

@@ -231,7 +231,10 @@ resource "aws_dynamodb_table" "locations" {
     name = "locationId"
     type = "S"
   }
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
   tags = {
+
     Name = "locations"
   }
 }
@@ -251,7 +254,10 @@ resource "aws_dynamodb_table" "radios" {
     name = "radioId"
     type = "S"
   }
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
   tags = {
+
     Name = "radios"
   }
 }

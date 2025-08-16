@@ -62,3 +62,19 @@ resource "aws_lambda_event_source_mapping" "notify_ws_stream_incidents" {
   batch_size        = 10
   enabled           = true
 }
+
+resource "aws_lambda_event_source_mapping" "notify_ws_stream_locations" {
+  event_source_arn  = aws_dynamodb_table.locations.stream_arn
+  function_name     = module.ws_lambda["notify_ws_stream"].function_name
+  starting_position = "LATEST"
+  batch_size        = 10
+  enabled           = true
+}
+
+resource "aws_lambda_event_source_mapping" "notify_ws_stream_radios" {
+  event_source_arn  = aws_dynamodb_table.radios.stream_arn
+  function_name     = module.ws_lambda["notify_ws_stream"].function_name
+  starting_position = "LATEST"
+  batch_size        = 10
+  enabled           = true
+}

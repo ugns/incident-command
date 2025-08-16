@@ -45,10 +45,11 @@ def lambda_handler(
     path_params = event.get('pathParameters') or {}
     log_id = path_params.get('logId') if path_params else None
     volunteer_id = path_params.get('volunteerId') if path_params else None
+    period_id = path_params.get('periodId') if path_params else None
 
     if method == 'GET':
         if log_id:
-            item = ActivityLog.get_activity_log(log_id)
+            item = ActivityLog.get(org_id, log_id)
             if not item or item.get('org_id') != org_id:
                 return build_response(
                     404,
@@ -56,14 +57,14 @@ def lambda_handler(
                     headers=cors_headers
                 )
             return build_response(200, item, headers=cors_headers)
-        # volunteer_id query is not implemented in model.py, keep direct query for now
         elif volunteer_id:
             items = ActivityLog.list_by_volunteer(org_id, volunteer_id)
             return build_response(200, items, headers=cors_headers)
+        elif period_id:
+            items = ActivityLog.list_by_period(org_id, period_id)
+            return build_response(200, items, headers=cors_headers)
         else:
-            # List all logs for org
-            items = [item for item in ActivityLog.list_activity_logs(
-            ) if item.get('org_id') == org_id]
+            items = ActivityLog.list(org_id)
             return build_response(200, items, headers=cors_headers)
 
     elif method == 'POST':
@@ -82,7 +83,7 @@ def lambda_handler(
             body['timestamp'] = datetime.now(
                 timezone.utc).isoformat().replace('+00:00', 'Z')
         body['org_id'] = org_id
-        ActivityLog.create_activity_log(body)
+        ActivityLog.create(org_id, body)
         return build_response(
             201,
             {'message': 'Activity log created', 'id': body['logId']},
@@ -109,7 +110,7 @@ def lambda_handler(
             body['timestamp'] = datetime.now(
                 timezone.utc).isoformat().replace('+00:00', 'Z')
         body['org_id'] = org_id
-        ActivityLog.update_activity_log(log_id, body)
+        ActivityLog.update(org_id, log_id, body)
         return build_response(
             200,
             {'message': 'Activity log updated', 'id': log_id},
@@ -129,7 +130,7 @@ def lambda_handler(
                 {'error': 'Admin privileges required for delete'},
                 headers=cors_headers
             )
-        ActivityLog.delete_activity_log(log_id)
+        ActivityLog.delete(org_id, log_id)
         return build_response(204, {}, headers=cors_headers)
 
     else:

@@ -121,6 +121,14 @@ def lambda_handler(
             org_id = item['org_id']
             notify_connections(
                 org_id, {"action": "incidentsUpdated", "orgId": org_id})
+        elif table_name == 'locations' and event_name in ('INSERT', 'MODIFY', 'REMOVE'):
+            org_id = item['org_id']
+            notify_connections(
+                org_id, {"action": "locationsUpdated", "orgId": org_id})
+        elif table_name == 'radios' and event_name in ('INSERT', 'MODIFY', 'REMOVE'):
+            org_id = item['org_id']
+            notify_connections(
+                org_id, {"action": "radiosUpdated", "orgId": org_id})
         else:
             logger.debug(
                 f"No routing match for table {table_name} and event {event_name}")

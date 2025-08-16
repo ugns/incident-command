@@ -1,4 +1,5 @@
 import os
+import uuid
 import boto3
 from boto3.dynamodb.conditions import Key
 from typing import Dict, Any, List, Optional
@@ -23,7 +24,8 @@ class Period:
     def list_by_unit(org_id: str, unit_id: str) -> List[Dict[str, Any]]:
         resp = table.query(
             IndexName="unitId-index",
-            KeyConditionExpression=Key("org_id").eq(org_id) & Key("unitId").eq(unit_id)
+            KeyConditionExpression=Key("org_id").eq(
+                org_id) & Key("unitId").eq(unit_id)
         )
         return resp.get("Items", [])
 
@@ -41,18 +43,15 @@ class Period:
         item["org_id"] = org_id
         item["incidentId"] = incident_id
         if "periodId" not in item:
-            import uuid
             item["periodId"] = str(uuid.uuid4())
         table.put_item(Item=item)
         return item
 
     @staticmethod
     def update(org_id: str, period_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
-        updates["org_id"] = org_id
-        updates["periodId"] = period_id
-        table.put_item(Item=updates)
-        return updates
-
+        item = {"org_id": org_id, "periodId": period_id, **updates}
+        table.put_item(Item=item)
+        return item
 
     @staticmethod
     def delete(org_id: str, period_id: str) -> None:

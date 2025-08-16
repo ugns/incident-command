@@ -31,10 +31,9 @@ class Incident:
 
     @staticmethod
     def update(org_id: str, incident_id: str, updates: Dict[str, Any]) -> Dict[str, Any]:
-        updates["org_id"] = org_id
-        updates["incidentId"] = incident_id
-        table.put_item(Item=updates)
-        return updates
+        item = {"org_id": org_id, "incidentId": incident_id, **updates}
+        table.put_item(Item=item)
+        return item
 
     @staticmethod
     def delete(org_id: str, incident_id: str) -> None:
