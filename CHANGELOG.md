@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.22.9 (2025-08-16)
+
+### Bug Fixes
+
+- **deps**: Update dependency boto3 to v1.40.11
+  ([`7d43698`](https://github.com/ugns/incident-command/commit/7d436987bccd0b1a5c953c80864387838588e747))
+
+- **deps**: Update dependency pypdf to v6
+  ([`de20f66`](https://github.com/ugns/incident-command/commit/de20f6647181316f3c1e3a33389732003753ad89))
+
+
 ## v1.22.8 (2025-08-16)
 
 ### Bug Fixes
