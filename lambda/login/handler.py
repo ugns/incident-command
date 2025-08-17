@@ -10,7 +10,7 @@ from aws_lambda_typing.events import APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from googleAuthProvider import GoogleAuthProvider
-from EventCoord.models.volunteers import Volunteer
+# from EventCoord.models.volunteers import Volunteer
 from EventCoord.utils.response import build_response
 from aws_xray_sdk.core import patch_all, xray_recorder
 
