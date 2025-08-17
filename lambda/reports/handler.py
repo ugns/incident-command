@@ -10,7 +10,6 @@ from typing import Any
 from aws_lambda_typing.events import APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
-from EventCoord.client.auth import check_auth
 from EventCoord.utils.response import build_response
 from aws_xray_sdk.core import patch_all, xray_recorder
 
@@ -85,7 +84,14 @@ def lambda_handler(
     event: APIGatewayProxyEventV2,
     context: LambdaContext
 ) -> APIGatewayProxyResponseV2:
-    claims = check_auth(event)
+    claims = event.get('requestContext', {}).get('authorizer', {})
+    if claims is None:
+        claims = {}
+    elif not isinstance(claims, dict):
+        try:
+            claims = dict(claims)
+        except Exception:
+            claims = {}
     org_id = claims.get('hd')
     if not org_id:
         return build_response(

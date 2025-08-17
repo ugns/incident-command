@@ -6,7 +6,6 @@ import logging
 from aws_lambda_typing.events import APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
-from EventCoord.client.auth import check_auth
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.organizations import Organization
 from EventCoord.utils.response import build_response
@@ -33,7 +32,14 @@ def lambda_handler(
     event: APIGatewayProxyEventV2,
     context: LambdaContext
 ) -> APIGatewayProxyResponseV2:
-    claims = check_auth(event)
+    claims = event.get('requestContext', {}).get('authorizer', {})
+    if claims is None:
+        claims = {}
+    elif not isinstance(claims, dict):
+        try:
+            claims = dict(claims)
+        except Exception:
+            claims = {}
     flags = Flags(claims)
     method = event.get('httpMethod', 'GET')
     path_params = event.get('pathParameters') or {}

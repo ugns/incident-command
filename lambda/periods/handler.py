@@ -4,7 +4,6 @@ import logging
 from aws_lambda_typing.events import APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
-from EventCoord.client.auth import check_auth
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.periods import Period
 from EventCoord.utils.response import build_response
@@ -31,7 +30,14 @@ def lambda_handler(
     event: APIGatewayProxyEventV2,
     context: LambdaContext
 ) -> APIGatewayProxyResponseV2:
-    claims = check_auth(event)
+    claims = event.get('requestContext', {}).get('authorizer', {})
+    if claims is None:
+        claims = {}
+    elif not isinstance(claims, dict):
+        try:
+            claims = dict(claims)
+        except Exception:
+            claims = {}
     flags = Flags(claims)
     org_id = claims.get('org_id')
     if not org_id:
@@ -101,6 +107,12 @@ def lambda_handler(
             return build_response(
                 400,
                 {'error': 'Missing period id in path'},
+                headers=cors_headers
+            )
+        if not flags.has_admin_access():
+            return build_response(
+                403,
+                {'error': 'Admin privileges required for delete'},
                 headers=cors_headers
             )
         Period.delete(org_id, period_id)
