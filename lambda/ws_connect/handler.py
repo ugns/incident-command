@@ -34,26 +34,13 @@ def lambda_handler(
     context: LambdaContext
 ) -> dict[str, str | int]:
     logger.info(f"Received $connect event: {event}")
-    params = event.get('queryStringParameters') or {}
-    token = params.get('token')
-    if not token:
-        logger.warning("Missing token in query string")
-        return {"statusCode": 401, "body": "Missing token in query string"}
-    fake_event: APIGatewayProxyEventV2 = {
-        'headers': {
-            'Authorization': f'Bearer {token}'
-        }
-    }
-    user = require_auth(fake_event)
-    if not user:
-        logger.warning("Unauthorized: token did not resolve to user")
+    claims = event.get('requestContext', {}).get('authorizer', {})
+    org_id = claims.get('org_id')
+    user_id = claims.get('sub') or claims.get('email')
+    if not org_id or not user_id:
+        logger.error("Missing org_id or user_id in authorizer context")
         return {"statusCode": 401, "body": "Unauthorized"}
     connection_id = event['requestContext']['connectionId']
-    org_id = user.get('org_id')
-    user_id = user.get('sub') or user.get('email')
-    if not user_id:
-        logger.error("Token missing sub or email")
-        return {"statusCode": 400, "body": "Token missing sub or email"}
     item = {
         'connectionId': connection_id,
         'orgId': org_id,
