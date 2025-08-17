@@ -11,6 +11,17 @@ x-amazon-apigateway-binary-media-types:
 - "application/msword"
 - "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 - "image/*"
+components:
+  securitySchemes:
+    LambdaAuthorizer:
+      type: "apiKey"
+      name: "Authorization"
+      in: "header"
+      x-amazon-apigateway-authorizer:
+        type: "request"
+        authorizerUri: "${authorizer_invoke_arn}"
+        identitySource: "method.request.header.Authorization"
+        authorizerResultTtlInSeconds: 300
 paths:
   /openapi.json:
     get:
@@ -62,11 +73,11 @@ paths:
               method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
               method.response.header.Access-Control-Allow-Origin: "'*'"
 
-  /auth/login:
+  /login:
     post:
       x-amazon-apigateway-integration:
         httpMethod: "POST"
-        uri: "${auth_invoke_arn}"
+        uri: "${login_invoke_arn}"
         passthroughBehavior: "when_no_match"
         timeoutInMillis: 29000
         type: "aws_proxy"
@@ -105,6 +116,8 @@ paths:
 
   /reports:
     get:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${reports_invoke_arn}"
@@ -145,6 +158,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /reports/{reportType}:
     post:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "reportType"
         in: "path"
@@ -192,6 +207,8 @@ paths:
 
   /organizations:
     get:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${organizations_invoke_arn}"
@@ -199,6 +216,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     post:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${organizations_invoke_arn}"
@@ -239,6 +258,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /organizations/{org_id}:
     get:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "org_id"
         in: "path"
@@ -252,6 +273,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     put:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "org_id"
         in: "path"
@@ -265,6 +288,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     delete:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "org_id"
         in: "path"
@@ -312,6 +337,8 @@ paths:
 
   /incidents:
     get:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${incidents_invoke_arn}"
@@ -319,6 +346,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     post:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${incidents_invoke_arn}"
@@ -359,6 +388,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /incidents/{incidentId}:
     get:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "incidentId"
         in: "path"
@@ -372,6 +403,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     put:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "incidentId"
         in: "path"
@@ -385,6 +418,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     delete:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "incidentId"
         in: "path"
@@ -432,6 +467,8 @@ paths:
 
   /locations:
     get:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${locations_invoke_arn}"
@@ -439,6 +476,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     post:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${locations_invoke_arn}"
@@ -479,6 +518,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /locations/{locationId}:
     get:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "locationId"
         in: "path"
@@ -492,6 +533,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     put:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "locationId"
         in: "path"
@@ -505,6 +548,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     delete:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "locationId"
         in: "path"
@@ -552,6 +597,8 @@ paths:
 
   /units:
     get:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${units_invoke_arn}"
@@ -559,6 +606,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     post:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${units_invoke_arn}"
@@ -599,6 +648,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /units/{unitId}:
     get:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "unitId"
         in: "path"
@@ -612,6 +663,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     put:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "unitId"
         in: "path"
@@ -625,6 +678,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     delete:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "unitId"
         in: "path"
@@ -672,6 +727,8 @@ paths:
 
   /periods:
     get:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${periods_invoke_arn}"
@@ -679,6 +736,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     post:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${periods_invoke_arn}"
@@ -719,6 +778,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /periods/{periodId}:
     get:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "periodId"
         in: "path"
@@ -732,6 +793,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     put:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "periodId"
         in: "path"
@@ -745,6 +808,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     delete:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "periodId"
         in: "path"
@@ -792,6 +857,8 @@ paths:
 
   /volunteers:
     get:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${volunteers_invoke_arn}"
@@ -799,6 +866,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     post:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${volunteers_invoke_arn}"
@@ -839,6 +908,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /volunteers/{volunteerId}:
     get:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "volunteerId"
         in: "path"
@@ -852,6 +923,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     put:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "volunteerId"
         in: "path"
@@ -865,6 +938,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     delete:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "volunteerId"
         in: "path"
@@ -911,6 +986,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /volunteers/{volunteerId}/checkin:
     put:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "volunteerId"
         in: "path"
@@ -957,6 +1034,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /volunteers/{volunteerId}/checkout:
     put:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "volunteerId"
         in: "path"
@@ -1003,6 +1082,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /volunteers/{volunteerId}/dispatch:
     put:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "volunteerId"
         in: "path"
@@ -1050,6 +1131,8 @@ paths:
 
   /radios:
     get:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${radios_invoke_arn}"
@@ -1057,6 +1140,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     post:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${radios_invoke_arn}"
@@ -1097,6 +1182,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /radios/{radioId}:
     get:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "radioId"
         in: "path"
@@ -1110,6 +1197,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     put:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "radioId"
         in: "path"
@@ -1123,6 +1212,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     delete:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "radioId"
         in: "path"
@@ -1170,6 +1261,8 @@ paths:
 
   /activitylogs:
     get:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${activitylogs_invoke_arn}"
@@ -1177,6 +1270,8 @@ paths:
         timeoutInMillis: 29000
         type: "aws_proxy"
     post:
+      security:
+        - LambdaAuthorizer: []
       x-amazon-apigateway-integration:
         httpMethod: "POST"
         uri: "${activitylogs_invoke_arn}"
@@ -1217,6 +1312,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /activitylogs/volunteer/{volunteerId}:
     get:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "volunteerId"
         in: "path"
@@ -1263,6 +1360,8 @@ paths:
               method.response.header.Access-Control-Allow-Origin: "'*'"
   /activitylogs/period/{periodId}:
     get:
+      security:
+        - LambdaAuthorizer: []
       parameters:
       - name: "periodId"
         in: "path"
