@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.26.1 (2025-08-18)
+
+### Bug Fixes
+
+- Normalize authorization header key to lowercase for consistent token extraction
+  ([`375afb3`](https://github.com/ugns/incident-command/commit/375afb3a4e4057bd704bf2ade07647a6d57d3711))
+
+
 ## v1.26.0 (2025-08-18)
 
 ### Features
