@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.24.0 (2025-08-18)
+
+### Features
+
+- Add debug logging for authorization events and improve error message clarity
+  ([`5e9f181`](https://github.com/ugns/incident-command/commit/5e9f181887da0c348088f5b2ed412bce82c2f020))
+
+
 ## v1.23.0 (2025-08-18)
 
 ### Features
