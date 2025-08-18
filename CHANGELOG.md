@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.27.0 (2025-08-18)
+
+### Bug Fixes
+
+- Update claims extraction to use decode_claims function in lambda_handler
+  ([`747012b`](https://github.com/ugns/incident-command/commit/747012b601ed021467ac199d80fe8a55122bdd63))
+
+### Features
+
+- Add JWT claims decoding functionality to handle API Gateway events
+  ([`6ed7e55`](https://github.com/ugns/incident-command/commit/6ed7e55e94ce51fca0de3e76772e9a733517024d))
+
+
 ## v1.26.6 (2025-08-18)
 
 ### Bug Fixes
