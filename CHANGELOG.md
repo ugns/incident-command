@@ -2,6 +2,17 @@
 
 <!-- version list -->
 
+## v1.23.0 (2025-08-18)
+
+### Features
+
+- Implement JWT authorization with Lambda authorizer and update API Gateway configuration
+  ([`7dd57bd`](https://github.com/ugns/incident-command/commit/7dd57bd50af60c67719507ca9dd11616c2e52ad2))
+
+- Implement WebSocket token authorization with custom authorizer in API Gateway
+  ([`2feecb7`](https://github.com/ugns/incident-command/commit/2feecb7550f9087c40b0aa684e433c62e3067c54))
+
+
 ## v1.22.10 (2025-08-16)
 
 ### Bug Fixes
