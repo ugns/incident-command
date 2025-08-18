@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.26.3 (2025-08-18)
+
+### Bug Fixes
+
+- Improve authorization header handling for case insensitivity and token extraction
+  ([`335fbef`](https://github.com/ugns/incident-command/commit/335fbefcc171bde151cf429c23cf32ff1c4f2251))
+
+
 ## v1.26.2 (2025-08-18)
 
 ### Bug Fixes
