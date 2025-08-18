@@ -46,6 +46,7 @@ def lambda_handler(
             claims = dict(claims)
         except Exception:
             claims = {}
+    logger.debug(f"Claims: {claims}")
     flags = Flags(claims)
     org_id = claims.get('org_id')
     if not org_id:

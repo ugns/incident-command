@@ -1,8 +1,9 @@
 import json
-from authlib.jose import jwt, JWTClaims
+from authlib.jose import JWTClaims
+from jose import jwt
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from aws_lambda_typing.events import APIGatewayProxyEventV2
-from typing import Optional
+from typing import Dict, Any, Optional
 
 def build_response(
     status_code: int,
@@ -17,7 +18,7 @@ def build_response(
 
 def decode_claims(
     event: APIGatewayProxyEventV2
-) -> Optional[JWTClaims]:
+) -> Optional[JWTClaims | Dict[str, Any]]:
     """
     Decode API Gateway Proxy Event to collect JWT and return claims
     """
@@ -29,6 +30,6 @@ def decode_claims(
             token = token.replace("Bearer ", "").strip()
     if token:
         # Use empty string as key for unsigned JWTs and pass claims_cls and claims_options
-        payload = jwt.decode(token, '', claims_cls=JWTClaims, claims_options={"verify_signature": False})
+        payload = jwt.get_unverified_claims(token)
         return payload
     return None
