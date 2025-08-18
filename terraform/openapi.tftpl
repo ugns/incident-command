@@ -23,7 +23,7 @@ components:
         type: request
         authorizerUri: ${authorizer_invoke_arn}
         identitySource: method.request.header.Authorization
-        authorizerResultTtlInSeconds: 0
+        authorizerResultTtlInSeconds: 300
 paths:
   /openapi.json:
     get:
