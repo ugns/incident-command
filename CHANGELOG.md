@@ -2,6 +2,18 @@
 
 <!-- version list -->
 
+## v1.26.0 (2025-08-18)
+
+### Features
+
+- Improve logging setup across multiple handlers for consistent log formatting and level management
+  ([`5ccab5f`](https://github.com/ugns/incident-command/commit/5ccab5f75c8d5dcaa8b7a62d2b39766602db6111))
+
+- Update security scheme from LambdaAuthorizer to APIGatewayAuthorizer for improved authorization
+  handling
+  ([`bd41663`](https://github.com/ugns/incident-command/commit/bd4166361cd028ac652f412a696e26dca4e11c46))
+
+
 ## v1.25.0 (2025-08-18)
 
 ### Features
