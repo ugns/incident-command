@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.26.4 (2025-08-18)
+
+### Bug Fixes
+
+- Correct property name for authorizer result TTL in OpenAPI configuration
+  ([`57cf80d`](https://github.com/ugns/incident-command/commit/57cf80d568a32baecd9413618223924f3702b65a))
+
+
 ## v1.26.3 (2025-08-18)
 
 ### Bug Fixes
