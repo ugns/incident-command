@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.28.0 (2025-08-18)
+
+### Features
+
+- Add debug logging for claims and update JWT decoding to use get_unverified_claims
+  ([`b128137`](https://github.com/ugns/incident-command/commit/b128137898889024b9a8e20b40da05848d1e8f35))
+
+
 ## v1.27.0 (2025-08-18)
 
 ### Bug Fixes
