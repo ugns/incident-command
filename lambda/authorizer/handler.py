@@ -83,8 +83,8 @@ def lambda_handler(
     method_arn = event['methodArn']
     token = None
     # REST API: Authorization header
-    if 'headers' in event and event['headers'].get('Authorization'):
-        token = event['headers']['Authorization'].replace(
+    if 'headers' in event and event['headers'].get('authorization'):
+        token = event['headers']['authorization'].replace(
             "Bearer ", "").strip()
     # WebSocket API: token query param
     elif 'queryStringParameters' in event and event['queryStringParameters'] and event['queryStringParameters'].get('token'):
