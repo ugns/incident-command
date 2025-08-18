@@ -17,9 +17,15 @@ xray_recorder.configure(service='incident-cmd')
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
-logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(LOG_LEVEL)
+if not logger.hasHandlers():
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s %(levelname)s %(name)s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+logging.getLogger().setLevel(LOG_LEVEL)
 
 _JWKS_CACHE = []
 _JWKS_CACHE_LOCK = threading.Lock()

@@ -11,14 +11,24 @@ xray_recorder.configure(service='incident-cmd')
 
 # Use RSA public key from AWS Secrets Manager
 PUBLIC_KEY_SECRET_ARN = os.environ.get('JWT_PUBLIC_KEY_SECRET_ARN')
+
+# Setup logging
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+logger = logging.getLogger(__name__)
+logger.setLevel(LOG_LEVEL)
+if not logger.hasHandlers():
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s %(levelname)s %(name)s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+logging.getLogger().setLevel(LOG_LEVEL)
+
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type,Authorization",
     "Access-Control-Allow-Methods": "GET,OPTIONS"
 }
-
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
 
 
 def get_public_keys():

@@ -15,9 +15,15 @@ xray_recorder.configure(service='incident-cmd')
 
 # Setup logging
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
-logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger(__name__)
-logging.getLogger("EventCoord.client.auth").setLevel(LOG_LEVEL)
+logger.setLevel(LOG_LEVEL)
+if not logger.hasHandlers():
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s %(levelname)s %(name)s %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+logging.getLogger().setLevel(LOG_LEVEL)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",

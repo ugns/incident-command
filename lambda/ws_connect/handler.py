@@ -3,7 +3,6 @@ import boto3
 import logging
 from aws_lambda_typing.events import WebSocketConnectEvent, APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
-from EventCoord.client.auth import require_auth
 from typing import Any
 from aws_xray_sdk.core import patch_all, xray_recorder
 
@@ -22,7 +21,6 @@ if not logger.hasHandlers():
     handler.setFormatter(formatter)
     logger.addHandler(handler)
 logging.getLogger().setLevel(LOG_LEVEL)
-logging.getLogger("EventCoord.client.auth").setLevel(LOG_LEVEL)
 
 dynamodb = boto3.resource('dynamodb')
 TABLE_NAME = os.environ.get('WS_CONNECTIONS_TABLE', 'WebSocketConnections')
