@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.26.5 (2025-08-18)
+
+### Bug Fixes
+
+- Add debug logging for event and context in multiple handlers
+  ([`cee6e4e`](https://github.com/ugns/incident-command/commit/cee6e4eb557e69f1ce2166908b35929f0ad07910))
+
+
 ## v1.26.4 (2025-08-18)
 
 ### Bug Fixes
