@@ -75,10 +75,17 @@ def lambda_handler(
 ) -> APIGatewayAuthorizerResponse:
     logger.debug(f"Authorizer event: {event}")
     method_arn = event['methodArn']
-    auth_header = event['headers'].get(
-        'Authorization') or event['headers'].get('authorization')
-    if not auth_header:
-        logger.error(f"Missing authorization header in request to {method_arn}")
+    token = None
+    # REST API: Authorization header
+    if 'headers' in event and event['headers'].get('Authorization'):
+        token = event['headers']['Authorization'].replace(
+            "Bearer ", "").strip()
+    # WebSocket API: token query param
+    elif 'queryStringParameters' in event and event['queryStringParameters'] and event['queryStringParameters'].get('token'):
+        token = event['queryStringParameters']['token']
+    if not token:
+        logger.error(
+            f"Missing authorization header in request to {method_arn}")
         return {
             "principalId": "unauthorized",
             "policyDocument": {
@@ -91,7 +98,6 @@ def lambda_handler(
             },
             "context": {}
         }
-    token = auth_header.replace("Bearer ", "").strip()
 
     try:
         claims = verify_jwt_token(token)
