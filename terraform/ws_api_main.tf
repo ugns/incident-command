@@ -23,11 +23,11 @@ resource "aws_apigatewayv2_authorizer" "ws_auth" {
 
 # WebSocket routes
 resource "aws_apigatewayv2_route" "ws_connect" {
-  api_id    = aws_apigatewayv2_api.ws_api.id
-  route_key = "$connect"
+  api_id             = aws_apigatewayv2_api.ws_api.id
+  route_key          = "$connect"
   authorization_type = "CUSTOM"
-  authorizer_id  = aws_apigatewayv2_authorizer.ws_auth.id
-  target    = "integrations/${aws_apigatewayv2_integration.ws_connect.id}"
+  authorizer_id      = aws_apigatewayv2_authorizer.ws_auth.id
+  target             = "integrations/${aws_apigatewayv2_integration.ws_connect.id}"
 }
 resource "aws_apigatewayv2_route" "ws_disconnect" {
   api_id    = aws_apigatewayv2_api.ws_api.id
