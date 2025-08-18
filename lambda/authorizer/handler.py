@@ -4,10 +4,11 @@ import logging
 import requests
 import threading
 from authlib.jose import JsonWebToken, JWTClaims
-from typing import Optional
+from typing import Optional, Literal, Any
 from aws_lambda_typing.events import APIGatewayRequestAuthorizerEvent
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses.api_gateway_authorizer import APIGatewayAuthorizerResponse
+from aws_lambda_typing.common import PolicyDocument
 from aws_xray_sdk.core import patch_all, xray_recorder
 
 patch_all()  # Automatically patches boto3, requests, etc.
@@ -72,6 +73,32 @@ def verify_jwt_token(token: str) -> Optional[JWTClaims]:
         return None
 
 
+def get_policy_document(
+    effect: Literal["Allow", "Deny"],
+    method_arn: str
+) -> PolicyDocument:
+    return {
+        "Version": "2012-10-17",
+        "Statement": [{
+            "Action": "execute-api:Invoke",
+            "Effect": effect,
+            "Resource": method_arn
+        }]
+    }
+
+
+def build_response(
+    principal_id: str,
+    policy_document: PolicyDocument,
+    context: Optional[Any] = None
+) -> APIGatewayAuthorizerResponse:
+    return {
+        "principalId": principal_id,
+        "policyDocument": policy_document,
+        "context": context if context else {}
+    }
+
+
 def lambda_handler(
     event: APIGatewayRequestAuthorizerEvent,
     context: LambdaContext
@@ -82,7 +109,8 @@ def lambda_handler(
     token = None
     # REST API: Authorization header
     if 'headers' in event and (event['headers'].get('authorization') or event['headers'].get('Authorization')):
-        token = event['headers'].get('authorization') or event['headers'].get('Authorization')
+        token = event['headers'].get(
+            'authorization') or event['headers'].get('Authorization')
         if token and token.startswith('Bearer '):
             token = token.replace("Bearer ", "").strip()
     # WebSocket API: token query param
@@ -91,47 +119,17 @@ def lambda_handler(
     if not token:
         logger.error(
             f"Missing authorization header in request to {method_arn}")
-        return {
-            "principalId": "unauthorized",
-            "policyDocument": {
-                "Version": "2012-10-17",
-                "Statement": [{
-                    "Action": "execute-api:Invoke",
-                    "Effect": "Deny",
-                    "Resource": method_arn
-                }]
-            },
-            "context": {}
-        }
+        return build_response("unauthorized", get_policy_document('Deny', method_arn))
     logger.debug(f"Authorizer token: {token}")
     try:
         claims = verify_jwt_token(token)
         if claims is None:
             logger.error("JWT verification failed: claims is None")
-            return {
-                "principalId": "unauthorized",
-                "policyDocument": {
-                    "Version": "2012-10-17",
-                    "Statement": [{
-                        "Action": "execute-api:Invoke",
-                        "Effect": "Deny",
-                        "Resource": method_arn
-                    }]
-                },
-                "context": {}
-            }
+            return build_response("unauthorized", get_policy_document('Deny', method_arn))
         logger.info(f"Authenticated claims: {claims}")
-        return {
-            "principalId": claims['sub'],
-            "policyDocument": {
-                "Version": "2012-10-17",
-                "Statement": [{
-                    "Action": "execute-api:Invoke",
-                    "Effect": "Allow",
-                    "Resource": method_arn
-                }]
-            },
-            "context": {
+        return build_response(
+            claims['sub'],
+            get_policy_document('Allow', method_arn), {
                 "email": claims.get("email"),
                 "sub": claims.get("sub"),
                 "name": claims.get("name"),
@@ -139,18 +137,7 @@ def lambda_handler(
                 "org_id": claims.get("org_id"),
                 "org_name": claims.get("org_name"),
             }
-        }
+        )
     except Exception as e:
         logger.error(f"Exception in lambda_handler: {e}")
-        return {
-            "principalId": "unauthorized",
-            "policyDocument": {
-                "Version": "2012-10-17",
-                "Statement": [{
-                    "Action": "execute-api:Invoke",
-                    "Effect": "Deny",
-                    "Resource": method_arn
-                }]
-            },
-            "context": {}
-        }
+        return build_response("unauthorized", get_policy_document('Deny', method_arn))
