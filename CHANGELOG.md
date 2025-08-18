@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.25.0 (2025-08-18)
+
+### Features
+
+- Enhance token extraction logic for authorization in lambda_handler
+  ([`35f569b`](https://github.com/ugns/incident-command/commit/35f569b60eba457747f6f7531039c2cb7639d098))
+
+
 ## v1.24.0 (2025-08-18)
 
 ### Features
