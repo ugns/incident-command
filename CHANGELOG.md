@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.26.6 (2025-08-18)
+
+### Bug Fixes
+
+- Update authorizer result TTL to 300 seconds in OpenAPI configuration
+  ([`d66189e`](https://github.com/ugns/incident-command/commit/d66189e66214c6e12d6d7be6dc74c5515805f652))
+
+
 ## v1.26.5 (2025-08-18)
 
 ### Bug Fixes
