@@ -73,11 +73,12 @@ def lambda_handler(
     event: APIGatewayRequestAuthorizerEvent,
     context: LambdaContext
 ) -> APIGatewayAuthorizerResponse:
+    logger.debug(f"Authorizer event: {event}")
     method_arn = event['methodArn']
     auth_header = event['headers'].get(
         'Authorization') or event['headers'].get('authorization')
     if not auth_header:
-        logger.error("Missing authorization header")
+        logger.error(f"Missing authorization header in request to {method_arn}")
         return {
             "principalId": "unauthorized",
             "policyDocument": {
