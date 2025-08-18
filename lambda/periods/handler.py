@@ -36,6 +36,8 @@ def lambda_handler(
     event: APIGatewayProxyEventV2,
     context: LambdaContext
 ) -> APIGatewayProxyResponseV2:
+    logger.debug(f"Periods event: {event}")
+    logger.debug(f"Periods context: {context}")
     claims = event.get('requestContext', {}).get('authorizer', {})
     if claims is None:
         claims = {}
