@@ -3,7 +3,6 @@ import time
 import logging
 import requests
 import threading
-from urllib.parse import urlparse
 from authlib.jose import JsonWebToken, JWTClaims
 from typing import Optional
 from aws_lambda_typing.events import APIGatewayRequestAuthorizerEvent
@@ -46,13 +45,11 @@ def get_jwks(jwks_url: str):
 
 
 def verify_jwt_token(token: str) -> Optional[JWTClaims]:
-    JWKS_URL = os.environ.get(
-        'JWKS_URL', 'https://your-api-domain/auth/.well-known/jwks.json')
-    parsed = urlparse(JWKS_URL)
+    JWT_ISSUER = os.environ.get('JWT_ISSUER', 'https://your-api-domain')
     try:
         logger.info(
             f"Verifying JWT token: {token[:10]}... (truncated)")
-        jwks = get_jwks(JWKS_URL)
+        jwks = get_jwks(f"{JWT_ISSUER}/.well-known/jwks.json")
         logger.debug(f"JWKS keys: {jwks}")
         jwt_obj = JsonWebToken(['RS256'])
         logger.debug("About to decode JWT")
@@ -62,7 +59,7 @@ def verify_jwt_token(token: str) -> Optional[JWTClaims]:
             claims_options={
                 "iss": {
                     "essential": True,
-                    "value": f"{parsed.scheme}://{parsed.hostname}"
+                    "value": JWT_ISSUER
                 },
             }
         )
@@ -80,6 +77,7 @@ def lambda_handler(
     context: LambdaContext
 ) -> APIGatewayAuthorizerResponse:
     logger.debug(f"Authorizer event: {event}")
+    logger.debug(f"Authorizer context: {context}")
     method_arn = event['methodArn']
     token = None
     # REST API: Authorization header
@@ -104,7 +102,7 @@ def lambda_handler(
             },
             "context": {}
         }
-
+    logger.debug(f"Authorizer token: {token}")
     try:
         claims = verify_jwt_token(token)
         if claims is None:

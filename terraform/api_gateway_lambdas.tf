@@ -18,13 +18,14 @@ locals {
         JWT_PRIVATE_KEY_SECRET_ARN = aws_secretsmanager_secret.jwt_private_key.arn
         JWT_ISSUER                 = "https://${aws_api_gateway_domain_name.custom.domain_name}"
         LAUNCHDARKLY_SDK_KEY       = data.launchdarkly_environment.production.api_key
+        TOKEN_TTL                  = "28800"
       }
     }
     authorizer = {
       handler = null
       environment = {
         LOG_LEVEL            = "DEBUG"
-        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
+        JWT_ISSUER           = "https://${aws_api_gateway_domain_name.custom.domain_name}"
         LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
       }
     }
@@ -37,82 +38,73 @@ locals {
     volunteers = {
       handler = null
       environment = {
-        LOG_LEVEL            = "INFO"
+        LOG_LEVEL            = "DEBUG"
         VOLUNTEERS_TABLE     = aws_dynamodb_table.volunteers.name
-        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
         LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
       }
     }
     activitylogs = {
       handler = null
       environment = {
-        LOG_LEVEL            = "INFO"
+        LOG_LEVEL            = "DEBUG"
         ACTIVITY_LOGS_TABLE  = aws_dynamodb_table.activity_logs.name
-        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
         LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
       }
     }
     periods = {
       handler = null
       environment = {
-        LOG_LEVEL            = "INFO"
+        LOG_LEVEL            = "DEBUG"
         ICS_PERIODS_TABLE    = aws_dynamodb_table.periods.name
-        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
         LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
       }
     }
     reports = {
       handler = null
       environment = {
-        LOG_LEVEL            = "INFO"
+        LOG_LEVEL            = "DEBUG"
         ICS214_TEMPLATE_PDF  = "ICS-214-v31.pdf"
         ICS214_FIELDS_JSON   = "ICS-214-v31.json"
-        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
         LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
       }
     }
     organizations = {
       handler = null
       environment = {
-        LOG_LEVEL            = "INFO"
+        LOG_LEVEL            = "DEBUG"
         ORGANIZATIONS_TABLE  = aws_dynamodb_table.organizations.name
-        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
         LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
       }
     }
     locations = {
       handler = null
       environment = {
-        LOG_LEVEL            = "INFO"
+        LOG_LEVEL            = "DEBUG"
         LOCATIONS_TABLE      = aws_dynamodb_table.locations.name
-        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
         LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
       }
     }
     radios = {
       handler = null
       environment = {
-        LOG_LEVEL            = "INFO"
+        LOG_LEVEL            = "DEBUG"
         RADIOS_TABLE         = aws_dynamodb_table.radios.name
-        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
         LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
       }
     }
     units = {
       handler = null
       environment = {
-        LOG_LEVEL            = "INFO"
+        LOG_LEVEL            = "DEBUG"
         UNITS_TABLE          = aws_dynamodb_table.units.name
-        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
         LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
       }
     }
     incidents = {
       handler = null
       environment = {
-        LOG_LEVEL            = "INFO"
+        LOG_LEVEL            = "DEBUG"
         INCIDENTS_TABLE      = aws_dynamodb_table.incidents.name
-        JWKS_URL             = "https://${aws_api_gateway_domain_name.custom.domain_name}/.well-known/jwks.json"
         LAUNCHDARKLY_SDK_KEY = data.launchdarkly_environment.production.api_key
       }
     }
@@ -161,7 +153,7 @@ module "lambda" {
   handler                            = each.value.handler != null ? each.value.handler : "handler.lambda_handler"
   filename                           = data.archive_file.lambda[each.key].output_path
   source_code_hash                   = data.archive_file.lambda[each.key].output_base64sha256
-  timeout                            = 120
+  timeout                            = 30
   layers                             = [aws_lambda_layer_version.shared.arn]
   lambda_environment                 = each.value.environment != null ? { variables = each.value.environment } : null
   invoke_function_permissions        = [{ principal = "apigateway.amazonaws.com", source_arn = local.api_gateway_source_arn }]
