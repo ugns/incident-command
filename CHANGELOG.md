@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.26.2 (2025-08-18)
+
+### Bug Fixes
+
+- Set result TTL to 0 for APIGatewayAuthorizer to disable caching
+  ([`c113745`](https://github.com/ugns/incident-command/commit/c11374546a7f6f18e6d8ceb6eddc2da1e17ded8a))
+
+
 ## v1.26.1 (2025-08-18)
 
 ### Bug Fixes
