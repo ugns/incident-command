@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.28.1 (2025-08-26)
+
+### Bug Fixes
+
+- Set authorizerResultTtlInSeconds to 0 for immediate authorizer results
+  ([`c8bc55c`](https://github.com/ugns/incident-command/commit/c8bc55cdaf7e003627012ecff0eb769d07004742))
+
+
 ## v1.28.0 (2025-08-18)
 
 ### Features
