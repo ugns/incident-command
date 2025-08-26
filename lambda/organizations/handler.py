@@ -8,7 +8,7 @@ from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.organizations import Organization
-from EventCoord.utils.response import build_response
+from EventCoord.utils.response import build_response, decode_claims
 from aws_xray_sdk.core import patch_all, xray_recorder
 
 patch_all()  # Automatically patches boto3, requests, etc.
@@ -40,7 +40,7 @@ def lambda_handler(
 ) -> APIGatewayProxyResponseV2:
     logger.debug(f"Organizations event: {event}")
     logger.debug(f"Organizations context: {context}")
-    claims = event.get('requestContext', {}).get('authorizer', {})
+    claims = decode_claims(event)
     if claims is None:
         claims = {}
     elif not isinstance(claims, dict):

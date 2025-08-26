@@ -10,7 +10,7 @@ from typing import Any
 from aws_lambda_typing.events import APIGatewayProxyEventV2
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses import APIGatewayProxyResponseV2
-from EventCoord.utils.response import build_response
+from EventCoord.utils.response import build_response, decode_claims
 from aws_xray_sdk.core import patch_all, xray_recorder
 
 patch_all()  # Automatically patches boto3, requests, etc.
@@ -92,7 +92,7 @@ def lambda_handler(
 ) -> APIGatewayProxyResponseV2:
     logger.debug(f"Reports event: {event}")
     logger.debug(f"Reports context: {context}")
-    claims = event.get('requestContext', {}).get('authorizer', {})
+    claims = decode_claims(event)
     if claims is None:
         claims = {}
     elif not isinstance(claims, dict):
@@ -100,11 +100,11 @@ def lambda_handler(
             claims = dict(claims)
         except Exception:
             claims = {}
-    org_id = claims.get('hd')
+    org_id = claims.get('org_id')
     if not org_id:
         return build_response(
             403,
-            {'error': 'Missing organization (hd claim) in token'},
+            {'error': 'Missing organization (org_id claim) in token'},
             headers=cors_headers
         )
 
