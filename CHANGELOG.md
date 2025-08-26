@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.29.0 (2025-08-26)
+
+### Features
+
+- Refactor claims extraction to use decode_claims function across multiple handlers
+  ([`afbf471`](https://github.com/ugns/incident-command/commit/afbf4712252c3b4889c7f971809b0ac8b76a5979))
+
+
 ## v1.28.1 (2025-08-26)
 
 ### Bug Fixes
