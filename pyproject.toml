@@ -15,7 +15,7 @@ dependencies = [
     "reportlab==4.4.3",
     "requests==2.32.4",
     "aws-lambda-typing==2.20.0",
-    "aws-xray-sdk==2.14.0",
+    "aws-xray-sdk==2.15.0",
 ]
 
 [project.optional-dependencies]
