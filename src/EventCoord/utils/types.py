@@ -1,11 +1,11 @@
-from typing import Any, Dict
+from typing import Any, Dict, TypeAlias
 
 try:
     from aws_lambda_typing.events import APIGatewayProxyEventV1  # type: ignore
     from aws_lambda_typing.responses import APIGatewayProxyResponseV1  # type: ignore
 
-    APIGatewayProxyEvent = APIGatewayProxyEventV1
-    APIGatewayProxyResponse = APIGatewayProxyResponseV1
+    APIGatewayProxyEvent: TypeAlias = APIGatewayProxyEventV1
+    APIGatewayProxyResponse: TypeAlias = APIGatewayProxyResponseV1
 except Exception:
-    APIGatewayProxyEvent = Dict[str, Any]
-    APIGatewayProxyResponse = Dict[str, Any]
+    APIGatewayProxyEvent: TypeAlias = Dict[str, Any]
+    APIGatewayProxyResponse: TypeAlias = Dict[str, Any]

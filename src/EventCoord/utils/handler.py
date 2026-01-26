@@ -1,6 +1,6 @@
 import logging
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Mapping
 
 from aws_xray_sdk.core import patch_all, xray_recorder
 
@@ -33,7 +33,7 @@ def get_logger(name: str) -> logging.Logger:
     return logger
 
 
-def get_claims(event: Dict[str, Any]) -> Dict[str, Any]:
+def get_claims(event: Mapping[str, Any]) -> Dict[str, Any]:
     claims = decode_claims(event)
     if claims is None:
         return {}
