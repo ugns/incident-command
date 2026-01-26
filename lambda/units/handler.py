@@ -1,7 +1,7 @@
 import json
-from aws_lambda_typing.events import APIGatewayProxyEvent
+from EventCoord.utils.types import APIGatewayProxyEvent
 from aws_lambda_typing.context import Context as LambdaContext
-from aws_lambda_typing.responses import APIGatewayProxyResponse
+from EventCoord.utils.types import APIGatewayProxyResponse
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.units import Unit
 from EventCoord.utils.response import build_response

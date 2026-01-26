@@ -6,9 +6,9 @@ import glob
 import traceback
 from pathlib import Path
 from typing import Any
-from aws_lambda_typing.events import APIGatewayProxyEvent
+from EventCoord.utils.types import APIGatewayProxyEvent
 from aws_lambda_typing.context import Context as LambdaContext
-from aws_lambda_typing.responses import APIGatewayProxyResponse
+from EventCoord.utils.types import APIGatewayProxyResponse
 from EventCoord.utils.response import build_response
 from EventCoord.utils.handler import get_claims, get_logger, init_tracing
 

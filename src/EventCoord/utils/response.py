@@ -1,8 +1,8 @@
 import json
 from authlib.jose import JWTClaims
 from jose import jwt
-from aws_lambda_typing.responses import APIGatewayProxyResponse
-from aws_lambda_typing.events import APIGatewayProxyEvent
+from EventCoord.utils.types import APIGatewayProxyResponse
+from EventCoord.utils.types import APIGatewayProxyEvent
 from typing import Dict, Any, Optional
 
 def build_response(

@@ -5,9 +5,9 @@ import copy
 import boto3
 from authlib.jose import jwt, JsonWebKey
 from typing import Protocol, Tuple, Optional, Dict, Any
-from aws_lambda_typing.events import APIGatewayProxyEvent
+from EventCoord.utils.types import APIGatewayProxyEvent
 from aws_lambda_typing.context import Context as LambdaContext
-from aws_lambda_typing.responses import APIGatewayProxyResponse
+from EventCoord.utils.types import APIGatewayProxyResponse
 from googleAuthProvider import GoogleAuthProvider
 # from EventCoord.models.volunteers import Volunteer
 from EventCoord.utils.response import build_response
