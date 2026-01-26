@@ -56,7 +56,7 @@ def lambda_handler(
     elif method == 'POST':
         import uuid
         from datetime import datetime, timezone
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         if 'logId' not in body:
             body['logId'] = str(uuid.uuid4())
         if 'periodId' not in body or not body['periodId']:
@@ -84,7 +84,7 @@ def lambda_handler(
                 headers=CORS_HEADERS
             )
         from datetime import datetime, timezone
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         body['logId'] = log_id
         if 'periodId' not in body or not body['periodId']:
             return build_response(

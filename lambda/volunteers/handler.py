@@ -55,7 +55,7 @@ def lambda_handler(
                 headers=CORS_HEADERS
             )
         import uuid
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         item = Volunteer.create(org_id, body)
         return build_response(
             201,
@@ -70,7 +70,7 @@ def lambda_handler(
                 {'error': 'Missing volunteer id in path'},
                 headers=CORS_HEADERS
             )
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         body['volunteerId'] = volunteer_id
         body['org_id'] = org_id
         if '/checkin' in resource_path:

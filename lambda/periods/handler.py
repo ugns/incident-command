@@ -48,7 +48,7 @@ def lambda_handler(
     elif method == 'POST':
         # Create a new ICS-214 period
         import uuid
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         if 'periodId' not in body:
             body['periodId'] = str(uuid.uuid4())
         if 'incidentId' not in body:
@@ -74,7 +74,7 @@ def lambda_handler(
                 {'error': 'Missing period id in path'},
                 headers=CORS_HEADERS
             )
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         Period.update(org_id, period_id, body)
         return build_response(
             200,

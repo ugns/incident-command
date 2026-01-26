@@ -47,7 +47,7 @@ def lambda_handler(
 
     elif method == 'POST':
         import uuid
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         if 'locationId' not in body:
             body['locationId'] = str(uuid.uuid4())
         body['org_id'] = org_id
@@ -65,7 +65,7 @@ def lambda_handler(
                 {'error': 'Missing location id in path'},
                 headers=CORS_HEADERS
             )
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         Location.update(org_id, location_id, body)
         return build_response(
             200,

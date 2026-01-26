@@ -51,7 +51,7 @@ def lambda_handler(
             return build_response(200, items, headers=CORS_HEADERS)
 
     elif method == 'POST':
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         if not flags.has_super_admin_access():
             return build_response(
                 403,
@@ -83,7 +83,7 @@ def lambda_handler(
                 {'error': 'Super Admin privileges required for update'},
                 headers=CORS_HEADERS
             )
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         updates = {k: v for k, v in body.items() if k in (
             'aud', 'name', 'hd', 'notes')}
         if not updates:

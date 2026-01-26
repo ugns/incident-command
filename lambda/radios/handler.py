@@ -47,7 +47,7 @@ def lambda_handler(
 
     elif method == 'POST':
         import uuid
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         if 'radioId' not in body:
             body['radioId'] = str(uuid.uuid4())
         body['org_id'] = org_id
@@ -65,7 +65,7 @@ def lambda_handler(
                 {'error': 'Missing radio id in path'},
                 headers=CORS_HEADERS
             )
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         Radio.update(org_id, radio_id, body)
         return build_response(
             200,

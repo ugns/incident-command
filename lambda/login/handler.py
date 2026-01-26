@@ -56,7 +56,7 @@ def lambda_handler(
         logger.info(
             f"Received event: {json.dumps(event)[:500]}... (truncated)")
         logger.debug(f"Event details: {json.dumps(event)}")
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         provider_name = body.get('provider', 'google')
         token = body.get('token')
         logger.info(f"Provider: {provider_name}")

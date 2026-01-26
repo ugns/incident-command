@@ -47,7 +47,7 @@ def lambda_handler(
 
     elif method == 'POST':
         import uuid
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         if 'incidentId' not in body:
             body['incidentId'] = str(uuid.uuid4())
         body['org_id'] = org_id
@@ -65,7 +65,7 @@ def lambda_handler(
                 {'error': 'Missing incident id in path'},
                 headers=CORS_HEADERS
             )
-        body = json.loads(event.get('body', '{}'))
+        body = json.loads(event.get('body') or '{}')
         Incident.update(org_id, incident_id, body)
         return build_response(
             200,
