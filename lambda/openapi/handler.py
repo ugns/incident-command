@@ -1,15 +1,14 @@
 import os
 import boto3
 import json
-from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.events import APIGatewayProxyEvent
 from aws_lambda_typing.context import Context as LambdaContext
-from aws_lambda_typing.responses import APIGatewayProxyResponseV2
+from aws_lambda_typing.responses import APIGatewayProxyResponse
 from EventCoord.utils.response import build_response
-from aws_xray_sdk.core import patch_all, xray_recorder
+from EventCoord.utils.handler import get_logger, init_tracing
 
-patch_all()  # Automatically patches boto3, requests, etc.
-
-xray_recorder.configure(service='incident-cmd')
+init_tracing()
+logger = get_logger(__name__)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
@@ -19,9 +18,9 @@ cors_headers = {
 
 
 def lambda_handler(
-    event: APIGatewayProxyEventV2,
+    event: APIGatewayProxyEvent,
     context: LambdaContext
-) -> APIGatewayProxyResponseV2:
+) -> APIGatewayProxyResponse:
     requestContext = event.get('requestContext', {})
     rest_api_id = requestContext.get('apiId')
     stage_name = requestContext.get('stage')
@@ -45,6 +44,7 @@ def lambda_handler(
             }
         )
     except Exception as e:
+        logger.exception("Failed to export OpenAPI spec")
         return build_response(
             500,
             str(e),

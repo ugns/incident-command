@@ -18,14 +18,14 @@ Replace `<api-id>`, `<region>`, and `<stage>` with your actual API Gateway value
 ## Architecture & Conventions
 
 - **Serverless API**: AWS Lambda handlers (one per resource) in `lambda/`
-- **Shared code**: Models, utilities, feature flags, and auth in `shared/`
+- **Shared code**: Models, utilities, feature flags, and auth in `src/EventCoord/` (packaged into the `shared/` Lambda layer via `make install-deps`)
 - **Infrastructure as code**: Terraform in `terraform/` (DynamoDB, Lambda, API Gateway)
 - **CI/CD**: Build/package via Makefile and GitHub Actions
 - **Auth**: JWT-based, user info in claims; all protected endpoints require `Authorization` header
 - **Feature flags**: LaunchDarkly via `shared/launchdarkly/flags.py`
 - **DynamoDB**: All tables scoped by `org_id` (partition key), resource-specific sort keys, GSIs for secondary queries
 - **Model methods**: CRUD and GSI helpers per resource
-- **Response utility**: All handlers use `build_response` from `shared/utils/response.py`
+- **Response utility**: All handlers use `build_response` from `src/EventCoord/utils/response.py`
 - **CORS**: All endpoints support OPTIONS preflight and CORS headers
 
 ---
@@ -167,9 +167,9 @@ All models use DynamoDB tables and GSIs as defined in Terraform. For details, se
   - API Gateway: `api_gateway_<resource>.tf` (one per model)
   - IAM policies include table and GSI ARNs for all models
 - Lambda source code is in the `lambda/` directory (one handler per resource)
-- Shared code (models, utils, feature flags, auth) is in `shared/`
+- Shared code (models, utils, feature flags, auth) is in `src/EventCoord/` and is packaged into the Lambda Layer at `shared/` via `make install-deps`
 - See `requirements.txt` for Python dependencies
-- Build Lambda Layer: `make install-deps`
+- Build Lambda Layer: `make install-deps` (creates `shared/` for Terraform to zip)
 - Local dev venv: `make dev-venv`
 - Deploy: `terraform apply` in `terraform/`
 - CI/CD: Artifacts built and uploaded via GitHub Actions (see workflow YAML)

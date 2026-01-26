@@ -2,52 +2,25 @@ import os
 import uuid
 import boto3
 import json
-import logging
-from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.events import APIGatewayProxyEvent
 from aws_lambda_typing.context import Context as LambdaContext
-from aws_lambda_typing.responses import APIGatewayProxyResponseV2
+from aws_lambda_typing.responses import APIGatewayProxyResponse
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.organizations import Organization
-from EventCoord.utils.response import build_response, decode_claims
-from aws_xray_sdk.core import patch_all, xray_recorder
+from EventCoord.utils.response import build_response
+from EventCoord.utils.handler import CORS_HEADERS, get_claims, get_logger, init_tracing
 
-patch_all()  # Automatically patches boto3, requests, etc.
-
-xray_recorder.configure(service='incident-cmd')
-
-# Setup logging
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
-logger = logging.getLogger(__name__)
-logger.setLevel(LOG_LEVEL)
-if not logger.hasHandlers():
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s %(levelname)s %(name)s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-logging.getLogger().setLevel(LOG_LEVEL)
-
-cors_headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type,Authorization",
-    "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS"
-}
+init_tracing()
+logger = get_logger(__name__)
 
 
 def lambda_handler(
-    event: APIGatewayProxyEventV2,
+    event: APIGatewayProxyEvent,
     context: LambdaContext
-) -> APIGatewayProxyResponseV2:
+) -> APIGatewayProxyResponse:
     logger.debug(f"Organizations event: {event}")
     logger.debug(f"Organizations context: {context}")
-    claims = decode_claims(event)
-    if claims is None:
-        claims = {}
-    elif not isinstance(claims, dict):
-        try:
-            claims = dict(claims)
-        except Exception:
-            claims = {}
+    claims = get_claims(event)
     flags = Flags(claims)
     method = event.get('httpMethod', 'GET')
     path_params = event.get('pathParameters') or {}
@@ -61,21 +34,21 @@ def lambda_handler(
                 return build_response(
                     404,
                     {'error': 'Organization not found'},
-                    headers=cors_headers
+                    headers=CORS_HEADERS
                 )
-            return build_response(200, org, headers=cors_headers)
+            return build_response(200, org, headers=CORS_HEADERS)
         elif aud:
             org = Organization.get_by_aud(aud)
             if not org:
                 return build_response(
                     404,
                     {'error': 'Organization not found'},
-                    headers=cors_headers
+                    headers=CORS_HEADERS
                 )
-            return build_response(200, org, headers=cors_headers)
+            return build_response(200, org, headers=CORS_HEADERS)
         else:
             items = Organization.list_all()
-            return build_response(200, items, headers=cors_headers)
+            return build_response(200, items, headers=CORS_HEADERS)
 
     elif method == 'POST':
         body = json.loads(event.get('body', '{}'))
@@ -83,7 +56,7 @@ def lambda_handler(
             return build_response(
                 403,
                 {'error': 'Super Admin privileges required for create'},
-                headers=cors_headers
+                headers=CORS_HEADERS
             )
 
         aud = body.get('aud')
@@ -92,23 +65,23 @@ def lambda_handler(
             return build_response(
                 400,
                 {'error': 'Missing aud or name in request body'},
-                headers=cors_headers
+                headers=CORS_HEADERS
             )
         org = Organization.create(aud, name)
-        return build_response(201, org, headers=cors_headers)
+        return build_response(201, org, headers=CORS_HEADERS)
 
     elif method == 'PUT':
         if not org_id:
             return build_response(
                 400,
                 {'error': 'Missing org_id in path'},
-                headers=cors_headers
+                headers=CORS_HEADERS
             )
         if not flags.has_super_admin_access():
             return build_response(
                 403,
                 {'error': 'Super Admin privileges required for update'},
-                headers=cors_headers
+                headers=CORS_HEADERS
             )
         body = json.loads(event.get('body', '{}'))
         updates = {k: v for k, v in body.items() if k in (
@@ -117,32 +90,32 @@ def lambda_handler(
             return build_response(
                 400,
                 {'error': 'No valid fields to update'},
-                headers=cors_headers
+                headers=CORS_HEADERS
             )
         org = Organization.update(org_id, updates)
         if not org:
             return build_response(
                 404,
                 {'error': 'Organization not found'},
-                headers=cors_headers
+                headers=CORS_HEADERS
             )
-        return build_response(200, org, headers=cors_headers)
+        return build_response(200, org, headers=CORS_HEADERS)
 
     elif method == 'DELETE':
         if not org_id:
             return build_response(
                 400,
                 {'error': 'Missing org_id in path'},
-                headers=cors_headers
+                headers=CORS_HEADERS
             )
         if not flags.has_super_admin_access():
             return build_response(
                 403,
                 {'error': 'Super Admin privileges required for delete'},
-                headers=cors_headers
+                headers=CORS_HEADERS
             )
         Organization.delete(org_id)
-        return build_response(204, {}, headers=cors_headers)
+        return build_response(204, {}, headers=CORS_HEADERS)
 
     else:
-        return build_response(405, {'error': 'Method not allowed'}, headers=cors_headers)
+        return build_response(405, {'error': 'Method not allowed'}, headers=CORS_HEADERS)

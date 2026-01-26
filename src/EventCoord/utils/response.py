@@ -1,15 +1,15 @@
 import json
 from authlib.jose import JWTClaims
 from jose import jwt
-from aws_lambda_typing.responses import APIGatewayProxyResponseV2
-from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.responses import APIGatewayProxyResponse
+from aws_lambda_typing.events import APIGatewayProxyEvent
 from typing import Dict, Any, Optional
 
 def build_response(
     status_code: int,
     body,
     headers=None
-) -> APIGatewayProxyResponseV2:
+) -> APIGatewayProxyResponse:
     return {
         'statusCode': status_code,
         'headers': headers or {},
@@ -17,7 +17,7 @@ def build_response(
     }
 
 def decode_claims(
-    event: APIGatewayProxyEventV2
+    event: APIGatewayProxyEvent
 ) -> Optional[JWTClaims | Dict[str, Any]]:
     """
     Decode API Gateway Proxy Event to collect JWT and return claims

@@ -2,33 +2,19 @@ import os
 import json
 import time
 import copy
-import logging
 import boto3
 from authlib.jose import jwt, JsonWebKey
 from typing import Protocol, Tuple, Optional, Dict, Any
-from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.events import APIGatewayProxyEvent
 from aws_lambda_typing.context import Context as LambdaContext
-from aws_lambda_typing.responses import APIGatewayProxyResponseV2
+from aws_lambda_typing.responses import APIGatewayProxyResponse
 from googleAuthProvider import GoogleAuthProvider
 # from EventCoord.models.volunteers import Volunteer
 from EventCoord.utils.response import build_response
-from aws_xray_sdk.core import patch_all, xray_recorder
+from EventCoord.utils.handler import get_logger, init_tracing
 
-patch_all()  # Automatically patches boto3, requests, etc.
-
-xray_recorder.configure(service='incident-cmd')
-
-# Setup logging
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
-logger = logging.getLogger(__name__)
-logger.setLevel(LOG_LEVEL)
-if not logger.hasHandlers():
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s %(levelname)s %(name)s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-logging.getLogger().setLevel(LOG_LEVEL)
+init_tracing()
+logger = get_logger(__name__)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
@@ -63,9 +49,9 @@ PROVIDERS: Dict[str, AuthProvider] = {
 
 
 def lambda_handler(
-    event: APIGatewayProxyEventV2,
+    event: APIGatewayProxyEvent,
     context: LambdaContext
-) -> APIGatewayProxyResponseV2:
+) -> APIGatewayProxyResponse:
     try:
         logger.info(
             f"Received event: {json.dumps(event)[:500]}... (truncated)")

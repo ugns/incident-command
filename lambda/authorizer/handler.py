@@ -1,6 +1,5 @@
 import os
 import time
-import logging
 import requests
 import threading
 from authlib.jose import JsonWebToken, JWTClaims
@@ -9,23 +8,10 @@ from aws_lambda_typing.events import APIGatewayRequestAuthorizerEvent
 from aws_lambda_typing.context import Context as LambdaContext
 from aws_lambda_typing.responses.api_gateway_authorizer import APIGatewayAuthorizerResponse
 from aws_lambda_typing.common import PolicyDocument
-from aws_xray_sdk.core import patch_all, xray_recorder
+from EventCoord.utils.handler import get_logger, init_tracing
 
-patch_all()  # Automatically patches boto3, requests, etc.
-
-xray_recorder.configure(service='incident-cmd')
-
-# Setup logging
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
-logger = logging.getLogger(__name__)
-logger.setLevel(LOG_LEVEL)
-if not logger.hasHandlers():
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s %(levelname)s %(name)s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-logging.getLogger().setLevel(LOG_LEVEL)
+init_tracing()
+logger = get_logger(__name__)
 
 _JWKS_CACHE = []
 _JWKS_CACHE_LOCK = threading.Lock()

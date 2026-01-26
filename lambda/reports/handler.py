@@ -4,30 +4,16 @@ import base64
 import importlib
 import glob
 import traceback
-import logging
 from pathlib import Path
 from typing import Any
-from aws_lambda_typing.events import APIGatewayProxyEventV2
+from aws_lambda_typing.events import APIGatewayProxyEvent
 from aws_lambda_typing.context import Context as LambdaContext
-from aws_lambda_typing.responses import APIGatewayProxyResponseV2
-from EventCoord.utils.response import build_response, decode_claims
-from aws_xray_sdk.core import patch_all, xray_recorder
+from aws_lambda_typing.responses import APIGatewayProxyResponse
+from EventCoord.utils.response import build_response
+from EventCoord.utils.handler import get_claims, get_logger, init_tracing
 
-patch_all()  # Automatically patches boto3, requests, etc.
-
-xray_recorder.configure(service='incident-cmd')
-
-# Setup logging
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
-logger = logging.getLogger(__name__)
-logger.setLevel(LOG_LEVEL)
-if not logger.hasHandlers():
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s %(levelname)s %(name)s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-logging.getLogger().setLevel(LOG_LEVEL)
+init_tracing()
+logger = get_logger(__name__)
 
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
@@ -41,7 +27,7 @@ cors_headers = {
 def dynamic_report_handler(
     report_type: str,
     data: dict[str, Any]
-) -> APIGatewayProxyResponseV2:
+) -> APIGatewayProxyResponse:
     module_name = f"{report_type}_form"
     try:
         module = importlib.import_module(module_name)
@@ -73,7 +59,7 @@ def dynamic_report_handler(
     # Use pathlib to format filename and extension
     base_name = f"{report_type}-{short_hash}"
     filename = str(Path(base_name).with_suffix(ext)) if ext else base_name
-    response: APIGatewayProxyResponseV2 = {
+    response: APIGatewayProxyResponse = {
         'statusCode': 200,
         'body': base64.b64encode(result).decode('utf-8'),
         'isBase64Encoded': True,
@@ -87,19 +73,12 @@ def dynamic_report_handler(
 
 
 def lambda_handler(
-    event: APIGatewayProxyEventV2,
+    event: APIGatewayProxyEvent,
     context: LambdaContext
-) -> APIGatewayProxyResponseV2:
+) -> APIGatewayProxyResponse:
     logger.debug(f"Reports event: {event}")
     logger.debug(f"Reports context: {context}")
-    claims = decode_claims(event)
-    if claims is None:
-        claims = {}
-    elif not isinstance(claims, dict):
-        try:
-            claims = dict(claims)
-        except Exception:
-            claims = {}
+    claims = get_claims(event)
     org_id = claims.get('org_id')
     if not org_id:
         return build_response(

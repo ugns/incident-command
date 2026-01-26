@@ -1,26 +1,12 @@
 import os
 import boto3
-import logging
-from aws_lambda_typing.events import WebSocketConnectEvent, APIGatewayProxyEventV2
+from aws_lambda_typing.events import WebSocketConnectEvent
 from aws_lambda_typing.context import Context as LambdaContext
 from typing import Any
-from aws_xray_sdk.core import patch_all, xray_recorder
+from EventCoord.utils.handler import get_logger, init_tracing
 
-patch_all()  # Automatically patches boto3, requests, etc.
-
-xray_recorder.configure(service='incident-cmd')
-
-# Setup logging
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
-logger = logging.getLogger(__name__)
-logger.setLevel(LOG_LEVEL)
-if not logger.hasHandlers():
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s %(levelname)s %(name)s %(message)s')
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-logging.getLogger().setLevel(LOG_LEVEL)
+init_tracing()
+logger = get_logger(__name__)
 
 dynamodb = boto3.resource('dynamodb')
 TABLE_NAME = os.environ.get('WS_CONNECTIONS_TABLE', 'WebSocketConnections')
