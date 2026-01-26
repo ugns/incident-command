@@ -5,11 +5,13 @@ from typing import Any, Dict, Mapping
 from aws_xray_sdk.core import patch_all, xray_recorder
 
 from EventCoord.utils.response import decode_claims
+from EventCoord.utils.types import APIGatewayProxyEvent
 
 CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type,Authorization",
     "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+    "Access-Control-Expose-Headers": "Content-Disposition",
 }
 
 
@@ -33,7 +35,7 @@ def get_logger(name: str) -> logging.Logger:
     return logger
 
 
-def get_claims(event: Mapping[str, Any]) -> Dict[str, Any]:
+def get_claims(event: APIGatewayProxyEvent | Mapping[str, Any]) -> Dict[str, Any]:
     claims = decode_claims(event)
     if claims is None:
         return {}

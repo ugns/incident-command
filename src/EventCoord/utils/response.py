@@ -3,7 +3,7 @@ from authlib.jose import JWTClaims
 from jose import jwt
 from EventCoord.utils.types import APIGatewayProxyResponse
 from EventCoord.utils.types import APIGatewayProxyEvent
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Mapping, cast
 
 def build_response(
     status_code: int,
@@ -16,8 +16,24 @@ def build_response(
         'body': json.dumps(body)
     }
 
+
+def build_raw_response(
+    status_code: int,
+    body: str,
+    headers=None,
+    is_base64_encoded: bool = False,
+) -> APIGatewayProxyResponse:
+    response = cast(APIGatewayProxyResponse, {
+        'statusCode': status_code,
+        'headers': headers or {},
+        'body': body,
+    })
+    if is_base64_encoded:
+        response['isBase64Encoded'] = True
+    return response
+
 def decode_claims(
-    event: APIGatewayProxyEvent
+    event: Mapping[str, Any] | APIGatewayProxyEvent
 ) -> Optional[JWTClaims | Dict[str, Any]]:
     """
     Decode API Gateway Proxy Event to collect JWT and return claims

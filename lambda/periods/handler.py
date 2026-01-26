@@ -4,7 +4,8 @@ from aws_lambda_typing.context import Context as LambdaContext
 from EventCoord.utils.types import APIGatewayProxyResponse
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.periods import Period
-from EventCoord.utils.response import build_response
+from EventCoord.utils.csv_export import items_to_csv
+from EventCoord.utils.response import build_response, build_raw_response
 from EventCoord.utils.handler import CORS_HEADERS, get_claims, get_logger, init_tracing
 
 init_tracing()
@@ -30,8 +31,18 @@ def lambda_handler(
     method = event.get('httpMethod', 'GET')
     path_params = event.get('pathParameters') or {}
     period_id = path_params.get('periodId') if path_params else None
+    resource_path = event.get('resource', '') or event.get('path', '')
 
     if method == 'GET':
+        if resource_path.endswith('/export'):
+            items = Period.list(org_id)
+            csv_body = items_to_csv(items, exclude_fields={'org_id', 'periodId'})
+            headers = {
+                **CORS_HEADERS,
+                'Content-Type': 'text/csv; charset=utf-8',
+                'Content-Disposition': 'attachment; filename="periods.csv"',
+            }
+            return build_raw_response(200, csv_body, headers=headers)
         if period_id:
             item = Period.get(org_id, period_id)
             if not item or item.get('org_id') != org_id:
