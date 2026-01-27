@@ -2,6 +2,15 @@
 
 <!-- version list -->
 
+## v1.31.0 (2026-01-27)
+
+### Features
+
+- Add CSV import/export functionality for incidents, locations, periods, radios, units, and
+  volunteers
+  ([`596fe0d`](https://github.com/ugns/incident-command/commit/596fe0d47beada12f2944dc12c6bfe30a124ea76))
+
+
 ## v1.30.0 (2026-01-26)
 
 ### Features
