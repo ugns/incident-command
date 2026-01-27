@@ -8,25 +8,19 @@ from typing import Dict, Any, Optional, Mapping, cast
 def build_response(
     status_code: int,
     body,
-    headers=None
-) -> APIGatewayProxyResponse:
-    return {
-        'statusCode': status_code,
-        'headers': headers or {},
-        'body': json.dumps(body)
-    }
-
-
-def build_raw_response(
-    status_code: int,
-    body: str,
     headers=None,
     is_base64_encoded: bool = False,
 ) -> APIGatewayProxyResponse:
+    if isinstance(body, (dict, list)):
+        response_body = json.dumps(body)
+    elif isinstance(body, str):
+        response_body = body
+    else:
+        response_body = str(body)
     response = cast(APIGatewayProxyResponse, {
         'statusCode': status_code,
         'headers': headers or {},
-        'body': body,
+        'body': response_body,
     })
     if is_base64_encoded:
         response['isBase64Encoded'] = True

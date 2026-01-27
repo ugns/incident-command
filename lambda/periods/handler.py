@@ -5,7 +5,7 @@ from EventCoord.utils.types import APIGatewayProxyResponse
 from EventCoord.launchdarkly.flags import Flags
 from EventCoord.models.periods import Period
 from EventCoord.utils.csv_export import items_to_csv
-from EventCoord.utils.response import build_response, build_raw_response
+from EventCoord.utils.response import build_response
 from EventCoord.utils.handler import CORS_HEADERS, get_claims, get_logger, init_tracing
 
 init_tracing()
@@ -42,7 +42,7 @@ def lambda_handler(
                 'Content-Type': 'text/csv; charset=utf-8',
                 'Content-Disposition': 'attachment; filename="periods.csv"',
             }
-            return build_raw_response(200, csv_body, headers=headers)
+            return build_response(200, csv_body, headers=headers)
         if period_id:
             item = Period.get(org_id, period_id)
             if not item or item.get('org_id') != org_id:

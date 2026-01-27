@@ -59,17 +59,16 @@ def dynamic_report_handler(
     # Use pathlib to format filename and extension
     base_name = f"{report_type}-{short_hash}"
     filename = str(Path(base_name).with_suffix(ext)) if ext else base_name
-    response: APIGatewayProxyResponse = {
-        'statusCode': 200,
-        'body': base64.b64encode(result).decode('utf-8'),
-        'isBase64Encoded': True,
-        'headers': {
+    return build_response(
+        200,
+        base64.b64encode(result).decode('utf-8'),
+        headers={
             **cors_headers,
             'Content-Disposition': f'attachment; filename="{filename}"',
             'Content-Type': media_type,
         },
-    }
-    return response
+        is_base64_encoded=True,
+    )
 
 
 def lambda_handler(
@@ -141,12 +140,12 @@ def lambda_handler(
         if report_type:
             logger.info(f"Handling /reports/{report_type} endpoint")
             try:
-                body = event.get('body', '{}')
+                body = event.get('body') or ''
                 logger.info(f"Raw body: {body}")
-                if event.get('isBase64Encoded'):
+                if event.get('isBase64Encoded') and body:
                     body = base64.b64decode(body).decode('utf-8')
                     logger.info(f"Decoded base64 body: {body}")
-                data = json.loads(body)
+                data = json.loads(body or '{}')
                 logger.info(f"Parsed JSON data: {data}")
             except Exception as e:
                 logger.error(
