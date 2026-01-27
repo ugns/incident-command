@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.31.1 (2026-01-27)
+
+### Bug Fixes
+
+- Update natural key reference for radios from 'serial' to 'serialNumber'
+  ([`3375780`](https://github.com/ugns/incident-command/commit/33757803c494e571387b05c21a3098c33df8a0d0))
+
+
 ## v1.31.0 (2026-01-27)
 
 ### Features
