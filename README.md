@@ -95,9 +95,33 @@ All endpoints require JWT authentication unless otherwise noted. All requests an
 
 ---
 
+## CSV Import/Export
+
+CSV export and import are supported for: incidents, locations, periods, radios, units, and volunteers.
+
+### Export
+- **GET /{resource}/export** returns a CSV with a header row.
+- The CSV omits `org_id` and the resource ID column (`incidentId`, `locationId`, `periodId`, `radioId`, `unitId`, `volunteerId`).
+- The response sets `Content-Disposition` for file download.
+
+### Import
+- **POST /{resource}/import** accepts a CSV payload in the request body (raw or base64-encoded).
+- Import uses a *natural key* per resource to upsert:
+  - incidents: `name` + `startTime`
+  - periods: `name` + `startTime` (requires `incidentId` for creates)
+  - radios: `serial`
+  - units: `name`
+  - locations: `name`
+  - volunteers: `email`
+- Blank CSV fields do **not** overwrite existing values during updates.
+- Required fields for creates are still required (same as regular POST).
+- Unknown columns are preserved as attributes in DynamoDB; they may be dropped later if your UI/API overwrite the item without those fields.
+
+---
+
 ## Models
 
-All models are defined in `shared/models/` and provide CRUD and GSI query helpers. All tables are scoped by `org_id` (partition key). Key model methods follow the pattern: `create(org_id, item: dict)`, `update(org_id, id, item: dict)`, `list(org_id)`, and resource-specific GSI queries.
+All models are defined in `src/EventCoord/models/` and provide CRUD and GSI query helpers. All tables are scoped by `org_id` (partition key). Key model methods follow the pattern: `create(org_id, item: dict)`, `update(org_id, id, item: dict)`, `list(org_id)`, and resource-specific GSI queries.
 
 ### Volunteer
 - Fields: `volunteerId`, `org_id`, `name`, `email`, `status`, `location`, `checkin_time`, `checkout_time`, ...
@@ -110,52 +134,67 @@ All models are defined in `shared/models/` and provide CRUD and GSI query helper
 ### ActivityLog
 - Fields: `activityLogId`, `org_id`, `volunteerId`, `timestamp`, `activity`, ...
 - Methods:
+  - `ActivityLog.get(org_id, logId)`
+  - `ActivityLog.list(org_id)`
   - `ActivityLog.list_by_volunteer(org_id, volunteerId)`
+  - `ActivityLog.list_by_period(org_id, periodId)`
   - `ActivityLog.create(org_id, item)`
+  - `ActivityLog.update(org_id, logId, updates)`
+  - `ActivityLog.delete(org_id, logId)`
 
 ### Period
 - Fields: `periodId`, `org_id`, `startTime`, `endTime`, `name`, ...
 - Methods:
   - `Period.list(org_id)`
-  - `Period.create(org_id, item)`
-  - `Period.update(org_id, periodId, item)`
+  - `Period.create(org_id, incidentId, item)`
+  - `Period.update(org_id, periodId, updates)`
+  - `Period.list_by_incident(org_id, incidentId)`
   - `Period.list_by_unit(org_id, unitId)`
 
 ### Organization
 - Fields: `org_id`, `name`, `contact`, ...
 - Methods:
-  - `Organization.list()`
-  - `Organization.create(item)`
-  - `Organization.update(org_id, item)`
+  - `Organization.list_all()`
+  - `Organization.get_by_org_id(org_id)`
+  - `Organization.get_by_aud(aud)`
+  - `Organization.create(aud, name)`
+  - `Organization.update(org_id, updates)`
+  - `Organization.delete(org_id)`
+
+### Incident
+- Fields: `incidentId`, `org_id`, `name`, `startTime`, ...
+- Methods:
+  - `Incident.get(org_id, incidentId)`
+  - `Incident.list(org_id)`
+  - `Incident.create(org_id, item)`
+  - `Incident.update(org_id, incidentId, updates)`
+  - `Incident.delete(org_id, incidentId)`
 
 ### Unit
 - Fields: `unitId`, `org_id`, `name`, `type`, ...
 - Methods:
   - `Unit.list(org_id)`
   - `Unit.create(org_id, item)`
-  - `Unit.update(org_id, unitId, item)`
+  - `Unit.update(org_id, unitId, updates)`
+  - `Unit.delete(org_id, unitId)`
 
 ### Location
 - Fields: `locationId`, `org_id`, `name`, `coordinates`, ...
 - Methods:
   - `Location.list(org_id)`
   - `Location.create(org_id, item)`
-  - `Location.update(org_id, locationId, item)`
+  - `Location.update(org_id, locationId, updates)`
+  - `Location.delete(org_id, locationId)`
 
 ### Radio
 - Fields: `radioId`, `org_id`, `serial`, `assignedTo`, ...
 - Methods:
   - `Radio.list(org_id)`
   - `Radio.create(org_id, item)`
-  - `Radio.update(org_id, radioId, item)`
+  - `Radio.update(org_id, radioId, updates)`
+  - `Radio.delete(org_id, radioId)`
 
-### Report
-- Fields: `reportType`, `org_id`, `generatedAt`, `data`, ...
-- Methods:
-  - `Report.list(org_id)`
-  - `Report.generate(org_id, reportType, params)`
-
-All models use DynamoDB tables and GSIs as defined in Terraform. For details, see `shared/models/<resource>.py`.
+All models use DynamoDB tables and GSIs as defined in Terraform. For details, see `src/EventCoord/models/<resource>.py`.
 
 ---
 
