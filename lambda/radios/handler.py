@@ -73,7 +73,7 @@ def lambda_handler(
             existing = Radio.list(org_id)
             existing_map = {}
             for item in existing:
-                key = build_natural_key(item, ['serial'])
+                key = build_natural_key(item, ['serialNumber'])
                 if key:
                     existing_map[key] = item
             created = updated = skipped = 0
@@ -81,10 +81,10 @@ def lambda_handler(
             for index, row in enumerate(rows, start=2):
                 row.pop('org_id', None)
                 row.pop('radioId', None)
-                key = build_natural_key(row, ['serial'])
+                key = build_natural_key(row, ['serialNumber'])
                 if not key:
                     skipped += 1
-                    errors.append({'row': index, 'error': 'Missing serial'})
+                    errors.append({'row': index, 'error': 'Missing serialNumber'})
                     continue
                 existing_item = existing_map.get(key)
                 if existing_item:

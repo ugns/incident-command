@@ -109,7 +109,7 @@ CSV export and import are supported for: incidents, locations, periods, radios, 
 - Import uses a *natural key* per resource to upsert:
   - incidents: `name` + `startTime`
   - periods: `name` + `startTime` (requires `incidentId` for creates)
-  - radios: `serial`
+  - radios: `serialNumber`
   - units: `name`
   - locations: `name`
   - volunteers: `email`
