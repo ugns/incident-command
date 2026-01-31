@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.32.0 (2026-01-31)
+
+### Features
+
+- Add PrizeInfo resources feature flag and implement CSV parsing in report handler
+  ([`f97747e`](https://github.com/ugns/incident-command/commit/f97747e9c5fbf9422ac16f2fc78e794c0e3ac11d))
+
+
 ## v1.31.1 (2026-01-27)
 
 ### Bug Fixes
