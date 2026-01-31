@@ -60,7 +60,38 @@ resource "launchdarkly_feature_flag" "show_radio_resources" {
   }
 }
 
-# Feature Flag: show-radio-resources
+# Feature Flag: show-prizeinfo-resources
+resource "launchdarkly_feature_flag" "show_prizeinfo_resources" {
+  project_key    = launchdarkly_project.incident_cmd.key
+  key            = "show-prizeinfo-resources"
+  name           = "Show PrizeInfo Resources"
+  description    = "Controls visibility of PrizeInfo resources."
+  tags           = ["features", "prizeinfo", "resources", "managed-by-terraform"]
+  temporary      = false
+  variation_type = "boolean"
+
+  variations {
+    value = true
+    name  = "Enabled"
+  }
+
+  variations {
+    value = false
+    name  = "Disabled"
+  }
+
+  defaults {
+    on_variation  = 0
+    off_variation = 1
+  }
+
+  client_side_availability {
+    using_environment_id = true
+    using_mobile_key     = false
+  }
+}
+
+# Feature Flag: show-assignment-board
 resource "launchdarkly_feature_flag" "show_assignment_board" {
   project_key    = launchdarkly_project.incident_cmd.key
   key            = "show-assignment-board"

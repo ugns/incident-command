@@ -11,6 +11,7 @@ from aws_lambda_typing.context import Context as LambdaContext
 from EventCoord.utils.types import APIGatewayProxyResponse
 from EventCoord.utils.response import build_response
 from EventCoord.utils.handler import get_claims, get_logger, init_tracing
+from EventCoord.utils.csv_import import parse_csv_rows
 
 init_tracing()
 logger = get_logger(__name__)
@@ -145,8 +146,21 @@ def lambda_handler(
                 if event.get('isBase64Encoded') and body:
                     body = base64.b64decode(body).decode('utf-8')
                     logger.info(f"Decoded base64 body: {body}")
-                data = json.loads(body or '{}')
-                logger.info(f"Parsed JSON data: {data}")
+                if report_type == 'pkey':
+                    if not body:
+                        return build_response(400, {
+                            'error': 'Missing CSV body'
+                        }, headers=cors_headers)
+                    rows = parse_csv_rows(body)
+                    if not rows:
+                        return build_response(400, {
+                            'error': 'No CSV rows found'
+                        }, headers=cors_headers)
+                    data = {'rows': rows}
+                    logger.info(f"Parsed CSV rows: {len(rows)}")
+                else:
+                    data = json.loads(body or '{}')
+                    logger.info(f"Parsed JSON data: {data}")
             except Exception as e:
                 logger.error(
                     f"Error parsing request body: {e}\n{traceback.format_exc()}")
