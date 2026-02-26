@@ -73,7 +73,7 @@ jobs:
             done
           '
       - name: Upload shared layer and report JSON field files for Terraform
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: shared-layer
           path: |
@@ -109,7 +109,7 @@ jobs:
           role-to-assume:  ${{ env.AWS_GITHUB_OIDC_ROLE }}
           aws-region: us-east-1
       - name: Download shared layer
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           name: shared-layer
           path: ./
@@ -154,7 +154,7 @@ jobs:
         run: terraform apply -no-color -auto-approve .planfile
       - name: Upload shared Lambda Layer zip
         if: success()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: shared-lambda-layer
           path: lambda/shared.zip
