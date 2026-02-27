@@ -10,7 +10,7 @@ dependencies = [
     "Authlib==1.6.6",
     "boto3==1.42.41",
     "launchdarkly-server-sdk==9.14.1",
-    "pypdf[crypto]==6.6.2",
+    "pypdf[crypto]==6.7.4",
     "python-jose[cryptography]==3.5.0",
     "reportlab==4.4.9",
     "requests==2.32.5",
