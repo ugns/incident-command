@@ -1,17 +1,17 @@
-import os
 import json
-import time
-import copy
+import os
+
 import boto3
-from authlib.jose import jwt, JsonWebKey
-from typing import Protocol, Tuple, Optional, Dict, Any
-from EventCoord.utils.types import APIGatewayProxyEvent
+
 from aws_lambda_typing.context import Context as LambdaContext
-from EventCoord.utils.types import APIGatewayProxyResponse
-from googleAuthProvider import GoogleAuthProvider
-# from EventCoord.models.volunteers import Volunteer
-from EventCoord.utils.response import build_response
+
+from EventCoord.auth import AudienceOrgResolver, TokenIssuer
+from EventCoord.auth.providers import AuthProviderRegistry
+from EventCoord.auth.providers.google import GoogleAuthProvider
+from EventCoord.models.organizations import Organization
 from EventCoord.utils.handler import get_logger, init_tracing
+from EventCoord.utils.response import build_response
+from EventCoord.utils.types import APIGatewayProxyEvent, APIGatewayProxyResponse
 
 init_tracing()
 logger = get_logger(__name__)
@@ -19,110 +19,89 @@ logger = get_logger(__name__)
 cors_headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type,Authorization",
-    "Access-Control-Allow-Methods": "POST,OPTIONS"
+    "Access-Control-Allow-Methods": "POST,OPTIONS",
 }
 
-# Use RSA private key from AWS Secrets Manager
-PRIVATE_KEY_SECRET_ARN = os.environ.get('JWT_PRIVATE_KEY_SECRET_ARN')
-JWT_ISSUER = os.environ.get('JWT_ISSUER', 'event-coordinator-backend')
-TOKEN_TTL = int(os.environ.get('TOKEN_TTL', '3600'))
+PRIVATE_KEY_SECRET_ARN = os.environ.get("JWT_PRIVATE_KEY_SECRET_ARN")
+JWT_ISSUER = os.environ.get("JWT_ISSUER", "event-coordinator-backend")
+TOKEN_TTL = int(os.environ.get("TOKEN_TTL", "3600"))
 
 
-def get_private_key():
+def get_private_key() -> str:
     if not PRIVATE_KEY_SECRET_ARN:
         logger.error("JWT_PRIVATE_KEY_SECRET_ARN not set in environment")
         raise Exception("JWT_PRIVATE_KEY_SECRET_ARN not set")
-    client = boto3.client('secretsmanager')
+    client = boto3.client("secretsmanager")
     response = client.get_secret_value(SecretId=PRIVATE_KEY_SECRET_ARN)
-    return response['SecretString']
+    return response["SecretString"]
 
 
-class AuthProvider(Protocol):
-    def authenticate(self, token: str) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
-        ...
+def build_registry() -> AuthProviderRegistry:
+    """Wire up the supported auth providers.
+
+    Adding a new authentication method is as simple as implementing an
+    ``AuthProvider`` and registering it here -- the rest of the handler is
+    provider agnostic.
+    """
+    org_resolver = AudienceOrgResolver(Organization)
+    reg = AuthProviderRegistry()
+    reg.register(GoogleAuthProvider(org_resolver))
+    # Future: reg.register(GithubAuthProvider(...)), reg.register(ApiKeyProvider(...)), etc.
+    return reg
 
 
-PROVIDERS: Dict[str, AuthProvider] = {
-    "google": GoogleAuthProvider(),
-    # Future: "github": GithubAuthProvider(), etc.
-}
+# Built once per Lambda container; providers themselves resolve their
+# dependencies (org lookups, JWKS) lazily per request.
+PROVIDERS = build_registry()
+TOKEN_ISSUER = TokenIssuer(
+    str(JWT_ISSUER), get_private_key, ttl_seconds=TOKEN_TTL
+)
 
 
 def lambda_handler(
     event: APIGatewayProxyEvent,
-    context: LambdaContext
+    context: LambdaContext,
 ) -> APIGatewayProxyResponse:
     try:
-        logger.info(
-            f"Received event: {json.dumps(event)[:500]}... (truncated)")
-        logger.debug(f"Event details: {json.dumps(event)}")
-        body = json.loads(event.get('body') or '{}')
-        provider_name = body.get('provider', 'google')
-        token = body.get('token')
+        logger.info(f"Received event: {json.dumps(event)[:500]}... (truncated)")
+        body = json.loads(event.get("body") or "{}")
+        provider_name = body.get("provider", "google")
+        token = body.get("token")
         logger.info(f"Provider: {provider_name}")
+
         if not token:
             logger.warning("Missing token in request body")
             return build_response(400, {"error": "Missing token"}, headers=cors_headers)
-        provider: Optional[AuthProvider] = PROVIDERS.get(provider_name)
+
+        provider = PROVIDERS.get(provider_name)
         if not provider:
             logger.warning(f"Unsupported provider: {provider_name}")
             return build_response(
                 400,
                 {"error": f"Unsupported provider: {provider_name}"},
-                headers=cors_headers
-            )
-        user_info, error = provider.authenticate(token)
-        if error:
-            logger.warning(f"Authentication error: {error}")
-            return build_response(
-                401,
-                error,
-                headers=cors_headers
-            )
-        # Copy user_info and add JWT claims
-        payload = copy.deepcopy(user_info) if user_info else {}
-        payload['iss'] = str(JWT_ISSUER)
-        payload['exp'] = int(time.time()) + TOKEN_TTL
-        private_key = get_private_key()
-        # Generate kid from the private key so it matches the JWKS
-        jwk = JsonWebKey.import_key(private_key, {"kty": "RSA"})
-        jwk_dict = jwk.as_dict() if hasattr(jwk, "as_dict") else None
-        key_id = jwk_dict.get("kid") if jwk_dict else None
-        header = {"alg": "RS256", "typ": "JWT"}
-        header["jku"] = f"{JWT_ISSUER}/.well-known/jwks.json"
-        if key_id:
-            header["kid"] = key_id
-        jwt_token = jwt.encode(header, payload, private_key).decode("utf-8")
-        # Return user info (excluding sub, iss, provider, raw)
-        user_response: Dict[str, Any] = {}
-        if user_info:
-            user_response = {k: v for k, v in user_info.items(
-            ) if k not in ('sub', 'provider', 'raw')}
-        else:
-            logger.error(
-                "user_info is None after authentication, cannot proceed")
-            return build_response(
-                401,
-                {"error": "Authentication failed"},
-                headers=cors_headers
+                headers=cors_headers,
             )
 
+        identity, error = provider.authenticate(token)
+        if error or identity is None:
+            message = error.to_body() if error else {"error": "Authentication failed"}
+            status = error.status_code if error else 401
+            logger.warning(f"Authentication error: {message}")
+            return build_response(status, message, headers=cors_headers)
+
+        jwt_token = TOKEN_ISSUER.issue(identity)
+        user_response = identity.to_public_user()
+
         logger.info(f"Authentication successful for user: {user_response}")
-        # TODO: Create or update volunteer record
-        # volunteer = Volunteer.get_or_create_by_email(
-        #     org_id=user_response.get("org_id"),
-        #     email=user_response.get("email"),
-        #     defaults=user_response
-        # )
         return build_response(
             200,
             {"token": jwt_token, "user": user_response},
-            headers=cors_headers
+            headers=cors_headers,
         )
     except Exception as e:
         logger.error(f"Exception in lambda_handler: {e}")
         return build_response(
             400,
             {"error": "Invalid request body", "details": str(e)},
-            headers=cors_headers
+            headers=cors_headers,
         )
