@@ -19,6 +19,7 @@ locals {
         JWT_ISSUER                 = "https://${aws_api_gateway_domain_name.custom.domain_name}"
         LAUNCHDARKLY_SDK_KEY       = data.launchdarkly_environment.production.api_key
         TOKEN_TTL                  = "28800"
+        API_KEYS_TABLE             = aws_dynamodb_table.api_keys.name
       }
     }
     authorizer = {
