@@ -9,19 +9,12 @@ from typing import Any
 from EventCoord.utils.types import APIGatewayProxyEvent
 from aws_lambda_typing.context import Context as LambdaContext
 from EventCoord.utils.types import APIGatewayProxyResponse
+from EventCoord.utils.handler import CORS_HEADERS, get_claims, get_logger, init_tracing
 from EventCoord.utils.response import build_response
-from EventCoord.utils.handler import get_claims, get_logger, init_tracing
 from EventCoord.utils.csv_import import parse_csv_rows
 
 init_tracing()
 logger = get_logger(__name__)
-
-cors_headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type,Authorization",
-    "Access-Control-Allow-Methods": "GET,POST,OPTIONS",
-    "Access-Control-Expose-Headers": "Content-Disposition",
-}
 
 
 # Dynamically load and call the reportType's generate_report()
@@ -37,7 +30,7 @@ def dynamic_report_handler(
             400,
             {'error': f'Could not import module {module_name}',
                 'details': str(e)},
-            headers=cors_headers
+            headers=CORS_HEADERS
         )
     # Get media type
     media_type = getattr(module, 'MEDIA_TYPE', 'application/pdf')
@@ -48,7 +41,7 @@ def dynamic_report_handler(
         return build_response(
             500,
             {'error': 'Failed to generate report', 'details': str(e)},
-            headers=cors_headers
+            headers=CORS_HEADERS
         )
     # Generate a short hash from the data for filename uniqueness
     import hashlib
@@ -64,7 +57,7 @@ def dynamic_report_handler(
         200,
         base64.b64encode(result).decode('utf-8'),
         headers={
-            **cors_headers,
+            **CORS_HEADERS,
             'Content-Disposition': f'attachment; filename="{filename}"',
             'Content-Type': media_type,
         },
@@ -84,7 +77,7 @@ def lambda_handler(
         return build_response(
             403,
             {'error': 'Missing organization (org_id claim) in token'},
-            headers=cors_headers
+            headers=CORS_HEADERS
         )
 
     try:
@@ -136,7 +129,7 @@ def lambda_handler(
                 supported_reports.append(
                     {'type': rtype, 'mediaType': media_type, 'title': media_title})
             logger.info(f"Final supported_reports: {supported_reports}")
-            return build_response(200, {'reports': supported_reports}, headers=cors_headers)
+            return build_response(200, {'reports': supported_reports}, headers=CORS_HEADERS)
 
         if report_type:
             logger.info(f"Handling /reports/{report_type} endpoint")
@@ -150,12 +143,12 @@ def lambda_handler(
                     if not body:
                         return build_response(400, {
                             'error': 'Missing CSV body'
-                        }, headers=cors_headers)
+                        }, headers=CORS_HEADERS)
                     rows = parse_csv_rows(body)
                     if not rows:
                         return build_response(400, {
                             'error': 'No CSV rows found'
-                        }, headers=cors_headers)
+                        }, headers=CORS_HEADERS)
                     data = {'rows': rows}
                     logger.info(f"Parsed CSV rows: {len(rows)}")
                 else:
@@ -167,19 +160,19 @@ def lambda_handler(
                 return build_response(400, {
                     'error': 'Invalid request body',
                     'details': str(e)
-                }, headers=cors_headers)
+                }, headers=CORS_HEADERS)
 
             response = dynamic_report_handler(report_type, data)
             logger.info(f"Report handler response: {response}")
             return response
 
         logger.warning("No matching endpoint found for event.")
-        return build_response(404, {'error': 'Not found'}, headers=cors_headers)
+        return build_response(404, {'error': 'Not found'}, headers=CORS_HEADERS)
     except Exception as e:
         logger.error(
             f"Unhandled exception in lambda_handler: {e}\n{traceback.format_exc()}")
         return build_response(
             500,
             {'error': 'Internal server error', 'details': str(e)},
-            headers=cors_headers
+            headers=CORS_HEADERS
         )
