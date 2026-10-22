@@ -1,6 +1,6 @@
 module "api" {
   source  = "cloudposse/api-gateway/aws"
-  version = "0.9.0"
+  version = "0.9.1"
 
   openapi_config       = yamldecode(templatefile("${path.module}/openapi.tftpl", merge({}, local.lambda_invoke_arn_map)))
   stage_name           = var.stage_name
