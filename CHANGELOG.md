@@ -2,6 +2,19 @@
 
 <!-- version list -->
 
+## v1.32.2 (2026-10-22)
+
+### Bug Fixes
+
+- **deps**: Update dependency launchdarkly-server-sdk to v9.18.3
+  ([`d84a3da`](https://github.com/ugns/incident-command/commit/d84a3da73d816531f24014a7abd9f55f7d809991))
+
+### Documentation
+
+- Add AGENTS.md with Cursor Cloud development instructions
+  ([`9896024`](https://github.com/ugns/incident-command/commit/9896024cb79b319e03b895d0c22734b28eba5625))
+
+
 ## v1.32.1 (2026-06-06)
 
 ### Bug Fixes
