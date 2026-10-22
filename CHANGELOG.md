@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v1.32.3 (2026-10-22)
+
+### Bug Fixes
+
+- **deps**: Update dependency boto3 to v1.43.117
+  ([`4c9aeb0`](https://github.com/ugns/incident-command/commit/4c9aeb004308f21c8a89223ef089c75d6b0fa391))
+
+
 ## v1.32.2 (2026-10-22)
 
 ### Bug Fixes
