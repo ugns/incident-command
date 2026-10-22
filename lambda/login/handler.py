@@ -1,128 +1,120 @@
-import os
-import json
-import time
 import copy
+import json
+import os
+import time
+
 import boto3
-from authlib.jose import jwt, JsonWebKey
-from typing import Protocol, Tuple, Optional, Dict, Any
-from EventCoord.utils.types import APIGatewayProxyEvent
+from authlib.jose import JsonWebKey, jwt
 from aws_lambda_typing.context import Context as LambdaContext
-from EventCoord.utils.types import APIGatewayProxyResponse
-from googleAuthProvider import GoogleAuthProvider
-# from EventCoord.models.volunteers import Volunteer
+
+from EventCoord.auth import AuthProviderRegistry
+from EventCoord.auth.api_key import ApiKeyAuthProvider
+from EventCoord.auth.google import GoogleAuthProvider
+from EventCoord.auth.microsoft import MicrosoftAuthProvider
+from EventCoord.utils.handler import CORS_HEADERS, get_logger, init_tracing
 from EventCoord.utils.response import build_response
-from EventCoord.utils.handler import get_logger, init_tracing
+from EventCoord.utils.types import APIGatewayProxyEvent, APIGatewayProxyResponse
 
 init_tracing()
 logger = get_logger(__name__)
 
-cors_headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type,Authorization",
-    "Access-Control-Allow-Methods": "POST,OPTIONS"
-}
+PRIVATE_KEY_SECRET_ARN = os.environ.get("JWT_PRIVATE_KEY_SECRET_ARN")
+JWT_ISSUER = os.environ.get("JWT_ISSUER", "event-coordinator-backend")
+TOKEN_TTL = int(os.environ.get("TOKEN_TTL", "3600"))
 
-# Use RSA private key from AWS Secrets Manager
-PRIVATE_KEY_SECRET_ARN = os.environ.get('JWT_PRIVATE_KEY_SECRET_ARN')
-JWT_ISSUER = os.environ.get('JWT_ISSUER', 'event-coordinator-backend')
-TOKEN_TTL = int(os.environ.get('TOKEN_TTL', '3600'))
+# Registry is built once per Lambda execution environment (cold start).
+# Add or remove providers here; the handler requires no further changes.
+PROVIDER_REGISTRY: AuthProviderRegistry = (
+    AuthProviderRegistry()
+    .register(GoogleAuthProvider())
+    .register(MicrosoftAuthProvider())
+    .register(ApiKeyAuthProvider())
+)
 
 
-def get_private_key():
+def _get_private_key() -> str:
     if not PRIVATE_KEY_SECRET_ARN:
-        logger.error("JWT_PRIVATE_KEY_SECRET_ARN not set in environment")
-        raise Exception("JWT_PRIVATE_KEY_SECRET_ARN not set")
-    client = boto3.client('secretsmanager')
+        raise RuntimeError("JWT_PRIVATE_KEY_SECRET_ARN is not set in environment")
+    client = boto3.client("secretsmanager")
     response = client.get_secret_value(SecretId=PRIVATE_KEY_SECRET_ARN)
-    return response['SecretString']
+    return response["SecretString"]
 
 
-class AuthProvider(Protocol):
-    def authenticate(self, token: str) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
-        ...
-
-
-PROVIDERS: Dict[str, AuthProvider] = {
-    "google": GoogleAuthProvider(),
-    # Future: "github": GithubAuthProvider(), etc.
-}
+def _issue_jwt(payload: dict) -> str:
+    """Sign *payload* with the RS256 private key and return a JWT string."""
+    private_key = _get_private_key()
+    jwk = JsonWebKey.import_key(private_key, {"kty": "RSA"})
+    jwk_dict = jwk.as_dict() if hasattr(jwk, "as_dict") else {}
+    header: dict = {
+        "alg": "RS256",
+        "typ": "JWT",
+        "jku": f"{JWT_ISSUER}/.well-known/jwks.json",
+    }
+    kid = jwk_dict.get("kid") if jwk_dict else None
+    if kid:
+        header["kid"] = kid
+    return jwt.encode(header, payload, private_key).decode("utf-8")
 
 
 def lambda_handler(
     event: APIGatewayProxyEvent,
-    context: LambdaContext
+    context: LambdaContext,
 ) -> APIGatewayProxyResponse:
     try:
-        logger.info(
-            f"Received event: {json.dumps(event)[:500]}... (truncated)")
-        logger.debug(f"Event details: {json.dumps(event)}")
-        body = json.loads(event.get('body') or '{}')
-        provider_name = body.get('provider', 'google')
-        token = body.get('token')
-        logger.info(f"Provider: {provider_name}")
+        logger.debug("Login event: %s", json.dumps(event)[:500])
+        body = json.loads(event.get("body") or "{}")
+        provider_name = body.get("provider", "google")
+        token = body.get("token")
+
         if not token:
             logger.warning("Missing token in request body")
-            return build_response(400, {"error": "Missing token"}, headers=cors_headers)
-        provider: Optional[AuthProvider] = PROVIDERS.get(provider_name)
-        if not provider:
-            logger.warning(f"Unsupported provider: {provider_name}")
             return build_response(
-                400,
-                {"error": f"Unsupported provider: {provider_name}"},
-                headers=cors_headers
-            )
-        user_info, error = provider.authenticate(token)
-        if error:
-            logger.warning(f"Authentication error: {error}")
-            return build_response(
-                401,
-                error,
-                headers=cors_headers
-            )
-        # Copy user_info and add JWT claims
-        payload = copy.deepcopy(user_info) if user_info else {}
-        payload['iss'] = str(JWT_ISSUER)
-        payload['exp'] = int(time.time()) + TOKEN_TTL
-        private_key = get_private_key()
-        # Generate kid from the private key so it matches the JWKS
-        jwk = JsonWebKey.import_key(private_key, {"kty": "RSA"})
-        jwk_dict = jwk.as_dict() if hasattr(jwk, "as_dict") else None
-        key_id = jwk_dict.get("kid") if jwk_dict else None
-        header = {"alg": "RS256", "typ": "JWT"}
-        header["jku"] = f"{JWT_ISSUER}/.well-known/jwks.json"
-        if key_id:
-            header["kid"] = key_id
-        jwt_token = jwt.encode(header, payload, private_key).decode("utf-8")
-        # Return user info (excluding sub, iss, provider, raw)
-        user_response: Dict[str, Any] = {}
-        if user_info:
-            user_response = {k: v for k, v in user_info.items(
-            ) if k not in ('sub', 'provider', 'raw')}
-        else:
-            logger.error(
-                "user_info is None after authentication, cannot proceed")
-            return build_response(
-                401,
-                {"error": "Authentication failed"},
-                headers=cors_headers
+                400, {"error": "Missing token"}, headers=CORS_HEADERS
             )
 
-        logger.info(f"Authentication successful for user: {user_response}")
-        # TODO: Create or update volunteer record
-        # volunteer = Volunteer.get_or_create_by_email(
+        logger.info("Authentication attempt via provider: %s", provider_name)
+        result = PROVIDER_REGISTRY.authenticate(provider_name, token)
+
+        if result.error:
+            logger.warning("Authentication error: %s", result.error)
+            return build_response(401, result.error, headers=CORS_HEADERS)
+
+        user_info = result.user_info  # guaranteed non-None when error is None
+        if not user_info:
+            logger.error("user_info is None after successful authenticate() call")
+            return build_response(
+                401, {"error": "Authentication failed"}, headers=CORS_HEADERS
+            )
+
+        payload = copy.deepcopy(user_info)
+        payload["iss"] = str(JWT_ISSUER)
+        payload["exp"] = int(time.time()) + TOKEN_TTL
+
+        jwt_token = _issue_jwt(payload)
+
+        user_response = {
+            k: v
+            for k, v in user_info.items()
+            if k not in ("sub", "provider", "raw")
+        }
+        logger.info("Authentication successful for user: %s", user_response)
+
+        # TODO: Create or update volunteer record on first login
+        # Volunteer.get_or_create_by_email(
         #     org_id=user_response.get("org_id"),
         #     email=user_response.get("email"),
-        #     defaults=user_response
+        #     defaults=user_response,
         # )
+
         return build_response(
             200,
             {"token": jwt_token, "user": user_response},
-            headers=cors_headers
+            headers=CORS_HEADERS,
         )
-    except Exception as e:
-        logger.error(f"Exception in lambda_handler: {e}")
+    except Exception as exc:
+        logger.error("Exception in login lambda_handler: %s", exc)
         return build_response(
             400,
-            {"error": "Invalid request body", "details": str(e)},
-            headers=cors_headers
+            {"error": "Invalid request body", "details": str(exc)},
+            headers=CORS_HEADERS,
         )

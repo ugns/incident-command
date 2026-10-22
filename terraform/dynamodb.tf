@@ -262,6 +262,43 @@ resource "aws_dynamodb_table" "radios" {
   }
 }
 
+# API Keys Table
+# Stores opaque API keys for service-to-service (ApiKeyAuthProvider) authentication.
+# Each item represents one issued key and carries the org_id, active flag, and
+# optional metadata (name, email) that become JWT claims on successful login.
+#
+# Schema
+#   key_id  (PK, String) – the opaque API key value presented by the caller
+#   org_id  (GSI PK)     – owning organisation; supports admin list-by-org queries
+#
+# Active keys have active=true; setting active=false disables without deletion.
+# deletion_protection_enabled guards against accidental key loss.
+resource "aws_dynamodb_table" "api_keys" {
+  name                        = "api_keys"
+  billing_mode                = "PAY_PER_REQUEST"
+  hash_key                    = "key_id"
+  deletion_protection_enabled = true
+
+  attribute {
+    name = "key_id"
+    type = "S"
+  }
+  attribute {
+    name = "org_id"
+    type = "S"
+  }
+
+  global_secondary_index {
+    name            = "org-id-index"
+    hash_key        = "org_id"
+    projection_type = "ALL"
+  }
+
+  tags = {
+    Name = "api_keys"
+  }
+}
+
 # DynamoDB table for WebSocket connections
 resource "aws_dynamodb_table" "ws_connections" {
   name         = "WebSocketConnections"

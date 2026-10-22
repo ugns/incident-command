@@ -31,6 +31,8 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
           "${aws_dynamodb_table.locations.arn}/index/*",
           aws_dynamodb_table.radios.arn,
           "${aws_dynamodb_table.radios.arn}/index/*",
+          aws_dynamodb_table.api_keys.arn,
+          "${aws_dynamodb_table.api_keys.arn}/index/*",
         ]
       },
       {
@@ -56,6 +58,8 @@ resource "aws_iam_policy" "lambda_dynamodb_policy" {
           "${aws_dynamodb_table.locations.arn}/index/*",
           aws_dynamodb_table.radios.arn,
           "${aws_dynamodb_table.radios.arn}/index/*",
+          aws_dynamodb_table.api_keys.arn,
+          "${aws_dynamodb_table.api_keys.arn}/index/*",
         ]
       }
     ]
